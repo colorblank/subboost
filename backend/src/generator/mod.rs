@@ -21,11 +21,7 @@ pub(crate) fn default_generation() -> &'static crate::config::Generation {
 }
 pub(crate) fn base_defaults() -> &'static Value {
     static DEFAULTS: LazyLock<Value> = LazyLock::new(|| {
-        let text = crate::config::load_file_or_embedded(
-            "SUBBOOST_MIHOMO_BASE",
-            "config/mihomo/base.json",
-            include_str!("../../../config/mihomo/base.json"),
-        );
+        let text = crate::load_config_asset!("SUBBOOST_MIHOMO_BASE", "mihomo/base.json");
         serde_json::from_str(&text).expect("valid Mihomo base defaults")
     });
     &DEFAULTS
@@ -56,11 +52,7 @@ pub(crate) fn unique(values: impl IntoIterator<Item = String>) -> Vec<String> {
 }
 pub(crate) fn modules() -> &'static [Value] {
     static DATA: LazyLock<Vec<Value>> = LazyLock::new(|| {
-        let text = crate::config::load_file_or_embedded(
-            "SUBBOOST_MIHOMO_MODULES",
-            "config/mihomo/modules.json",
-            include_str!("../../../config/mihomo/modules.json"),
-        );
+        let text = crate::load_config_asset!("SUBBOOST_MIHOMO_MODULES", "mihomo/modules.json");
         serde_json::from_str(&text).expect("embedded module data")
     });
     DATA.as_slice()

@@ -15,11 +15,7 @@ pub(crate) use catalog::RuleCatalog;
 
 const INVALID_CONTENT: &str = "无法识别规则文件，请使用有效的 text 或 YAML 规则集";
 static CURATED: LazyLock<Vec<Value>> = LazyLock::new(|| {
-    let text = crate::config::load_file_or_embedded(
-        "SUBBOOST_RULES_CATALOG",
-        "config/rules/catalog.json",
-        include_str!("../../../config/rules/catalog.json"),
-    );
+    let text = crate::load_config_asset!("SUBBOOST_RULES_CATALOG", "rules/catalog.json");
     serde_json::from_str(&text).expect("embedded catalog data")
 });
 pub(crate) fn featured(kind: &str, name: &str, base: &str) -> Value {

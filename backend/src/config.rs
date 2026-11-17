@@ -272,18 +272,20 @@ impl Config {
     /// Load the editable repository policy when present; standalone binaries retain its packaged defaults.
     pub fn load_default() -> Result<Self> {
         let explicit = std::env::var_os("SUBBOOST_CONFIG");
-        let path = explicit
-            .as_ref()
-            .map_or_else(|| PathBuf::from("config/subboost.toml"), PathBuf::from);
-        match std::fs::read_to_string(&path) {
-            Ok(text) => Self::parse(&text),
-            Err(error) if explicit.is_none() && error.kind() == std::io::ErrorKind::NotFound => {
-                Ok(Self::default())
-            }
-            Err(error) => {
-                Err(error).with_context(|| format!("Reading runtime policy {}", path.display()))
+        if let Some(explicit_path) = explicit {
+            let path = PathBuf::from(explicit_path);
+            let text = std::fs::read_to_string(&path)
+                .with_context(|| format!("Reading runtime policy {}", path.display()))?;
+            return Self::parse(&text);
+        }
+
+        if let Some(path) = resolve_asset_path("subboost.toml") {
+            if let Ok(text) = std::fs::read_to_string(&path) {
+                return Self::parse(&text);
             }
         }
+
+        Ok(Self::default())
     }
 
     pub fn document_quota(&self, owner: &str) -> usize {
@@ -295,36 +297,84 @@ impl Config {
     }
 }
 
+/// 编译期静态嵌入 `backend/config/` 下的配置资源文件。
+#[macro_export]
+macro_rules! include_config_str {
+    ($subpath:literal) => {
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config/", $subpath))
+    };
+}
+
+/// 运行时解析配置资源，结合环境变量覆盖、磁盘安全探测与编译期安全回退。
+#[macro_export]
+macro_rules! load_config_asset {
+    ($env_var:literal, $subpath:literal) => {
+        $crate::config::load_asset($env_var, $subpath, $crate::include_config_str!($subpath))
+    };
+}
+
 impl Default for Config {
     fn default() -> Self {
-        Self::parse(include_str!("../../config/subboost.toml"))
+        Self::parse(crate::include_config_str!("subboost.toml"))
             .expect("checked-in default configuration must be valid")
     }
 }
 
-/// Read a configuration file from an environment variable override, then from disk,
-/// falling back to packaged compile-time contents when running standalone.
-pub(crate) fn load_file_or_embedded(
-    env_var: &str,
-    default_path: &str,
-    embedded: &'static str,
-) -> String {
-    let explicit = std::env::var_os(env_var);
-    let path = explicit
-        .as_ref()
-        .map_or_else(|| PathBuf::from(default_path), PathBuf::from);
-    match std::fs::read_to_string(&path) {
-        Ok(text) => text,
-        Err(error) if explicit.is_none() && error.kind() == std::io::ErrorKind::NotFound => {
-            embedded.to_owned()
-        }
-        Err(error) => {
-            if explicit.is_some() {
-                panic!("Failed to read {env_var} from {}: {error}", path.display());
-            }
-            embedded.to_owned()
+/// 安全解析配置资源的磁盘路径，按优先级进行多环境探测并防范路径穿越。
+pub(crate) fn resolve_asset_path(subpath: &str) -> Option<PathBuf> {
+    if subpath.is_empty() || subpath.contains("..") {
+        return None;
+    }
+
+    let subpath = std::path::Path::new(subpath);
+    let candidates = [
+        // 1. 从项目根目录运行（开发、CI、npm scripts）
+        PathBuf::from("backend").join("config").join(subpath),
+        // 2. 从 backend 子目录运行（cargo test, cargo run）
+        PathBuf::from("config").join(subpath),
+        // 3. 根目录兼容软链接或绝对子路径
+        PathBuf::from(subpath),
+    ];
+
+    for candidate in candidates {
+        if candidate.is_file() {
+            return Some(candidate);
         }
     }
+
+    // 4. 二进制所在目录同级的 config/ 目录（适用于独立部署包）
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(parent) = exe.parent() {
+            let candidate = parent.join("config").join(subpath);
+            if candidate.is_file() {
+                return Some(candidate);
+            }
+        }
+    }
+
+    None
+}
+
+/// 加载配置资源：优先环境变量覆盖，其次探测磁盘文件，最终安全回退到编译期内嵌内容。
+pub(crate) fn load_asset(env_var: &str, subpath: &str, embedded: &'static str) -> String {
+    let explicit = std::env::var_os(env_var);
+    if let Some(explicit_path) = explicit {
+        return match std::fs::read_to_string(&explicit_path) {
+            Ok(content) => content,
+            Err(error) => panic!(
+                "Failed to read {env_var} from {}: {error}",
+                PathBuf::from(explicit_path).display()
+            ),
+        };
+    }
+
+    if let Some(path) = resolve_asset_path(subpath) {
+        if let Ok(content) = std::fs::read_to_string(&path) {
+            return content;
+        }
+    }
+
+    embedded.to_owned()
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -341,11 +391,11 @@ pub struct Rules {
 
 #[cfg(test)]
 mod tests {
-    use super::{Config, load_file_or_embedded};
+    use super::{Config, load_asset};
 
     #[test]
     fn rejects_typographical_keys_and_zero_refresh_interval() {
-        let defaults = include_str!("../../config/subboost.toml");
+        let defaults = crate::include_config_str!("subboost.toml");
         assert!(Config::parse(&defaults.replace("poll_seconds = 60", "poll_seconds = 0")).is_err());
         assert!(Config::parse(&defaults.replace("poll_seconds", "poll_second")).is_err());
         let mut config = Config::default();
@@ -359,7 +409,7 @@ mod tests {
     #[test]
     fn loads_default_and_file_or_embedded_fallback() {
         assert!(Config::load_default().is_ok());
-        let content = load_file_or_embedded(
+        let content = load_asset(
             "SUBBOOST_NONEXISTENT_TEST_VAR",
             "nonexistent/path/to/test.json",
             "default_content",

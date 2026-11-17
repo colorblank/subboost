@@ -31,7 +31,7 @@ use commands::{
     long_about = "Pure Rust subscription tools. Commands use local SQLite directly, without an HTTP server. JSON results go to stdout; errors go to stderr. Browser guests have separate ownership. Runtime policy comes from --settings TOML; JSON arguments accept an inline object, @FILE, or @- for stdin."
 )]
 struct Cli {
-    /// Runtime policy file; defaults are packaged from config/subboost.toml.
+    /// Runtime policy file; defaults are packaged from backend/config/subboost.toml.
     #[arg(long, global = true, env = "SUBBOOST_CONFIG")]
     settings: Option<PathBuf>,
     /// SQLite database shared by CLI, MCP and the HTTP backend.

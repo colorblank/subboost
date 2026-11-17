@@ -47,11 +47,7 @@ const ORDER: &[&str] = &[
 
 pub(crate) fn regions() -> &'static [Value] {
     static REGIONS: LazyLock<Vec<Value>> = LazyLock::new(|| {
-        let text = crate::config::load_file_or_embedded(
-            "SUBBOOST_MIHOMO_REGIONS",
-            "config/mihomo/regions.json",
-            include_str!("../../../config/mihomo/regions.json"),
-        );
+        let text = crate::load_config_asset!("SUBBOOST_MIHOMO_REGIONS", "mihomo/regions.json");
         serde_json::from_str(&text).expect("embedded region data")
     });
     &REGIONS

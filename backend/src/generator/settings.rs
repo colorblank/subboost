@@ -185,11 +185,7 @@ pub(super) fn base_config(config: &Value) -> Result<Map<String, Value>> {
         return Ok(base);
     }
     static DNS: LazyLock<Value> = LazyLock::new(|| {
-        let text = crate::config::load_file_or_embedded(
-            "SUBBOOST_MIHOMO_DNS",
-            "config/mihomo/dns.json",
-            include_str!("../../../config/mihomo/dns.json"),
-        );
+        let text = crate::load_config_asset!("SUBBOOST_MIHOMO_DNS", "mihomo/dns.json");
         serde_json::from_str(&text).expect("embedded DNS data")
     });
     let mut base = base_defaults()

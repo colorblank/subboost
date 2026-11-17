@@ -42,11 +42,7 @@ pub(crate) struct ParserPolicy {
 
 impl ParserPolicy {
     fn load() -> Result<Self> {
-        let text = crate::config::load_file_or_embedded(
-            "SUBBOOST_PARSER_POLICY",
-            "config/parser-policy.json",
-            include_str!("../../../config/parser-policy.json"),
-        );
+        let text = crate::load_config_asset!("SUBBOOST_PARSER_POLICY", "parser-policy.json");
         let policy: Self = serde_json::from_str(&text).context("Invalid parser policy JSON")?;
         ensure!(
             [
