@@ -153,6 +153,7 @@ export function InputSection({
                 </div>
                 {source.type === "url" ? (
                   <Input
+                    aria-label={`${sourceDisplayLabel}订阅链接`}
                     value={source.content}
                     onChange={(e) => updateSource(source.id, e.target.value)}
                     placeholder={typeInfo.placeholder}
@@ -160,6 +161,7 @@ export function InputSection({
                   />
                 ) : (
                   <Textarea
+                    aria-label={`${sourceDisplayLabel}节点内容`}
                     value={source.content}
                     onChange={(e) => updateSource(source.id, e.target.value)}
                     placeholder={typeInfo.placeholder}

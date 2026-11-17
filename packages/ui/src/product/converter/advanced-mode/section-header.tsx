@@ -18,6 +18,8 @@ export function SectionHeader({
 }) {
   return (
     <button
+      type="button"
+      aria-expanded={isExpanded}
       onClick={onToggle}
       className="w-full flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-ink/5 transition-colors"
     >
