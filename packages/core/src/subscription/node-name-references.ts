@@ -105,12 +105,29 @@ function remapAdvancedMemberList(
       out.push(item);
       continue;
     }
-    const nextName = resolveRenamedNodeName(item.name.trim(), renameMap);
+    const nextName = renameMap.get(item.name.trim()) ?? item.name.trim();
     if (!nextName || !availableNames.has(nextName) || seenNodeNames.has(nextName)) continue;
     seenNodeNames.add(nextName);
     out.push(nextName === item.name ? item : { ...item, name: nextName });
   }
   return out;
+}
+
+function remapAdvancedConfig(
+  value: unknown,
+  renameMap: ReadonlyMap<string, string>,
+  availableNames: ReadonlySet<string>
+): unknown {
+  if (!isRecord(value)) return value;
+  return {
+    ...value,
+    ...(Object.hasOwn(value, "extraMembers")
+      ? { extraMembers: remapAdvancedMemberList(value.extraMembers, renameMap, availableNames) } : {}),
+    ...(Object.hasOwn(value, "excludedMembers")
+      ? { excludedMembers: remapAdvancedMemberList(value.excludedMembers, renameMap, availableNames) } : {}),
+    ...(Object.hasOwn(value, "memberOrder")
+      ? { memberOrder: remapAdvancedMemberList(value.memberOrder, renameMap, availableNames) } : {}),
+  };
 }
 
 function remapProxyGroupAdvanced(
@@ -119,26 +136,8 @@ function remapProxyGroupAdvanced(
   availableNames: ReadonlySet<string>
 ): unknown {
   if (!isRecord(value)) return value;
-  return Object.fromEntries(
-    Object.entries(value).map(([groupId, rawAdvanced]) => {
-      if (!isRecord(rawAdvanced)) return [groupId, rawAdvanced];
-      return [
-        groupId,
-        {
-          ...rawAdvanced,
-          ...(Object.hasOwn(rawAdvanced, "extraMembers")
-            ? { extraMembers: remapAdvancedMemberList(rawAdvanced.extraMembers, renameMap, availableNames) }
-            : {}),
-          ...(Object.hasOwn(rawAdvanced, "excludedMembers")
-            ? { excludedMembers: remapAdvancedMemberList(rawAdvanced.excludedMembers, renameMap, availableNames) }
-            : {}),
-          ...(Object.hasOwn(rawAdvanced, "memberOrder")
-            ? { memberOrder: remapAdvancedMemberList(rawAdvanced.memberOrder, renameMap, availableNames) }
-            : {}),
-        },
-      ];
-    })
-  );
+  return Object.fromEntries(Object.entries(value).map(([id, advanced]) =>
+    [id, remapAdvancedConfig(advanced, renameMap, availableNames)]));
 }
 
 export function reconcileNodeNameReferences<T extends object>(
@@ -192,5 +191,11 @@ export function reconcileNodeNameReferences<T extends object>(
     ...(Object.hasOwn(rawConfig, "proxyGroupAdvanced")
       ? { proxyGroupAdvanced: remapProxyGroupAdvanced(rawConfig.proxyGroupAdvanced, renameMap, availableNames) }
       : {}),
+    ...(Array.isArray(rawConfig.customProxyGroups) ? {
+      customProxyGroups: rawConfig.customProxyGroups.map((group) =>
+        isRecord(group) && Object.hasOwn(group, "advanced")
+          ? { ...group, advanced: remapAdvancedConfig(group.advanced, renameMap, availableNames) }
+          : group),
+    } : {}),
   } as T;
 }

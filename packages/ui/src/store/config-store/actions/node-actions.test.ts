@@ -345,6 +345,30 @@ describe("createNodeActions", () => {
     ]);
   });
 
+  it.each(["rename", "bulk", "restore"] as const)("migrates advanced member references on %s", (action) => {
+    const advanced = {
+      extraMembers: [{ kind: "node", name: "A" }, { kind: "direct" }],
+      excludedMembers: [{ kind: "node", name: "A" }],
+      memberOrder: [{ kind: "node", name: "A" }],
+    };
+    const { actions, getState } = createHarness({
+      nodes: [node("A", { _originName: "Original" })],
+      proxyGroupAdvanced: { auto: advanced },
+      customProxyGroups: [{ id: "custom", name: "Custom", emoji: "", groupType: "select", advanced }],
+    });
+    if (action === "rename") actions.renameNode("A", "B");
+    else if (action === "bulk") actions.bulkRenameNodes([{ oldName: "A", newName: "B" }]);
+    else actions.restoreNodeName("A");
+    const name = action === "restore" ? "Original" : "B";
+    const expected = {
+      extraMembers: [{ kind: "node", name }, { kind: "direct" }],
+      excludedMembers: [{ kind: "node", name }],
+      memberOrder: [{ kind: "node", name }],
+    };
+    expect(getState().proxyGroupAdvanced.auto).toEqual(expected);
+    expect(getState().customProxyGroups[0].advanced).toEqual(expected);
+  });
+
   it.each([
     { renames: [{ oldName: "A", newName: "AA" }, { oldName: "AA", newName: "AAA" }], ports: { AA: 1000, AAA: 2000 } },
     { renames: [{ oldName: "A", newName: "AA" }, { oldName: "AA", newName: "A" }], ports: { AA: 1000, A: 2000 } },

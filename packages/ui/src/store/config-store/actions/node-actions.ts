@@ -1,5 +1,6 @@
 import type { ParsedNode } from "@subboost/core/types/node";
 import { formatNodeNameFromTemplate } from "@subboost/core/node-name-template";
+import { reconcileNodeNameReferences } from "@subboost/core/subscription/node-name-references";
 import type { ConfigActions } from "../definitions";
 import { makeUniqueName } from "../definitions";
 import type { GetState, SetAndGenerateConfig, SetState } from "../store-types";
@@ -223,12 +224,16 @@ export function createNodeActions(
           return out;
         };
 
+        const nextNodes = state.nodes.map((n) => {
+          if (n.name !== nodeName) return n;
+          return { ...n, name: finalName, _originName: originName };
+        });
         return {
-          nodes: state.nodes.map((n) => {
-            if (n.name !== nodeName) return n;
-            const rec = n as unknown as Record<string, unknown>;
-            return { ...rec, name: finalName, _originName: originName } as unknown as ParsedNode;
-          }),
+          nodes: nextNodes,
+          ...reconcileNodeNameReferences(
+            { proxyGroupAdvanced: state.proxyGroupAdvanced, customProxyGroups: state.customProxyGroups },
+            { nodes: nextNodes, renameMap: new Map([[nodeName, finalName]]) }
+          ),
           listenerPorts: (() => {
             const port = state.listenerPorts[nodeName];
             if (typeof port !== "number") return state.listenerPorts;
@@ -322,16 +327,17 @@ export function createNodeActions(
           }
           return out;
         };
+        const nextNodes = state.nodes.map((n) => {
+          if (n.name !== oldName) return n;
+          const originName = typeof n._originName === "string" && n._originName.trim() ? n._originName : oldName;
+          return { ...n, name: finalName, _originName: originName };
+        });
         return {
-          nodes: state.nodes.map((n) => {
-            if (n.name !== oldName) return n;
-            const record = n as unknown as Record<string, unknown>;
-            const originName =
-              typeof record["_originName"] === "string" && record["_originName"].trim()
-                ? String(record["_originName"])
-                : oldName;
-            return { ...record, name: finalName, _originName: originName } as unknown as ParsedNode;
-          }),
+          nodes: nextNodes,
+          ...reconcileNodeNameReferences(
+            { proxyGroupAdvanced: state.proxyGroupAdvanced, customProxyGroups: state.customProxyGroups },
+            { nodes: nextNodes, renameMap: new Map([[oldName, finalName]]) }
+          ),
           listenerPorts: (() => {
             const port = state.listenerPorts[oldName];
             if (typeof port !== "number") return state.listenerPorts;
@@ -426,6 +432,10 @@ export function createNodeActions(
 
         return {
           nodes: nextNodes,
+          ...reconcileNodeNameReferences(
+            { proxyGroupAdvanced: state.proxyGroupAdvanced, customProxyGroups: state.customProxyGroups },
+            { nodes: nextNodes, renameMap: finalMap }
+          ),
           listenerPorts: nextListenerPorts,
           dialerProxyGroups: nextDialerProxyGroups,
         };
