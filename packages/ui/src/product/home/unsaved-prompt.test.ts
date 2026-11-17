@@ -64,6 +64,24 @@ describe("UnsavedPrompt", () => {
     expect(event.preventDefault).toHaveBeenCalled();
     expect(event.returnValue).toBe(WARNING);
   });
+  it("protects an imported provider-only draft until it is saved", () => {
+    mocks.storeState = draft({ sources: [{
+      id: "provider", type: "url", content: "https://example.com/sub", parsed: true, useProxyProviders: true,
+    }] });
+    renderToStaticMarkup(React.createElement(UnsavedPrompt));
+    expect(leave().returnValue).toBe(WARNING);
+    markDraftSaved();
+    expect(leave().preventDefault).not.toHaveBeenCalled();
+  });
+
+  it("warns when every node has been removed from a saved draft", () => {
+    mocks.storeState = draft({ nodes: [{ name: "node-1" }] });
+    markDraftSaved();
+    mocks.storeState = draft();
+    renderToStaticMarkup(React.createElement(UnsavedPrompt));
+    expect(leave().returnValue).toBe(WARNING);
+  });
+
 
   it("leaves quietly right after a save and warns again once the config changes", () => {
     const saved = draft({ nodes: [{ name: "node-1" }], generatedYaml: "proxies: [node-1]", proxyGroupAdvancedModeEnabled: false });
@@ -105,6 +123,7 @@ describe("UnsavedPrompt", () => {
 
     // An empty editor still warns: the dialog may be adding its first node.
     mocks.storeState = draft();
+    markDraftSaved();
     renderToStaticMarkup(React.createElement(Dialog, { dirty: true }));
     expect(leave().returnValue).toBe(WARNING);
 

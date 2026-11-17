@@ -35,8 +35,10 @@ export function markDraftSaved(signature = getDraftSignature(useConfigStore.getS
 function hasUnsavedWork(state: ConfigState): boolean {
   if (useUIStore.getState().unappliedInputCount > 0) return true;
   if (state.sources.some(isSourcePendingImport)) return true;
-  if (state.nodes.length === 0) return false;
-  return useUIStore.getState().savedDraftSignature !== getDraftSignature(state);
+  const savedSignature = useUIStore.getState().savedDraftSignature;
+  const hasProviderSource = state.sources.some((source) => source.type === "url" && source.useProxyProviders && source.content.trim());
+  if (state.nodes.length === 0 && !hasProviderSource && savedSignature === null) return false;
+  return savedSignature !== getDraftSignature(state);
 }
 
 /** Warns before a browser refresh or close would discard imported work that is not saved. */
