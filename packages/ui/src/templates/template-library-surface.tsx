@@ -146,15 +146,19 @@ function TemplateLibraryInner({ adapter }: Props) {
     router.replace("/templates");
   }, [adapter.uploadSearchParam, canUpload, openUploadDialog, router, searchParams]);
 
+  const loadSequence = React.useRef(0);
   const loadTemplates = React.useCallback(async (tab: TabValue) => {
+    const sequence = ++loadSequence.current;
     setIsLoading(true);
     try {
-      setTemplates(await adapter.loadTemplates(tab));
+      const items = await adapter.loadTemplates(tab);
+      if (sequence === loadSequence.current) setTemplates(items);
     } catch (error) {
+      if (sequence !== loadSequence.current) return;
       console.error("Load templates error:", error);
       setTemplates([]);
     } finally {
-      setIsLoading(false);
+      if (sequence === loadSequence.current) setIsLoading(false);
     }
   }, [adapter]);
 
@@ -164,6 +168,7 @@ function TemplateLibraryInner({ adapter }: Props) {
       return;
     }
     void loadTemplates(activeTab);
+    return () => { loadSequence.current += 1; };
   }, [activeTab, adapter, user, loadTemplates]);
 
   const handleApplyTemplate = async (templateId: string) => {

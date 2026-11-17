@@ -330,6 +330,23 @@ describe("TemplateLibrarySurface", () => {
     await flushPromises();
   });
 
+  it("keeps the newest list when an earlier load completes after upload refresh", async () => {
+    const oldLoad = Promise.withResolvers<typeof templates>();
+    const newLoad = Promise.withResolvers<typeof templates>();
+    const adapter = createAdapter({
+      loadTemplates: vi.fn().mockReturnValueOnce(oldLoad.promise).mockReturnValueOnce(newLoad.promise),
+    });
+    const { setters } = renderSurface(adapter, { 6: true, 7: "New template" }, { runEffects: true });
+    const uploading = mocks.captures.uploadDialog.onUpload();
+    await flushPromises();
+    newLoad.resolve([templates[1]]);
+    await uploading;
+    oldLoad.resolve([templates[0]]);
+    await flushPromises();
+    expect(setters[3]).toHaveBeenLastCalledWith([templates[1]]);
+    expect(setters[3]).not.toHaveBeenCalledWith([templates[0]]);
+  });
+
   it("uploads config templates, handles yaml mode, and respects visibility controls", async () => {
     const adapter = createAdapter();
     mocks.configStore.proxyGroupAdvanced = { auto: { excludedMembers: [{ kind: "node", name: "Excluded" }] } };
