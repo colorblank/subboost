@@ -332,6 +332,8 @@ describe("TemplateLibrarySurface", () => {
 
   it("uploads config templates, handles yaml mode, and respects visibility controls", async () => {
     const adapter = createAdapter();
+    mocks.configStore.proxyGroupAdvanced = { auto: { excludedMembers: [{ kind: "node", name: "Excluded" }] } };
+    mocks.configStore.proxyGroupAdvancedModeEnabled = true;
     renderSurface(adapter, {
       2: "my",
       3: templates,
@@ -354,6 +356,8 @@ describe("TemplateLibrarySurface", () => {
           schema: "subboost-template-config/v1",
           template: "minimal",
           mixedPort: 7890,
+          proxyGroupAdvanced: mocks.configStore.proxyGroupAdvanced,
+          proxyGroupAdvancedModeEnabled: true,
         }),
       })
     );
