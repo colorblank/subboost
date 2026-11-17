@@ -35,6 +35,67 @@ async fn call(
 }
 
 #[tokio::test]
+async fn custom_templates_match_builtin_response_contract() -> Result<()> {
+    let dir = tempfile::tempdir()?;
+    let mut configuration = crate::config::Config::default();
+    configuration.application.database = dir.path().join("test.db");
+    let config = crate::templates::default_config("minimal", &configuration.generation);
+    let service = Service::open(configuration).await?;
+    service
+        .store
+        .insert(
+            "template",
+            "local",
+            &json!({
+                "id": "existing-template", "name": "Existing", "description": null,
+                "config": config, "usageCount": 2, "favoriteCount": 1
+            }),
+            100,
+        )
+        .await?;
+    let existing = service
+        .execute("local", "templates.get", json!({"id":"existing-template"}))
+        .await?;
+    assert_eq!(existing["template"]["kind"], "config");
+    assert_eq!(existing["template"]["downloads"], 2);
+    assert_eq!(existing["template"]["engagementCount"], 1);
+    assert_eq!(existing["template"]["description"], "");
+    assert_eq!(existing["template"]["tags"], json!([]));
+    let app = router(service);
+    let (_, headers, _) = call(app.clone(), Method::GET, "/api/auth/me", None, json!({})).await?;
+    let cookie = headers[header::SET_COOKIE]
+        .to_str()?
+        .split(';')
+        .next()
+        .context("cookie")?;
+    let (status, _, created) = call(
+        app.clone(),
+        Method::POST,
+        "/api/templates",
+        Some(cookie),
+        json!({"name":"Saved", "config":config}),
+    )
+    .await?;
+    assert_eq!(status, StatusCode::CREATED);
+    let id = created["template"]["id"].as_str().context("id")?;
+    for path in [
+        "/api/templates?type=my".to_owned(),
+        format!("/api/templates/{id}"),
+    ] {
+        let (status, _, result) =
+            call(app.clone(), Method::GET, &path, Some(cookie), json!({})).await?;
+        assert_eq!(status, StatusCode::OK);
+        let template = result.get("template").unwrap_or(&result["templates"][0]);
+        assert_eq!(template["kind"], "config");
+        assert_eq!(template["description"], "");
+        assert_eq!(template["downloads"], 0);
+        assert_eq!(template["engagementCount"], 0);
+        assert_eq!(template["tags"], json!([]));
+    }
+    Ok(())
+}
+
+#[tokio::test]
 async fn guests_save_without_login_and_cannot_cross_owner_boundary() -> Result<()> {
     let dir = tempfile::tempdir()?;
     let service = Service::open({

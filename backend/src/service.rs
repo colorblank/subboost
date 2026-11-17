@@ -221,7 +221,7 @@ impl Service {
                     return Ok(json!({"template":row}));
                 }
                 let (row, _) = self.document("template", owner, id).await?;
-                Ok(json!({"template":row}))
+                Ok(json!({"template":self.template_detail(row)}))
             }
             "templates.create" => {
                 let mut row = self.template_input(&args, None)?;
@@ -379,7 +379,28 @@ impl Service {
         }
         row
     }
-    fn template_summary(&self, mut row: Value) -> Value {
+    fn template_detail(&self, mut row: Value) -> Value {
+        row["kind"] = "config".into();
+        if !row["description"].is_string() {
+            row["description"] = "".into();
+        }
+        row["downloads"] = row["downloads"]
+            .as_u64()
+            .or(row["usageCount"].as_u64())
+            .unwrap_or(0)
+            .into();
+        row["engagementCount"] = row["engagementCount"]
+            .as_u64()
+            .or(row["favoriteCount"].as_u64())
+            .unwrap_or(0)
+            .into();
+        if !row["tags"].is_array() {
+            row["tags"] = json!([]);
+        }
+        row
+    }
+    fn template_summary(&self, row: Value) -> Value {
+        let mut row = self.template_detail(row);
         row.as_object_mut().map(|o| o.remove("config"));
         row
     }
