@@ -70,10 +70,10 @@ compose_files() {
   (cd "$SUBBOOST_HOME" && docker_cmd compose --project-directory "$SUBBOOST_HOME" --env-file "$env_file" -f "$compose_file" "$@")
 }
 
-compose_files_with_image() {
-  local image="$1"
-  shift
-  SUBBOOST_IMAGE="$image" SUBBOOST_CANDIDATE_IMAGE="$image" compose_files "$@"
+compose_files_with_images() {
+  local image="$1" backend_image="$2"
+  shift 2
+  SUBBOOST_IMAGE="$image" SUBBOOST_CANDIDATE_IMAGE="$image" SUBBOOST_BACKEND_IMAGE="$backend_image" SUBBOOST_CANDIDATE_BACKEND_IMAGE="$backend_image" compose_files "$@"
 }
 
 load_env() {
@@ -95,31 +95,48 @@ prepare_temp_directory() {
   fi
 }
 validate_compose_binding() {
-  # The app's published ports must all use the requested host and include the selected port.
   local bind="${1#[}" port="$2"; bind="${bind%]}"
-  if command -v python3 >/dev/null 2>&1; then python3 -c 'import json,sys; a=json.load(sys.stdin)["services"]["app"]; p=a.get("ports",[]); sys.exit(not (a.get("network_mode")!="host" and isinstance(p,list) and all(isinstance(x,dict) and x.get("host_ip","")==sys.argv[1] for x in p) and any(str(x.get("target"))=="3000" and str(x.get("published"))==sys.argv[2] and x.get("protocol","tcp")=="tcp" for x in p)))' "$bind" "$port" 2>/dev/null
-  elif command -v node >/dev/null 2>&1; then node -e 'const a=JSON.parse(require("fs").readFileSync(0,"utf8")).services.app,p=a.ports; process.exit(Array.isArray(p)&&a.network_mode!=="host"&&p.every(x=>x&&(x.host_ip===undefined?"":x.host_ip)===process.argv[1])&&p.some(x=>String(x.target)==="3000"&&String(x.published)===process.argv[2]&&(x.protocol===undefined?"tcp":x.protocol)==="tcp")?0:1)' "$bind" "$port" 2>/dev/null
-  elif command -v jq >/dev/null 2>&1; then jq -e --arg bind "$bind" --arg port "$port" '(.services.app // {}) as $a | ($a.ports | type=="array") and ($a.network_mode != "host") and all($a.ports[]; (if has("host_ip") then .host_ip else "" end)==$bind) and any($a.ports[]; (.target|tostring)=="3000" and (.published|tostring)==$port and (if has("protocol") then .protocol else "tcp" end)=="tcp")' >/dev/null 2>&1
-  elif [ -z "$bind" ]; then scan_unbound_compose "$port" || { printf '%s\n' 'Install Python 3, Node.js, or jq to inspect this Compose configuration.' >&2; return 1; }
-  else printf '%s\n' 'Install Python 3, Node.js, or jq to verify the Compose binding.' >&2; return 1; fi
-}
-scan_unbound_compose() {
-  # Parser-free compatibility is limited to a canonical, single-port, unbound app.
-  awk -v port="$1" '
-    NR==1 && $0!="{" {bad=1} {last=$0} /"host_ip"[[:space:]]*:/ {bad=1}
-    /^  "services": \{$/ {s=1;next} s && /^  \},?$/ {s=0} s && /^    "app": \{$/ {a=1;apps++;next} a && /^    \},?$/ {a=0}
-    a && /^      "network_mode":/ {bad=1} a && /^      "ports": \[$/ {p=1;lists++;next} p && /^      \],?$/ {p=0} p && /^        \{$/ {items++}
-    p && /^          "(target|published|protocol)":/ {v=$0; sub(/^.*:[[:space:]]*"?/,"",v); sub(/"?,?[[:space:]]*$/,"",v); if ($0 ~ /"target":/) {targets++;if(v!="3000")bad=1} else if ($0 ~ /"published":/) {published++;if(v!=port)bad=1} else if(v!="tcp")bad=1}
-    END {if(last!="}" || apps!=1 || lists!=1 || items!=1 || targets!=1 || published!=1 || bad)exit 1}'
+  if command -v python3 >/dev/null 2>&1; then
+    python3 -c 'import json,sys; s=json.load(sys.stdin)["services"]; a=s["app"]; p=a.get("ports",[]); sys.exit(not (all(v.get("network_mode")!="host" and (k=="app" or not v.get("ports")) for k,v in s.items()) and len(p)==1 and p[0].get("host_ip","0.0.0.0" if sys.argv[1]=="0.0.0.0" else "")==sys.argv[1] and str(p[0].get("target"))=="3000" and str(p[0].get("published"))==sys.argv[2] and p[0].get("protocol","tcp")=="tcp"))' "$bind" "$port"
+  elif command -v node >/dev/null 2>&1; then
+    node -e 'const s=JSON.parse(require("fs").readFileSync(0,"utf8")).services,p=s.app.ports; process.exit(Object.entries(s).every(([k,v])=>v.network_mode!=="host"&&(k==="app"||!v.ports||Array.isArray(v.ports)&&v.ports.length===0))&&Array.isArray(p)&&p.length===1&&(p[0].host_ip===undefined?(process.argv[1]==="0.0.0.0"?"0.0.0.0":""):p[0].host_ip)===process.argv[1]&&String(p[0].target)==="3000"&&String(p[0].published)===process.argv[2]&&(p[0].protocol===undefined?"tcp":p[0].protocol)==="tcp"?0:1)' "$bind" "$port"
+  elif command -v jq >/dev/null 2>&1; then
+    jq -e --arg bind "$bind" --arg port "$port" 'all(.services | to_entries[]; .value.network_mode!="host" and (.key=="app" or ((.value.ports // [])|length)==0)) and (.services.app.ports as $p | ($p|length)==1 and ($p[0] | if has("host_ip") then .host_ip elif $bind=="0.0.0.0" then "0.0.0.0" else "" end)==$bind and ($p[0].target|tostring)=="3000" and ($p[0].published|tostring)==$port and ($p[0] | if has("protocol") then .protocol else "tcp" end)=="tcp")' >/dev/null
+  else
+    # shortcut: parser-free validation accepts canonical single-port Compose JSON; install Python, Node or jq for other layouts.
+    awk -v bind="$bind" -v port="$port" '
+      NR==1 && $0!="{" {bad=1} {last=$0}
+      /^  "services": \{$/ {services=1;next} services && /^  \},?$/ {services=0} services && /^    "app": \{$/ {app=1;apps++;next} app && /^    \},?$/ {app=0}
+      /"network_mode"[[:space:]]*:/ {bad=1}
+      /"ports"[[:space:]]*:/ && !app && $0 !~ /"ports": \[\],?$/ {bad=1}
+      app && /^      "ports": \[$/ {ports=1;lists++;next} ports && /^      \],?$/ {ports=0} ports && /^        \{$/ {items++}
+      /"host_ip"[[:space:]]*:/ {if(!ports)bad=1; hosts++;v=$0;sub(/^.*:[[:space:]]*"/,"",v);sub(/",?[[:space:]]*$/,"",v);if(v!=bind)bad=1}
+      ports && /^          "(target|published|protocol)":/ {v=$0;sub(/^.*:[[:space:]]*"?/,"",v);sub(/"?,?[[:space:]]*$/,"",v);if($0 ~ /"target":/){targets++;if(v!="3000")bad=1}else if($0 ~ /"published":/){published++;if(v!=port)bad=1}else if(v!="tcp")bad=1}
+      END {if(last!="}" || apps!=1 || lists!=1 || items!=1 || targets!=1 || published!=1 || (bind=="0.0.0.0" ? hosts>1 : hosts!=(bind!="")) || bad)exit 1}' || { printf '%s\n' 'Install Python 3, Node.js, or jq to verify this Compose layout.' >&2; return 1; }
+  fi
 }
 inspect_compose_binding() {
-  # Refuse complex old mappings rather than discarding a previous address or port.
   local port="$1"
-  if command -v python3 >/dev/null 2>&1; then python3 -c 'import json,sys; a=json.load(sys.stdin)["services"]["app"]; p=a.get("ports",[]); h={x.get("host_ip","") for x in p}; q=[x for x in p if str(x.get("target"))=="3000" and x.get("protocol","tcp")=="tcp"]; ok=a.get("network_mode")!="host" and len(p)==1 and len(h)==1 and len(q)==1 and str(q[0].get("published","")).isdigit(); sys.exit(1) if not ok else print(str(next(iter(h)))+"|"+str(q[0]["published"]))' 2>/dev/null
-  elif command -v node >/dev/null 2>&1; then node -e 'const a=JSON.parse(require("fs").readFileSync(0,"utf8")).services.app,p=a.ports,h=[...new Set(p.map(x=>x.host_ip===undefined?"":x.host_ip))],q=p.filter(x=>String(x.target)==="3000"&&(x.protocol===undefined?"tcp":x.protocol)==="tcp"); if(a.network_mode==="host"||p.length!==1||h.length!==1||q.length!==1||!/^\d+$/.test(String(q[0].published)))process.exit(1); process.stdout.write(h[0]+"|"+q[0].published)' 2>/dev/null
-  elif command -v jq >/dev/null 2>&1; then jq -er '(.services.app // {}) as $a | [$a.ports[] | if has("host_ip") then .host_ip else "" end] | unique as $h | [$a.ports[] | select((.target|tostring)=="3000" and (if has("protocol") then .protocol else "tcp" end)=="tcp")] as $q | if $a.network_mode!="host" and ($a.ports|length)==1 and ($h|length)==1 and ($q|length)==1 and ($q[0].published|tostring|test("^[0-9]+$")) then ($h[0]+"|"+($q[0].published|tostring)) else error("unsupported binding") end' 2>/dev/null
-  else scan_unbound_compose "$port" && printf '|%s' "$port" || { printf '%s\n' 'Install Python 3, Node.js, or jq to inspect the existing Compose binding, including bindings on other services.' >&2; return 1; }; fi
+  if command -v python3 >/dev/null 2>&1; then
+    python3 -c 'import json,sys; a=json.load(sys.stdin)["services"]["app"]; p=a.get("ports",[]); ok=a.get("network_mode")!="host" and len(p)==1 and str(p[0].get("target"))=="3000" and p[0].get("protocol","tcp")=="tcp" and str(p[0].get("published","")).isdigit(); sys.exit(1) if not ok else print(str(p[0].get("host_ip",""))+"|"+str(p[0]["published"]))'
+  elif command -v node >/dev/null 2>&1; then
+    node -e 'const a=JSON.parse(require("fs").readFileSync(0,"utf8")).services.app,p=a.ports;if(a.network_mode==="host"||!Array.isArray(p)||p.length!==1||String(p[0].target)!=="3000"||(p[0].protocol===undefined?"tcp":p[0].protocol)!=="tcp"||!/^\d+$/.test(String(p[0].published)))process.exit(1);process.stdout.write((p[0].host_ip??"")+"|"+p[0].published)'
+  elif command -v jq >/dev/null 2>&1; then
+    jq -er '.services.app as $a | $a.ports as $p | if $a.network_mode!="host" and ($p|length)==1 and ($p[0].target|tostring)=="3000" and ($p[0] | if has("protocol") then .protocol else "tcp" end)=="tcp" and ($p[0].published|tostring|test("^[0-9]+$")) then (($p[0].host_ip // "")+"|"+($p[0].published|tostring)) else error("unsupported binding") end'
+  else
+    validate_compose_binding "" "$port" && printf '|%s' "$port"
+  fi
 }
+
+require_sqlite_compose() {
+  local services
+  services="$(compose config --services)" || return 1
+  printf '%s\n' "$services" | grep -Fxq backend &&
+    printf '%s\n' "$services" | grep -Fxq app &&
+    ! printf '%s\n' "$services" | grep -Eq '^(db|cron)$' ||
+    die "Legacy PostgreSQL deployment detected. Export it with the legacy manager and migrate into a separate SQLite installation before switching traffic. Existing containers and volumes were not changed."
+}
+
 download_to_temp() {
   local url="$1"
   local output="$2"
@@ -245,37 +262,47 @@ install_file_from_url() {
   sudo_do install -m "$mode" "$tmp" "$destination"
 }
 
-create_verified_dump() {
-  local output="$1"
-  local partial="${output}.partial"
-  local -a dump_status verify_status
+require_stopped_backend() {
+  local id state
+  id="$(service_container_id backend)"
+  [ -n "$id" ] || { say "Cannot identify backend container."; return 1; }
+  state="$(container_state "$id")"
+  case "$state" in exited|created) ;; *) say "Backend must be stopped before copying SQLite and its WAL."; return 1 ;; esac
+}
+
+create_verified_snapshot() {
+  local output="$1" partial="${1}.partial"
+  local -a result
+  require_stopped_backend || return 1
   prepare_private_directory "$(dirname "$output")"
-  sudo_do install -m 600 /dev/null "$partial"
-  set +e
-  compose exec -T db pg_dump -Fc -U "${POSTGRES_USER:-subboost}" -d "${POSTGRES_DB:-subboost}" | sudo_do tee "$partial" >/dev/null
-  dump_status=("${PIPESTATUS[@]}")
-  set -e
-  if (( dump_status[0] != 0 || dump_status[1] != 0 )) || [ ! -s "$partial" ]; then
-    sudo_do rm -f -- "$partial"
-    say "Backup failed: pg_dump=${dump_status[0]} write=${dump_status[1]}"
-    return 1
-  fi
-  set +e
-  sudo_do cat "$partial" | (
-    compose exec -T db pg_restore --list >/dev/null
-    restore_status=$?
-    # pg_restore --list may finish before consuming the complete archive.
-    cat >/dev/null || exit 1
-    exit "$restore_status"
-  )
-  verify_status=("${PIPESTATUS[@]}")
-  set -e
-  if (( verify_status[0] != 0 || verify_status[1] != 0 )); then
-    sudo_do rm -f -- "$partial"
-    say "Backup verification failed: read=${verify_status[0]} verify=${verify_status[1]}"
+  sudo_do install -m 600 /dev/null "$partial" || return 1
+  # No writers run while copying: keep database, WAL, SHM and encryption key together.
+  compose run --rm --no-deps -T --user 0 --entrypoint sh backend -ec \
+    'test -s /data/subboost.sqlite3; test -n "$(find /data -maxdepth 1 -name "*.key" -type f -size +0c -print -quit)"; test "$(sqlite3 -readonly /data/subboost.sqlite3 "PRAGMA quick_check;")" = ok; tar -C /data -cf - .' \
+    | sudo_do tee "$partial" >/dev/null
+  result=("${PIPESTATUS[@]}")
+  if (( result[0] != 0 || result[1] != 0 )) || ! tar -tf "$partial" >/dev/null; then
+    sudo_do rm -f "$partial"
+    say "SQLite snapshot failed; no completed backup was written."
     return 1
   fi
   sudo_do mv "$partial" "$output"
+}
+
+restore_snapshot() {
+  local snapshot="$1"
+  require_stopped_backend || return 1
+  # Validate in a staging directory before replacing any data from the failed update.
+  sudo_do cat "$snapshot" | compose run --rm --no-deps -T --user 0 --entrypoint sh backend -ec '
+    stage=$(mktemp -d /data/.restore.XXXXXXXX)
+    trap '\''rm -rf "$stage"'\'' EXIT
+    tar -xf - -C "$stage"
+    test -s "$stage/subboost.sqlite3"
+    test -n "$(find "$stage" -maxdepth 1 -name "*.key" -type f -size +0c -print -quit)"
+    test "$(sqlite3 -readonly "$stage/subboost.sqlite3" "PRAGMA quick_check;")" = ok
+    find /data -mindepth 1 -maxdepth 1 ! -path "$stage" -exec rm -rf -- {} +
+    cp -a "$stage/." /data/
+  '
 }
 
 port_number() {
@@ -317,17 +344,7 @@ service_status_text() {
   state="$(container_state "$container_id")"
   case "$state" in
     running)
-      if [ "$service" = "db" ]; then
-        health="$(container_health "$container_id")"
-        case "$health" in
-          healthy) printf '运行中，健康\n' ;;
-          starting) printf '运行中，健康检查中\n' ;;
-          unhealthy) printf '运行中，未健康\n' ;;
-          *) printf '运行中\n' ;;
-        esac
-      else
-        printf '运行中\n'
-      fi
+      printf '运行中\n'
       ;;
     exited) printf '已停止\n' ;;
     restarting) printf '正在重启\n' ;;
@@ -405,9 +422,8 @@ status_cmd() {
   say "安装目录: $SUBBOOST_HOME"
   say ""
   say "服务状态:"
-  say "应用: $(service_status_text app)"
-  say "数据库: $(service_status_text db)"
-  say "定时任务: $(service_status_text cron)"
+  say "前端: $(service_status_text app)"
+  say "Rust API / SQLite / scheduler: $(service_status_text backend)"
   say ""
   say "健康检查: $(health_status_text)"
   say "备份目录: $BACKUP_DIR"
@@ -417,171 +433,88 @@ status_cmd() {
 
 update_cmd() {
   load_env
+  require_sqlite_compose
   prepare_temp_directory
-  local release_url="${SUBBOOST_RELEASE_URL:-}"
+  local release_url="${SUBBOOST_RELEASE_URL:-$DEFAULT_STABLE_RELEASE_URL}"
   local release_file="$TMP_DIR/release.json"
-  local candidate_env="$TMP_DIR/candidate.env"
-  local candidate_compose="$TMP_DIR/candidate-compose.yml"
-  local candidate_manager="$TMP_DIR/candidate-manager"
-  local old_env="$TMP_DIR/old.env"
-  local old_compose="$TMP_DIR/old-compose.yml"
-  local old_manager="$TMP_DIR/old-manager"
-  local rollback_dump="$BACKUP_DIR/update-rollback-$(date -u +%Y%m%dT%H%M%SZ).dump"
-  local image="${SUBBOOST_IMAGE:-}" compose_url="" manager_url="" services="" old_binding old_host old_port requested_port requested_host
-  local app_id old_image_id rollback_tag old_image_ref update_error restore_error db_ready
-  local manager_present=0 old_manager_present=0
-  local -a restore_status
-  if is_official_fixed_release_url "$release_url"; then
-    say "Detected old fixed release update source; switching updates to stable latest."
-    release_url="$DEFAULT_STABLE_RELEASE_URL"
+  local candidate_env="$TMP_DIR/candidate.env" candidate_compose="$TMP_DIR/candidate-compose.yml"
+  local candidate_manager="$TMP_DIR/candidate-manager" old_env="$TMP_DIR/old.env"
+  local old_compose="$TMP_DIR/old-compose.yml" old_manager="$TMP_DIR/old-manager"
+  local snapshot="$BACKUP_DIR/update-rollback-$(date -u +%Y%m%dT%H%M%SZ).tar"
+  local image backend_image compose_url manager_url old_app old_backend
+  local binding port old_binding old_host old_port
+  port="$(port_number "${SUBBOOST_PORT:?SUBBOOST_PORT is required}")"
+  if is_official_fixed_release_url "$release_url"; then release_url="$DEFAULT_STABLE_RELEASE_URL"; fi
+  if ! download_to_temp "$release_url" "$release_file"; then
+    [ "${SUBBOOST_MANAGER_HANDOFF:-0}" != 1 ] || die "Release manifest unavailable; manager handoff aborted."
+    die "Release manifest unavailable; the running installation was not changed."
   fi
-  if [ -n "$release_url" ] && download_to_temp "$release_url" "$release_file" 2>/dev/null; then
-    image="$(json_get image "$release_file" || true)"
-    compose_url="$(resolve_url "$release_url" "$(json_get composeUrl "$release_file" || true)")"
-    manager_url="$(resolve_url "$release_url" "$(json_get managerUrl "$release_file" || true)")"
-    [ -n "$image" ] && [ -n "$compose_url" ] && [ -n "$manager_url" ] || die "Release manifest is missing image, composeUrl, or managerUrl."
-    download_to_temp "$compose_url" "$candidate_compose"
-    download_to_temp "$manager_url" "$candidate_manager"
-    [ -s "$candidate_manager" ] && bash -n "$candidate_manager" || die "Candidate manager is invalid."
-    # Cross-version contract: a differing release manager runs this update itself as `SUBBOOST_MANAGER_HANDOFF=1 <manager> update`.
-    if [ "${SUBBOOST_MANAGER_HANDOFF:-0}" = "1" ]; then same_content "$candidate_manager" "$0" || die "The release manager does not match the downloaded manager; update aborted."
-    elif [ "${SUBBOOST_SCRIPT_SOURCE_ONLY:-0}" != "1" ] && ! same_content "$candidate_manager" "$0"; then
-      say "Handing this update to the release manager..."; SUBBOOST_MANAGER_HANDOFF=1 bash "$candidate_manager" update; return; fi
-  else
-    [ "${SUBBOOST_MANAGER_HANDOFF:-0}" != "1" ] || die "Release manifest unavailable; manager handoff aborted."
-    say "Release manifest unavailable; updating current image and compose only."
-    cp "$COMPOSE_FILE" "$candidate_compose"
-    if [ -f "${SUBBOOST_BIN:-/usr/local/bin/subboost}" ]; then
-      sudo_do cp "${SUBBOOST_BIN:-/usr/local/bin/subboost}" "$candidate_manager"
-      manager_present=1
-    fi
+  image="$(json_get image "$release_file")"
+  backend_image="$(json_get backendImage "$release_file")"
+  compose_url="$(resolve_url "$release_url" "$(json_get composeUrl "$release_file")")"
+  manager_url="$(resolve_url "$release_url" "$(json_get managerUrl "$release_file")")"
+  [ -n "$image" ] && [ -n "$backend_image" ] && [ -n "$compose_url" ] && [ -n "$manager_url" ] || die "Release manifest must name both images, Compose and manager."
+  download_to_temp "$compose_url" "$candidate_compose"
+  download_to_temp "$manager_url" "$candidate_manager"
+  bash -n "$candidate_manager" || die "Candidate manager is invalid."
+  if [ "${SUBBOOST_MANAGER_HANDOFF:-0}" = 1 ]; then
+    same_content "$candidate_manager" "$0" || die "The release manager does not match the downloaded manager; update aborted."
+  elif [ "${SUBBOOST_SCRIPT_SOURCE_ONLY:-0}" != 1 ] && ! same_content "$candidate_manager" "$0"; then
+    say "Handing this update to the release manager..."
+    SUBBOOST_MANAGER_HANDOFF=1 bash "$candidate_manager" update
+    return
   fi
-  [ -n "$manager_url" ] && manager_present=1
-  [ -n "$image" ] || die "SUBBOOST_IMAGE is missing."
   read_env_file > "$candidate_env"
   cp "$candidate_env" "$old_env"
   cp "$COMPOSE_FILE" "$old_compose"
-  if [ -f "${SUBBOOST_BIN:-/usr/local/bin/subboost}" ]; then
-    sudo_do cp "${SUBBOOST_BIN:-/usr/local/bin/subboost}" "$old_manager"
-    old_manager_present=1
-  fi
+  if [ -f "${SUBBOOST_BIN:-/usr/local/bin/subboost}" ]; then sudo_do cp "${SUBBOOST_BIN:-/usr/local/bin/subboost}" "$old_manager"; fi
+  old_app="$(docker_cmd inspect -f '{{.Image}}' "$(service_container_id app)")"
+  old_backend="$(docker_cmd inspect -f '{{.Image}}' "$(service_container_id backend)")"
+  [ -n "$old_app" ] && [ -n "$old_backend" ] || die "Cannot pin both current images for rollback."
   set_file_env_value "$candidate_env" SUBBOOST_IMAGE "$image"
+  set_file_env_value "$candidate_env" SUBBOOST_BACKEND_IMAGE "$backend_image"
   set_file_env_value "$candidate_env" SUBBOOST_CANDIDATE_IMAGE "$image"
+  set_file_env_value "$candidate_env" SUBBOOST_CANDIDATE_BACKEND_IMAGE "$backend_image"
   set_file_env_value "$candidate_env" SUBBOOST_RELEASE_URL "$release_url"
-  [ -n "$compose_url" ] && set_file_env_value "$candidate_env" SUBBOOST_COMPOSE_URL "$compose_url"
-  [ -n "$manager_url" ] && set_file_env_value "$candidate_env" SUBBOOST_MANAGER_URL "$manager_url"
-  if ! grep -q '^LOCAL_SETUP_TOKEN=.' "$candidate_env"; then
-    set_file_env_value "$candidate_env" LOCAL_SETUP_TOKEN "$(random_hex 32)"
-  fi
-  compose_files_with_image "$image" "$candidate_env" "$candidate_compose" config >/dev/null
-  requested_port="$(port_number "${SUBBOOST_PORT:-3000}")"
-  old_binding="$(compose_files "$old_env" "$old_compose" config --format json | inspect_compose_binding "$requested_port")" || die "Cannot safely inspect the existing Compose binding; check the app's published ports."
+  old_binding="$(compose_files "$old_env" "$old_compose" config --format json | inspect_compose_binding "$port")" \
+    || die "Cannot safely inspect the existing Compose binding."
   IFS='|' read -r old_host old_port <<< "$old_binding"
-  [ "$old_port" -eq "$requested_port" ] 2>/dev/null || die "Existing Compose publishes a different application port; reconcile it before updating."
-  requested_host="${SUBBOOST_BIND_ADDRESS:-$old_host}"; requested_host="${requested_host#[}"; requested_host="${requested_host%]}"
-  if [ -n "${SUBBOOST_BIND_ADDRESS:-}" ] && [ -n "$old_host" ] && [ "$old_host" != "$requested_host" ]; then die "Existing Compose uses a different bind address; reconcile it before updating."; fi
-  compose_files_with_image "$image" "$candidate_env" "$candidate_compose" config --format json | validate_compose_binding "$requested_host" "$old_port" || die "Candidate Compose does not preserve the existing application binding; use a compatible Compose file."
-  services="$(compose_files_with_image "$image" "$candidate_env" "$candidate_compose" config --services)"
-  for service in app db cron; do
-    printf '%s\n' "$services" | grep -Fxq "$service" || die "Candidate Compose is missing service: $service"
-  done
-  say "Pulling candidate image before the maintenance window..."
-  compose_files_with_image "$image" "$candidate_env" "$candidate_compose" pull
-
-  app_id="$(service_container_id app)"
-  [ -n "$app_id" ] || die "Cannot identify the current app container for rollback."
-  old_image_id="$(docker_cmd inspect -f '{{.Image}}' "$app_id" 2>/dev/null || true)"
-  [ -n "$old_image_id" ] || die "Cannot identify the current app image for rollback."
-  old_image_ref="${SUBBOOST_IMAGE:-}"
-  rollback_tag="subboost-rollback:update-$$"
-  if ! stage_install_file "$candidate_env" "$ENV_FILE" 600 \
-    || ! stage_install_file "$candidate_compose" "$COMPOSE_FILE" 644 \
-    || { [ "$manager_present" = "1" ] && ! stage_install_file "$candidate_manager" "${SUBBOOST_BIN:-/usr/local/bin/subboost}" 755; }; then
-    sudo_do rm -f "${ENV_FILE}.candidate.$$" "${COMPOSE_FILE}.candidate.$$" "${SUBBOOST_BIN:-/usr/local/bin/subboost}.candidate.$$"
-    die "Candidate metadata could not be staged safely."
+  [ "$old_port" -eq "$port" ] 2>/dev/null || die "Existing Compose publishes a different application port."
+  binding="${SUBBOOST_BIND_ADDRESS:-$old_host}"; binding="${binding#[}"; binding="${binding%]}"
+  if [ -n "${SUBBOOST_BIND_ADDRESS:-}" ] && [ "$old_host" != "$binding" ]; then die "Existing Compose uses a different bind address."; fi
+  compose_files_with_images "$image" "$backend_image" "$candidate_env" "$candidate_compose" config --format json \
+    | validate_compose_binding "$binding" "$port" || die "Candidate Compose changes the published binding or exposes an internal service."
+  local services
+  services="$(compose_files_with_images "$image" "$backend_image" "$candidate_env" "$candidate_compose" config --services)"
+  printf '%s\n' "$services" | grep -Fxq backend && printf '%s\n' "$services" | grep -Fxq app \
+    && ! printf '%s\n' "$services" | grep -Eq '^(db|cron)$' || die "Candidate is not a Rust/SQLite deployment."
+  compose_files_with_images "$image" "$backend_image" "$candidate_env" "$candidate_compose" pull
+  compose stop app backend || die "Cannot stop writers; update aborted."
+  if ! create_verified_snapshot "$snapshot"; then
+    compose up -d backend app || true
+    die "Snapshot failed; update aborted without changing images or data."
   fi
-  if ! docker_cmd tag "$old_image_id" "$rollback_tag"; then
-    sudo_do rm -f "${ENV_FILE}.candidate.$$" "${COMPOSE_FILE}.candidate.$$" "${SUBBOOST_BIN:-/usr/local/bin/subboost}.candidate.$$"
-    die "Could not create the rollback image tag."
+  local error=""
+  compose_files_with_images "$image" "$backend_image" "$candidate_env" "$candidate_compose" up -d backend app || error="candidate startup failed"
+  if [ -z "$error" ] && ! wait_for_health; then error="candidate health check failed"; fi
+  if [ -z "$error" ]; then
+    atomic_install_file "$candidate_env" "$ENV_FILE" 600 || error="environment activation failed"
+    atomic_install_file "$candidate_compose" "$COMPOSE_FILE" 644 || error="Compose activation failed"
+    atomic_install_file "$candidate_manager" "${SUBBOOST_BIN:-/usr/local/bin/subboost}" 755 || error="manager activation failed"
   fi
-
-  say "Pausing app and cron for a stable database snapshot..."
-  if ! compose stop cron app; then
-    sudo_do rm -f "${ENV_FILE}.candidate.$$" "${COMPOSE_FILE}.candidate.$$" "${SUBBOOST_BIN:-/usr/local/bin/subboost}.candidate.$$"
-    docker_cmd image rm "$rollback_tag" >/dev/null 2>&1 || true
-    die "Update aborted because app and cron could not be paused safely."
-  fi
-  if ! create_verified_dump "$rollback_dump"; then
-    compose up -d app cron || true
-    wait_for_health || true
-    sudo_do rm -f "${ENV_FILE}.candidate.$$" "${COMPOSE_FILE}.candidate.$$" "${SUBBOOST_BIN:-/usr/local/bin/subboost}.candidate.$$"
-    docker_cmd image rm "$rollback_tag" >/dev/null 2>&1 || true
-    die "Update aborted because a verified rollback dump could not be created."
-  fi
-
-  update_error=""
-  compose_files_with_image "$image" "$candidate_env" "$candidate_compose" up -d db || update_error="candidate database startup failed"
-  if [ -z "$update_error" ]; then
-    compose_files_with_image "$image" "$candidate_env" "$candidate_compose" up -d --no-deps app || update_error="candidate app startup or migration failed"
-  fi
-  if [ -z "$update_error" ] && ! wait_for_health; then
-    update_error="candidate health check failed"
-  fi
-  if [ -z "$update_error" ]; then
-    activate_staged_file "$ENV_FILE" || update_error="candidate environment activation failed"
-  fi
-  if [ -z "$update_error" ]; then
-    activate_staged_file "$COMPOSE_FILE" || update_error="candidate Compose activation failed"
-  fi
-  if [ -z "$update_error" ] && [ "$manager_present" = "1" ]; then
-    activate_staged_file "${SUBBOOST_BIN:-/usr/local/bin/subboost}" || update_error="candidate manager activation failed"
-  fi
-  if [ -z "$update_error" ]; then
-    compose_files_with_image "$image" "$candidate_env" "$candidate_compose" up -d --no-deps cron || update_error="candidate cron startup failed"
-  fi
-
-  if [ -n "$update_error" ]; then
-    say "Candidate update failed: $update_error"
-    compose_files_with_image "$image" "$candidate_env" "$candidate_compose" stop cron app >/dev/null 2>&1 || true
-    docker_cmd tag "$rollback_tag" "$old_image_ref" || true
-    sudo_do rm -f "${ENV_FILE}.candidate.$$" "${COMPOSE_FILE}.candidate.$$" "${SUBBOOST_BIN:-/usr/local/bin/subboost}.candidate.$$"
-    restore_error=""
-    atomic_install_file "$old_env" "$ENV_FILE" 600 || restore_error="old environment metadata restore failed"
-    atomic_install_file "$old_compose" "$COMPOSE_FILE" 644 || restore_error="old Compose metadata restore failed"
-    if [ "$old_manager_present" = "1" ]; then
-      atomic_install_file "$old_manager" "${SUBBOOST_BIN:-/usr/local/bin/subboost}" 755 || restore_error="old manager metadata restore failed"
-    fi
-    db_ready=1
-    compose_files "$old_env" "$old_compose" up -d db || { restore_error="old database container did not start"; db_ready=0; }
-    if [ "$db_ready" = "1" ]; then
-      set +e
-      sudo_do cat "$rollback_dump" | compose_files "$old_env" "$old_compose" exec -T db pg_restore --clean --if-exists --exit-on-error --no-owner --no-privileges -U "${POSTGRES_USER:-subboost}" -d "${POSTGRES_DB:-subboost}"
-      restore_status=("${PIPESTATUS[@]}")
-      set -e
-      if (( restore_status[0] != 0 || restore_status[1] != 0 )); then restore_error="database restore failed"; fi
-    fi
-    if [ -n "$restore_error" ]; then
-      compose_files "$old_env" "$old_compose" stop cron app >/dev/null 2>&1 || true
-      say "Automatic rollback stopped: $restore_error"
-      say "Rollback dump preserved at: $rollback_dump"
-      say "Keep app and cron stopped. Restore manually with pg_restore before restarting them."
-      return 1
-    fi
-    compose_files "$old_env" "$old_compose" up -d app
-    if ! wait_for_health; then
-      compose_files "$old_env" "$old_compose" stop cron app >/dev/null 2>&1 || true
-      say "Database and old image were restored, but the old app did not become healthy."
-      say "Rollback dump preserved at: $rollback_dump"
-      return 1
-    fi
-    compose_files "$old_env" "$old_compose" up -d --no-deps cron
-    docker_cmd image rm "$rollback_tag" >/dev/null 2>&1 || true
+  if [ -n "$error" ]; then
+    say "Candidate update failed: $error"
+    compose_files_with_images "$image" "$backend_image" "$candidate_env" "$candidate_compose" stop app backend || die "Cannot stop candidate writers; snapshot preserved at $snapshot"
+    atomic_install_file "$old_env" "$ENV_FILE" 600 && atomic_install_file "$old_compose" "$COMPOSE_FILE" 644 \
+      || die "Cannot restore metadata; keep writers stopped. Snapshot: $snapshot"
+    if [ -f "$old_manager" ]; then atomic_install_file "$old_manager" "${SUBBOOST_BIN:-/usr/local/bin/subboost}" 755 || die "Cannot restore manager; snapshot: $snapshot"; fi
+    restore_snapshot "$snapshot" || die "Rollback data restore failed; keep writers stopped. Snapshot: $snapshot"
+    compose_files_with_images "$old_app" "$old_backend" "$old_env" "$old_compose" up -d backend app \
+      || die "Old images failed to start; snapshot: $snapshot"
+    wait_for_health || die "Old data and images restored, but health failed. Snapshot: $snapshot"
     say "Previous version restored successfully."
     return 1
   fi
-
-  docker_cmd image rm "$rollback_tag" >/dev/null 2>&1 || true
-  load_env
   status_cmd
 }
 
@@ -591,42 +524,45 @@ logs_cmd() {
 
 backup_cmd() {
   load_env
+  require_sqlite_compose
   prepare_private_directory "$BACKUP_DIR"
-  local stamp db_out env_out
-  local -a sql_backups env_backups
-  local i backup_retention_count
-  backup_retention_count="${SUBBOOST_BACKUP_RETENTION_COUNT:-$DEFAULT_BACKUP_RETENTION_COUNT}"
-  if ! [[ "$backup_retention_count" =~ ^[0-9]+$ ]] || (( backup_retention_count < 1 )); then
-    die "SUBBOOST_BACKUP_RETENTION_COUNT must be a positive integer"
-  fi
+  local stamp snapshot env_out retention="${SUBBOOST_BACKUP_RETENTION_COUNT:-$DEFAULT_BACKUP_RETENTION_COUNT}"
+  [[ "$retention" =~ ^[0-9]+$ ]] && (( retention>0 )) || die "Backup retention must be a positive integer."
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-  db_out="$BACKUP_DIR/subboost-$stamp.dump"
+  snapshot="$BACKUP_DIR/subboost-$stamp.tar"
   env_out="$BACKUP_DIR/subboost-$stamp.env"
-  create_verified_dump "$db_out"
-  sudo_do install -m 600 "$ENV_FILE" "$env_out"
-
+  compose stop app backend || die "Cannot stop writers for a consistent SQLite backup."
+  if ! create_verified_snapshot "$snapshot"; then
+    compose up -d backend app || true
+    die "Backup failed; no completed snapshot was written."
+  fi
+  if ! sudo_do install -m 600 "$ENV_FILE" "$env_out"; then
+    compose up -d backend app || true
+    die "Data snapshot exists, but environment backup failed: $snapshot"
+  fi
+  local config_source="${SUBBOOST_CONFIG_FILE:-$SUBBOOST_HOME/subboost.toml}"
+  if ! sudo_do install -m 600 "$config_source" "${snapshot%.tar}.toml"; then
+    compose up -d backend app || true
+    die "Data snapshot exists, but runtime configuration backup failed: $snapshot"
+  fi
+  compose up -d backend app || die "Backup saved, but services failed to restart: $snapshot"
+  local -a snapshots
+  local index
   shopt -s nullglob
-  sql_backups=("$BACKUP_DIR"/subboost-*.dump)
-  env_backups=("$BACKUP_DIR"/subboost-*.env)
+  snapshots=("$BACKUP_DIR"/subboost-*.tar)
   shopt -u nullglob
-
-  if ((${#sql_backups[@]} > 0)); then sudo_do chmod 600 "${sql_backups[@]}"; fi
-  if ((${#env_backups[@]} > 0)); then sudo_do chmod 600 "${env_backups[@]}"; fi
-
-  for ((i = 0; i < ${#sql_backups[@]} - backup_retention_count; i++)); do
-    sudo_do rm -f -- "${sql_backups[$i]}"
+  for ((index=0;index<${#snapshots[@]}-retention;index++)); do
+    sudo_do rm -f -- "${snapshots[$index]}" "${snapshots[$index]%.tar}.env" "${snapshots[$index]%.tar}.toml"
   done
-  for ((i = 0; i < ${#env_backups[@]} - backup_retention_count; i++)); do
-    sudo_do rm -f -- "${env_backups[$i]}"
-  done
-  say "Backup written:"
-  say "  $db_out"
-  say "  $env_out"
+  say "Private SQLite snapshot (database, WAL and key): $snapshot"
+  say "Private environment backup: $env_out"
 }
 
 restart_cmd() {
-  compose up -d --remove-orphans
-  compose up -d --no-deps --force-recreate app
+  load_env
+  require_sqlite_compose
+  compose up -d backend app
+  compose up -d --no-deps --force-recreate backend app
   status_cmd
 }
 
@@ -637,8 +573,9 @@ doctor_cmd() {
   [ -f "$ENV_FILE" ] || die "Missing $ENV_FILE"
   [ -f "$COMPOSE_FILE" ] || die "Missing $COMPOSE_FILE"
   load_env
-  for key in SUBBOOST_IMAGE POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD DATABASE_URL ENCRYPTION_KEY JWT_SECRET CRON_SECRET APP_URL SUBBOOST_PORT; do
-    grep -q "^$key=" "$ENV_FILE" || die "Missing $key in $ENV_FILE"
+  require_sqlite_compose
+  for key in SUBBOOST_IMAGE SUBBOOST_BACKEND_IMAGE APP_URL SUBBOOST_PORT; do
+    grep -q "^$key=." "$ENV_FILE" || die "Missing $key in $ENV_FILE"
   done
   compose config >/dev/null
   if ! wait_for_health; then

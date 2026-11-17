@@ -23,7 +23,7 @@ function composeModel(hostIp: string | null = "127.0.0.1", published = "31000") 
   return JSON.stringify({ services: { app: { ports: [{ ...(hostIp ? { host_ip: hostIp } : {}), target: 3000, published, protocol: "tcp" }] } } }, null, 2);
 }
 
-function installScenario(options = "", dockerVersion = "28.1.0", hostIp: string | null = "127.0.0.1") {
+function installScenario(options = "", dockerVersion = "28.1.0", hostIp?: string | null) {
   return runBash(`
     set -Eeuo pipefail
     base="$(mktemp -d)"
@@ -35,10 +35,11 @@ function installScenario(options = "", dockerVersion = "28.1.0", hostIp: string 
     export SUBBOOST_RELEASE_URL="file://$base/release/release.json"
     export SUBBOOST_UPDATE_RELEASE_URL="$SUBBOOST_RELEASE_URL"
     cat > "$base/release/release.json" <<'JSON'
-{"image":"new-image","composeUrl":"compose.yml","managerUrl":"manager"}
+{"image":"new-image","backendImage":"new-backend","composeUrl":"compose.yml","managerUrl":"manager","runtimeConfigUrl":"subboost.toml"}
 JSON
     cp local/docker-compose.image.yml "$base/release/compose.yml"
     cp local/scripts/subboost.sh "$base/release/manager"
+    cp config/subboost.toml "$base/release/subboost.toml"
     ${options}
     source local/scripts/install.sh
     is_root() { return 0; }
@@ -49,8 +50,8 @@ JSON
     docker_cmd() { if [ "$1" = version ]; then printf '%s\\n' '${dockerVersion}'; fi; return 0; }
     compose() {
       case "$*" in
-        'config --services') printf 'app\\ndb\\ncron\\n' ;;
-        'config --format json') printf '%s\\n' '${composeModel(hostIp)}' ;;
+        'config --services') printf 'app\\nbackend\\n' ;;
+        'config --format json') printf '%s\\n' '${composeModel(hostIp === undefined ? (options.includes("SUBBOOST_ACCESS_MODE=public-http") ? "0.0.0.0" : "127.0.0.1") : hostIp)}' ;;
         pull|up*) printf 'unexpected-start=%s\\n' "$*" ;;
       esac
       return 0
@@ -76,11 +77,17 @@ function firstUpdateScenario(scenario: UpdateScenario, binding = "", hostIp: str
     cp local/scripts/subboost.sh "$base/manager"
     cp "$base/manager" "$base/release/manager"
     cp local/docker-compose.image.yml "$base/release/compose.yml"
+    cp config/subboost.toml "$SUBBOOST_HOME/subboost.toml"
+    mkdir -p "$base/data"
+    sqlite3 "$base/data/subboost.sqlite3" 'CREATE TABLE fixture(id);'
+    printf '%032d' 1 > "$base/data/subboost.key"
+    export FAKE_DATA="$base/data" FAKE_BACKEND_STATE="$base/backend-state"
+    printf 'running\\n' > "$FAKE_BACKEND_STATE"
     if [ '${scenario}' = different ]; then printf '# different manager\\n' >> "$base/release/manager"; fi
     if [ '${scenario}' = handoff ]; then echo 'echo release-manager-finished' >> "$base/release/manager"; fi
     if [ '${scenario}' = handoff-fails ]; then printf '#!/usr/bin/env bash\\necho RELEASE_STUB_EXECUTED\\nexit 37\\n' > "$base/release/manager"; fi
     cat > "$base/release/release.json" <<'JSON'
-{"image":"new-image","composeUrl":"compose.yml","managerUrl":"manager"}
+{"image":"new-image","backendImage":"new-backend","composeUrl":"compose.yml","managerUrl":"manager"}
 JSON
     printf '#!/usr/bin/env bash\\necho LEGACY_MANAGER_EXECUTED\\nexit 37\\n' > "$SUBBOOST_BIN"
     cp "$base/release/compose.yml" "$SUBBOOST_HOME/docker-compose.yml"
@@ -89,13 +96,7 @@ JSON
     cat > "$SUBBOOST_HOME/.env" <<ENV
 SUBBOOST_RELEASE_URL=$release_url
 SUBBOOST_IMAGE=old-image
-POSTGRES_DB=subboost
-POSTGRES_USER=subboost
-POSTGRES_PASSWORD=password
-DATABASE_URL=postgresql://subboost:password@db:5432/subboost?schema=public
-ENCRYPTION_KEY=key
-JWT_SECRET=jwt
-CRON_SECRET=cron
+SUBBOOST_BACKEND_IMAGE=old-backend
 APP_URL=http://local.subboost.test:31000
 SUBBOOST_PORT=${envPort}
 ENV
@@ -110,23 +111,23 @@ ENV
         inspect)
           case "$*" in
             *'{{.Image}}'*) printf 'sha256:old-image\\n' ;;
-            *'.State.Status'*) printf 'running\\n' ;;
+            *'.State.Status'*) cat "$FAKE_BACKEND_STATE" ;;
             *'.State.Health'*) printf 'healthy\\n' ;;
           esac
           return 0 ;;
         compose)
           case "$*" in
-            *' config --services') printf 'app\\ndb\\ncron\\n' ;;
+            *' config --services') printf 'app\\nbackend\\n' ;;
             *' config --format json')
               case "$*" in
                 *candidate-compose.yml*) printf '%s\\n' '${composeModel(hostIp, candidatePort)}' ;;
                 *) printf '%s\\n' '${composeModel(oldHost, oldPort)}' ;;
               esac ;;
             *' ps -q app') printf 'app-id\\n' ;;
-            *' ps -q db') printf 'db-id\\n' ;;
-            *' ps -q cron') printf 'cron-id\\n' ;;
-            *'pg_dump -Fc'*) printf 'custom-dump' ;;
-            *'pg_restore --list'*) cat >/dev/null ;;
+            *' ps -q backend') printf 'backend-id\\n' ;;
+            *' stop app backend') printf 'exited\\n' > "$FAKE_BACKEND_STATE" ;;
+            *' up -d backend app') printf 'running\\n' > "$FAKE_BACKEND_STATE" ;;
+            *' run --rm '*) tar -C "$FAKE_DATA" -cf - . ;;
           esac
           return 0 ;;
       esac
@@ -178,7 +179,7 @@ describe("self-host access and temporary workspace", () => {
   it("keeps explicit trusted-network HTTP available and warns about plaintext", () => {
     const result = installScenario("export SUBBOOST_ACCESS_MODE=public-http APP_URL=http://local.subboost.test");
     expect(result.status, result.stderr).toBe(0);
-    expect(result.stdout).toContain("SUBBOOST_BIND_ADDRESS=\n");
+    expect(result.stdout).toContain("SUBBOOST_BIND_ADDRESS=0.0.0.0\n");
     expect(result.stdout).toContain("APP_URL=http://local.subboost.test:31000");
     expect(result.stderr).toContain("HTTP 未加密");
   }, shellTimeout(20_000));
@@ -325,8 +326,8 @@ describe("self-host access and temporary workspace", () => {
     "checks actual Compose interpolation for both current and older port mappings",
     () => {
       const current = readFileSync(path.join(publicRoot, "local/docker-compose.image.yml"), "utf8");
-      const old = current.replace('${SUBBOOST_BIND_ADDRESS:+${SUBBOOST_BIND_ADDRESS}:}${SUBBOOST_PORT:-3000}', '${SUBBOOST_PORT:-3000}');
-      const oldLoopback = old.replace('"${SUBBOOST_PORT:-3000}:3000"', '"127.0.0.1:${SUBBOOST_PORT:-3000}:3000"');
+      const old = current.replace('${SUBBOOST_BIND_ADDRESS:-127.0.0.1}:${SUBBOOST_PORT:-3001}', '${SUBBOOST_PORT:-3001}');
+      const oldLoopback = old.replace('"${SUBBOOST_PORT:-3001}:3000"', '"127.0.0.1:${SUBBOOST_PORT:-3001}:3000"');
       expect(old).not.toBe(current);
       expect(oldLoopback).not.toBe(old);
       for (const [file, isSafe] of [[current, true], [old, false], [oldLoopback, true]] as const) {
@@ -334,7 +335,7 @@ describe("self-host access and temporary workspace", () => {
           cwd: publicRoot,
           input: file,
           encoding: "utf8",
-          env: { ...process.env, SUBBOOST_BIND_ADDRESS: "127.0.0.1", SUBBOOST_PORT: "31000", SUBBOOST_IMAGE: "fixture", POSTGRES_DB: "fixture", POSTGRES_USER: "fixture", POSTGRES_PASSWORD: "fixture", DATABASE_URL: "postgresql://fixture", ENCRYPTION_KEY: "fixture", JWT_SECRET: "fixture", CRON_SECRET: "fixture", LOCAL_SETUP_TOKEN: "fixture", APP_URL: "http://127.0.0.1:31000", TRUST_PROXY_HEADERS: "false" },
+          env: { ...process.env, SUBBOOST_BIND_ADDRESS: "127.0.0.1", SUBBOOST_PORT: "31000", SUBBOOST_IMAGE: "fixture", SUBBOOST_BACKEND_IMAGE: "fixture", LOCAL_SETUP_TOKEN: "fixture", APP_URL: "http://127.0.0.1:31000" },
         });
         expect(resolved.status, resolved.stderr).toBe(0);
         const encoded = Buffer.from(resolved.stdout).toString("base64");

@@ -113,6 +113,18 @@ describe("user store", () => {
     );
   });
 
+  it("initializes a usable guest without a login request", async () => {
+    const guest = user({ id: "browser-owner", username: "游客", isGuest: true });
+    const fetchMock = vi.fn().mockResolvedValue(Response.json({
+      user: guest, authenticated: true, isGuest: true, setupRequired: false,
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+    await useUserStore.getState().fetchUser();
+    expect(useUserStore.getState()).toMatchObject({ user: guest, error: null, isLoading: false });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith("/api/auth/me", { cache: "no-store" });
+  });
+
   it("stores HTTP and network failures as user-facing errors", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce({ ok: false, status: 503 }));
     await useUserStore.getState().fetchUser();

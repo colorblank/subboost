@@ -125,7 +125,7 @@ export function UserMenu({
               <div className="flex items-center gap-2 mt-3 flex-wrap">
                 <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-ink/5 text-xs text-indigo-400">
                   <Shield className="h-3 w-3" />
-                  <span>Lv.{user.trustLevel}</span>
+                  <span>{user.isGuest ? "浏览器独立空间" : `Lv.${user.trustLevel}`}</span>
                 </div>
                 {user.isAdmin && !user.isBanned && (
                   <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/20 text-xs text-indigo-400">
@@ -170,13 +170,22 @@ export function UserMenu({
           </DropdownMenuItem>
         </div>
         <DropdownMenuSeparator className="m-0 bg-ink/10" />
-        <DropdownMenuItem
-          onSelect={() => void handleLogout()}
-          className="rounded-none px-4 py-2 text-red-400 focus:bg-ink/5 focus:text-red-300"
-        >
-          <LogOut className="h-4 w-4" />
-          退出登录
-        </DropdownMenuItem>
+        {user.isGuest ? (
+          <DropdownMenuItem asChild className="rounded-none px-4 py-2 text-fg-60 focus:bg-ink/5 focus:text-fg">
+            <Link href="/login" onClick={() => captureAuthConfigHandoff(useConfigStore.getState())}>
+              <LogIn className="mr-3 h-4 w-4" />
+              管理员登录（可选）
+            </Link>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            onSelect={() => void handleLogout()}
+            className="rounded-none px-4 py-2 text-red-400 focus:bg-ink/5 focus:text-red-300"
+          >
+            <LogOut className="h-4 w-4" />
+            退出登录
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

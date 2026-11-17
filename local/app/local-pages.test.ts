@@ -1,6 +1,7 @@
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("@local/lib/runtime-config", () => import("../../test/runtime-config-fixture"));
 
 const mocks = vi.hoisted(() => ({
   buttons: [] as any[],
@@ -240,10 +241,6 @@ describe("local app pages and adapters", () => {
 
   it("renders local settings for anonymous and authenticated states", async () => {
     let html = renderToStaticMarkup(React.createElement(SettingsPage));
-    expect(html).toContain("未登录");
-    expect(html).toContain("允许本机和局域网订阅");
-    expect(html).toContain("本机、局域网及其他保留地址都可作为订阅源");
-    expect(html).toContain("/api/health/live");
     expect(mocks.buttons.find((button: any) => button.variant === "destructive")).toMatchObject({
       disabled: true,
     });
@@ -267,6 +264,17 @@ describe("local app pages and adapters", () => {
     await Promise.resolve();
     await Promise.resolve();
     expect(mocks.userState.logout).toHaveBeenCalledTimes(1);
-    expect(window.location.href).toBe("/login");
+    expect(window.location.href).toBe("/");
+  });
+
+  it("keeps guest settings usable without a logout action", () => {
+    mocks.userState.user = {
+      id: "browser-owner", username: "游客", isGuest: true,
+      subscriptionCount: 0, quota: { maxSubscriptions: 9999 },
+    };
+    renderToStaticMarkup(React.createElement(SettingsPage));
+    expect(mocks.buttons.some((button) => button.variant === "destructive")).toBe(false);
+    expect(mocks.buttons.some((button) => button.asChild && button.variant === "outline")).toBe(true);
+    expect(mocks.userState.logout).not.toHaveBeenCalled();
   });
 });

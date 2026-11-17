@@ -1,76 +1,51 @@
+FROM rust:1-bookworm AS rust-builder
+WORKDIR /src
+COPY Cargo.toml Cargo.lock ./
+COPY backend backend
+COPY config config
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    cargo build --locked --release -p subboost
+
+FROM debian:bookworm-slim AS backend
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates sqlite3 \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --uid 10001 --create-home subboost \
+    && mkdir /data && chown subboost:subboost /data && chmod 700 /data
+COPY --from=rust-builder /src/target/release/subboost /usr/local/bin/subboost
+COPY config/subboost.toml /etc/subboost/subboost.toml
+USER subboost
+EXPOSE 3002
+ENTRYPOINT ["subboost"]
+CMD ["--settings", "/etc/subboost/subboost.toml", "--database", "/data/subboost.sqlite3", "serve", "--listen", "0.0.0.0:3002"]
+
 FROM node:24.22.1-alpine AS deps
 WORKDIR /package
-RUN apk add --no-cache openssl
-
 COPY package.json package-lock.json ./
-COPY packages/core packages/core
-COPY packages/server-core packages/server-core
-COPY packages/ui packages/ui
-COPY packages/config packages/config
+COPY packages packages
+COPY config config
 COPY local/package.json local/package.json
+RUN --mount=type=cache,target=/root/.npm,sharing=locked npm ci
 
-RUN --mount=type=cache,target=/root/.npm,sharing=locked \
-    set -eu; \
-    attempt=1; \
-    max_attempts=3; \
-    until npm ci; do \
-      if [ "$attempt" -ge "$max_attempts" ]; then \
-        echo "npm ci failed after ${max_attempts} attempts" >&2; \
-        exit 1; \
-      fi; \
-      delay=$((attempt * 10)); \
-      echo "npm ci attempt ${attempt} failed; retrying in ${delay}s" >&2; \
-      sleep "$delay"; \
-      attempt=$((attempt + 1)); \
-    done
-
-FROM node:24.22.1-alpine AS builder
-WORKDIR /package
-RUN apk add --no-cache openssl
-
+FROM deps AS builder
 ARG APP_RELEASE_VERSION=
 ARG APP_BUILD_SHA=
 ARG APP_VERSION=
 ARG APP_VERSION_TOKEN=
-ENV APP_RELEASE_VERSION=${APP_RELEASE_VERSION}
-ENV APP_BUILD_SHA=${APP_BUILD_SHA}
-ENV APP_VERSION=${APP_VERSION}
-ENV APP_VERSION_TOKEN=${APP_VERSION_TOKEN}
-
-COPY --from=deps /package/node_modules node_modules
-COPY packages/core packages/core
-COPY packages/server-core packages/server-core
-COPY packages/ui packages/ui
-COPY packages/config packages/config
+ENV APP_RELEASE_VERSION=${APP_RELEASE_VERSION} APP_BUILD_SHA=${APP_BUILD_SHA}
+ENV APP_VERSION=${APP_VERSION} APP_VERSION_TOKEN=${APP_VERSION_TOKEN}
+# Next stores rewrites at build time; Compose uses this private backend hostname.
+ENV SUBBOOST_BACKEND_URL=http://backend:3002
 COPY local local
-
 WORKDIR /package/local
 RUN npm run build
 
-FROM deps AS production-deps
-RUN npm prune --omit=dev
-
-FROM node:24.22.1-alpine AS runner
+FROM node:24.22.1-alpine AS frontend
 WORKDIR /app
-ENV NODE_ENV=production
-ARG APP_RELEASE_VERSION=
-ARG APP_BUILD_SHA=
-ARG APP_VERSION=
-ARG APP_VERSION_TOKEN=
-ENV APP_RELEASE_VERSION=${APP_RELEASE_VERSION}
-ENV APP_BUILD_SHA=${APP_BUILD_SHA}
-ENV APP_VERSION=${APP_VERSION}
-ENV APP_VERSION_TOKEN=${APP_VERSION_TOKEN}
-RUN apk add --no-cache openssl
-
+ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000
 COPY --chown=node:node --from=builder /package/local/.next/standalone ./
-COPY --chown=node:node --from=production-deps /package/node_modules ./node_modules
 COPY --chown=node:node --from=builder /package/local/.next/static local/.next/static
 COPY --chown=node:node --from=builder /package/local/public local/public
-COPY --chown=node:node --from=builder /package/local/prisma.config.ts local/prisma.config.ts
-COPY --chown=node:node --from=builder /package/local/prisma local/prisma
-
 WORKDIR /app/local
 USER node
 EXPOSE 3000
-CMD ["sh", "-c", "../node_modules/.bin/prisma migrate deploy --schema prisma/schema.prisma && node server.js"]
+CMD ["node", "server.js"]

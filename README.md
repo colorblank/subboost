@@ -40,6 +40,60 @@
 - Deployment docs: [Advanced deployment - compiles from source, slower with higher requirements](https://docs.subboost.org/deploy/advanced)
 - Configuration guide: [Clash configuration simple enough for a paramecium: configure precise routing and chained proxies from the UI in one click](https://ryanvan.com/t/topic/59?u=ryan)
 
+## Rust backend, CLI and MCP
+
+HTTP, CLI and MCP share native Rust conversion and management logic. Next.js serves the frontend and forwards API requests. SQLite is created automatically; PostgreSQL, Prisma and a separate cron container are not required.
+
+Configuration is separate from code:
+- `config/subboost.toml`: database, listener, public URL, network budgets, quotas, authentication, in-process refresh and generation defaults. Select it with `--settings FILE` or `SUBBOOST_CONFIG`. Relative paths use the process working directory; restart after editing.
+- `config/frontend.json`: development frontend address and backend forwarding target. `SUBBOOST_BACKEND_URL` overrides the target, which is resolved at frontend build time for production.
+- `config/parser-policy.json`: parser, YAML expansion and regex safety budgets; override its path with `SUBBOOST_PARSER_POLICY`.
+- `config/mihomo/` and `config/rules/`: generation defaults and rule catalog data.
+
+Use stable Rust and a Node.js version declared in `engines` for the frontend. The standalone CLI needs neither Node.js nor an HTTP server:
+
+```bash
+cargo install --locked --path backend
+subboost --help
+subboost parse subscription.txt
+subboost convert subscription.txt > config.yaml
+subboost subscription list
+subboost mcp
+```
+
+MCP client configuration:
+
+```json
+{"mcpServers":{"subboost":{"command":"subboost","args":["mcp"]}}}
+```
+
+Native stdio JSON-RPC supports discovery, subscription/template CRUD, refresh, conversion, rules and backups. CLI/MCP share `application.local_owner`, separate from browser guests. Exchange data with backup export/import when needed. Use absolute executable paths if the deployment manager and native CLI are both installed as `subboost`.
+
+Browser use requires no account or administrator setup. Each guest has a separate HttpOnly cookie; clearing it loses access to that workspace, so export data first. Optional administrator setup requires `LOCAL_SETUP_TOKEN`. Guests cannot enable private-network source fetching. Public subscription links are bearer credentials.
+
+A sequential timer inside the Rust server refreshes subscriptions without accumulating missed ticks. Failed refreshes preserve the previous node snapshot. Deployment values and budgets come from configuration files.
+
+### Deployment, backups and migration
+
+Build containers from source:
+
+```bash
+APP_URL=http://127.0.0.1:3001 docker compose -f local/docker-compose.yml up -d --build
+```
+
+Only the frontend port is published. API, SQLite and refresh run in one backend container. Release Compose requires matching frontend/backend images and the `subboost.toml` asset from the updated release workflow; do not mix older images.
+
+Back up SQLite with its adjacent `.key` file: losing that key makes data unrecoverable. Include WAL files when copying an open database; stopping the backend is safer. The deployment manager's `backup` pauses writers, checks SQLite and saves database/WAL/key files, environment and runtime configuration. Native `subboost backup export` produces plaintext JSON containing node credentials; store it privately.
+
+Do not overwrite an existing PostgreSQL deployment. Back up its volumes and stop the old application and cron first, then export from an environment that can reach the old database:
+
+```bash
+(umask 077; psql "$DATABASE_URL" -XAt -v ON_ERROR_STOP=1 -f scripts/export-legacy.sql > legacy.json)
+subboost --database data/subboost.sqlite3 migrate-legacy legacy.json
+```
+
+Provide the old `ENCRYPTION_KEY` through the environment and use a separate SQLite directory. Import preserves administrators, ownership, IDs, link tokens, templates and refresh state. Wrong keys or conflicts abort the import without overwriting existing records. Old sessions are not imported; sign in again. Verify data and generated subscriptions before switching traffic, and retain the old volumes until verification is complete.
+
 ## Development Notes
 
 Developers can start a local development environment from source:

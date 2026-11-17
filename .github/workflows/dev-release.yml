@@ -11,6 +11,10 @@ on:
       - ".github/workflows/release.yml"
       - "eslint.config.mjs"
       - "local/**"
+      - "backend/**"
+      - "config/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
       - "package-lock.json"
       - "package.json"
       - "packages/**"
@@ -67,6 +71,11 @@ jobs:
     needs: meta
     steps:
       - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+      - run: cargo test --locked -p subboost
 
       - uses: actions/setup-node@v6
         with:
@@ -83,6 +92,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        component: [frontend, backend]
+        arch: [amd64, arm64]
         include:
           - arch: amd64
             platform: linux/amd64
@@ -107,6 +118,7 @@ jobs:
         with:
           context: .
           file: local/Dockerfile
+          target: ${{ matrix.component }}
           platforms: ${{ matrix.platform }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           build-args: |
@@ -114,10 +126,10 @@ jobs:
             APP_BUILD_SHA=${{ github.sha }}
             APP_VERSION=${{ needs.meta.outputs.build_version }}
             APP_VERSION_TOKEN=${{ needs.meta.outputs.build_version }}
-          cache-from: type=gha,scope=selfhost-dev-${{ matrix.arch }}
-          cache-to: type=gha,mode=max,scope=selfhost-dev-${{ matrix.arch }}
+          cache-from: type=gha,scope=selfhost-dev-${{ matrix.component }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=selfhost-dev-${{ matrix.component }}-${{ matrix.arch }}
           provenance: false
-          tags: ${{ needs.meta.outputs.image_name }}
+          tags: ${{ matrix.component == 'backend' && format('{0}-backend', needs.meta.outputs.image_name) || needs.meta.outputs.image_name }}
 
       - name: Export digest
         shell: bash
@@ -130,7 +142,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digest-${{ matrix.arch }}
+          name: digest-${{ matrix.component }}-${{ matrix.arch }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -159,8 +171,15 @@ jobs:
       - name: Download image digests
         uses: actions/download-artifact@v4
         with:
-          pattern: digest-*
-          path: ${{ runner.temp }}/digests
+          pattern: digest-frontend-*
+          path: ${{ runner.temp }}/digests/frontend
+          merge-multiple: true
+
+      - name: Download backend image digests
+        uses: actions/download-artifact@v4
+        with:
+          pattern: digest-backend-*
+          path: ${{ runner.temp }}/digests/backend
           merge-multiple: true
 
       - name: Create dev image tags
@@ -171,34 +190,27 @@ jobs:
           SHORT_SHA: ${{ needs.meta.outputs.short_sha }}
         run: |
           set -euo pipefail
-          mapfile -t digest_files < <(find "${RUNNER_TEMP}/digests" -type f | sort)
-          if [ "${#digest_files[@]}" -lt 2 ]; then
-            echo "Expected at least two architecture digests, found ${#digest_files[@]}" >&2
-            exit 1
-          fi
-
-          sources=()
-          for file in "${digest_files[@]}"; do
-            sources+=("${IMAGE_NAME}@sha256:$(basename "$file")")
+          for component in frontend backend; do
+            image="${IMAGE_NAME}"
+            [ "$component" = frontend ] || image="${IMAGE_NAME}-backend"
+            mapfile -t digest_files < <(find "${RUNNER_TEMP}/digests/${component}" -type f | sort)
+            [ "${#digest_files[@]}" -eq 2 ] || { echo "Expected two ${component} architecture digests" >&2; exit 1; }
+            sources=()
+            for file in "${digest_files[@]}"; do
+              sources+=("${image}@sha256:$(basename "$file")")
+            done
+            docker buildx imagetools create \
+              --metadata-file "${RUNNER_TEMP}/${component}-metadata.json" \
+              --tag "${image}:dev" --tag "${image}:sha-${SHORT_SHA}" "${sources[@]}"
+            digest="$(node -e 'const m=require(process.argv[1]); const d=m["containerimage.digest"] || m["containerimage.descriptor"]?.digest; if (!d) process.exit(1); process.stdout.write(d);' "${RUNNER_TEMP}/${component}-metadata.json")"
+            echo "${component}_digest=${digest}" >> "$GITHUB_OUTPUT"
           done
-
-          docker buildx imagetools create \
-            --metadata-file "${RUNNER_TEMP}/image-metadata.json" \
-            --tag "${IMAGE_NAME}:dev" \
-            --tag "${IMAGE_NAME}:sha-${SHORT_SHA}" \
-            "${sources[@]}"
-
-          digest="$(node -e 'const metadata = require(process.argv[1]); const digest = metadata["containerimage.digest"] || metadata["containerimage.descriptor"]?.digest; if (!digest) { console.error(JSON.stringify(metadata, null, 2)); process.exit(1); } process.stdout.write(digest);' "${RUNNER_TEMP}/image-metadata.json")"
-          if [ -z "$digest" ] || [ "$digest" = "null" ]; then
-            echo "Failed to resolve multi-platform image digest for ${IMAGE_NAME}:dev" >&2
-            exit 1
-          fi
-          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
 
       - name: Prepare dev release assets
         shell: bash
         env:
-          IMAGE_DIGEST: ${{ steps.image_manifest.outputs.digest }}
+          IMAGE_DIGEST: ${{ steps.image_manifest.outputs.frontend_digest }}
+          BACKEND_IMAGE_DIGEST: ${{ steps.image_manifest.outputs.backend_digest }}
           IMAGE_NAME: ${{ needs.meta.outputs.image_name }}
         run: |
           set -euo pipefail
@@ -208,6 +220,7 @@ jobs:
             --tag dev \
             --build-sha "${GITHUB_SHA}" \
             --image "${IMAGE_NAME}@${IMAGE_DIGEST}" \
+            --backend-image "${IMAGE_NAME}-backend@${BACKEND_IMAGE_DIGEST}" \
             --image-tag "${IMAGE_NAME}:dev" \
             --base-url "${dev_base_url}" \
             --installer-release-url "${dev_base_url}/release.json" \
@@ -229,7 +242,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          IMAGE_DIGEST: ${{ steps.image_manifest.outputs.digest }}
+          IMAGE_DIGEST: ${{ steps.image_manifest.outputs.frontend_digest }}
           IMAGE_NAME: ${{ needs.meta.outputs.image_name }}
         run: |
           set -euo pipefail
@@ -255,6 +268,7 @@ jobs:
               dist/release-assets/install.sh \
               dist/release-assets/docker-compose.image.yml \
               dist/release-assets/subboost-manager \
+              dist/release-assets/subboost.toml \
               --clobber
           else
             gh release create dev \
@@ -266,7 +280,8 @@ jobs:
               dist/release-assets/release.json \
               dist/release-assets/install.sh \
               dist/release-assets/docker-compose.image.yml \
-              dist/release-assets/subboost-manager
+              dist/release-assets/subboost-manager \
+              dist/release-assets/subboost.toml
           fi
 
           release_id="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/dev" --jq ".id")"

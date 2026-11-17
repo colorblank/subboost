@@ -40,6 +40,60 @@
 - 部署文档：[高级部署 - 编译源码构建，速度慢配置要求高](https://docs.subboost.org/deploy/advanced)
 - 配置教程：[草履虫也能学会的 Clash 配置：UI 界面一键配置精确分流、链式代理](https://ryanvan.com/t/topic/59?u=ryan)
 
+## Rust 后端、CLI 与 MCP
+
+HTTP API、CLI 和 MCP 共享纯 Rust 转换与管理逻辑；Next.js 只负责前端和 API 转发。无需 PostgreSQL、Prisma 或独立定时任务容器，SQLite 会自动创建。
+
+配置与代码分离：
+- `config/subboost.toml`：SQLite 路径、监听地址、公开 URL、请求预算、游客配额、认证、进程内刷新及生成默认值。使用 `--settings FILE` 或 `SUBBOOST_CONFIG` 指定文件；相对路径以进程工作目录为准，修改后重启。
+- `config/frontend.json`：前端开发地址和 Rust API 转发地址；`SUBBOOST_BACKEND_URL` 可覆盖转发目标。生产构建时确定转发地址。
+- `config/parser-policy.json`：解析、YAML 展开和正则的安全预算；`SUBBOOST_PARSER_POLICY` 可指定其他文件。
+- `config/mihomo/`、`config/rules/`：独立的生成默认数据和规则目录。
+
+需要 Rust stable；前端另需项目 `engines` 声明的 Node.js。独立 CLI 不需要 Node.js 或 HTTP 服务：
+
+```bash
+cargo install --locked --path backend
+subboost --help
+subboost parse subscription.txt
+subboost convert subscription.txt > config.yaml
+subboost subscription list
+subboost mcp
+```
+
+MCP 客户端配置：
+
+```json
+{"mcpServers":{"subboost":{"command":"subboost","args":["mcp"]}}}
+```
+
+MCP 使用原生 stdio JSON-RPC，支持工具发现、订阅/模板 CRUD、刷新、转换、规则和备份。CLI/MCP 共用 `application.local_owner` 工作空间，不会自动读取浏览器游客的数据。需要交换数据时使用备份导入/导出；部署运维脚本与原生 CLI 同名时，请使用各自的完整路径。
+
+浏览器直接进入游客工作空间，无需注册或初始化管理员。不同游客使用独立的 HttpOnly Cookie；清除 Cookie 后不能重新认领原工作空间，请先导出数据。管理员登录仍可选，初始化需设置 `LOCAL_SETUP_TOKEN`。游客不能开启内网订阅访问。公开订阅链接是访问凭证，请勿泄露。
+
+刷新由 Rust 服务内部的顺序计时器完成，不堆积错过的周期；刷新失败保留上一次节点快照。端口、间隔和预算以配置文件为准。
+
+### 部署、备份与旧库迁移
+
+从源码构建容器：
+
+```bash
+APP_URL=http://127.0.0.1:3001 docker compose -f local/docker-compose.yml up -d --build
+```
+
+只有前端端口对主机发布；Rust API、SQLite 和刷新器在同一个后端容器中。发行版 Compose 需要匹配的前端、后端镜像与 `subboost.toml` 附件，必须先通过新的发布工作流发布，不能混用旧版镜像。
+
+SQLite 数据库和相邻的 `.key` 文件必须一起备份；缺失密钥无法解密数据。在线复制时还需要 WAL，建议先停止后端。运维脚本的 `backup` 会暂停写入，校验 SQLite 并保存数据库、WAL、密钥、环境文件和运行配置。`subboost backup export` 输出含节点凭据的明文 JSON，只能保存到私有文件。
+
+旧 PostgreSQL 部署不会被直接覆盖。先备份旧卷并暂停旧应用和 cron，再在旧数据库可达的环境导出：
+
+```bash
+(umask 077; psql "$DATABASE_URL" -XAt -v ON_ERROR_STOP=1 -f scripts/export-legacy.sql > legacy.json)
+subboost --database data/subboost.sqlite3 migrate-legacy legacy.json
+```
+
+迁移命令需在环境中提供旧安装的 `ENCRYPTION_KEY`，目标使用新的独立 SQLite 目录。导入保留管理员、所有者、ID、订阅 token、模板和刷新状态；错误密钥或任何冲突都会中止导入，不覆盖现有记录。旧会话不迁移，迁移后重新登录；核对数据和订阅输出后再切换流量，保留旧卷直到验证完成。
+
 ## 开发说明
 
 开发者可以从源码启动本地开发环境：

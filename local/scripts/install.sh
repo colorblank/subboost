@@ -166,19 +166,33 @@ prepare_temp_directory() {
   fi
 }
 validate_compose_binding() {
-  # The app's published ports must all use the requested host and include the selected port.
   local bind="${1#[}" port="$2"; bind="${bind%]}"
-  if command -v python3 >/dev/null 2>&1; then python3 -c 'import json,sys; a=json.load(sys.stdin)["services"]["app"]; p=a.get("ports",[]); sys.exit(not (a.get("network_mode")!="host" and isinstance(p,list) and all(isinstance(x,dict) and x.get("host_ip")==sys.argv[1] for x in p) and any(str(x.get("target"))=="3000" and str(x.get("published"))==sys.argv[2] and x.get("protocol","tcp")=="tcp" for x in p)))' "$bind" "$port" 2>/dev/null
-  elif command -v node >/dev/null 2>&1; then node -e 'const a=JSON.parse(require("fs").readFileSync(0,"utf8")).services.app,p=a.ports; process.exit(Array.isArray(p)&&a.network_mode!=="host"&&p.every(x=>x&&x.host_ip===process.argv[1])&&p.some(x=>String(x.target)==="3000"&&String(x.published)===process.argv[2]&&(x.protocol===undefined?"tcp":x.protocol)==="tcp")?0:1)' "$bind" "$port" 2>/dev/null
-  elif command -v jq >/dev/null 2>&1; then jq -e --arg bind "$bind" --arg port "$port" '(.services.app // {}) as $a | ($a.ports | type=="array") and ($a.network_mode != "host") and all($a.ports[]; .host_ip==$bind) and any($a.ports[]; (.target|tostring)=="3000" and (.published|tostring)==$port and (if has("protocol") then .protocol else "tcp" end)=="tcp")' >/dev/null 2>&1
+  if command -v python3 >/dev/null 2>&1; then
+    python3 -c 'import json,sys; s=json.load(sys.stdin)["services"]; a=s["app"]; p=a.get("ports",[]); sys.exit(not (all(v.get("network_mode")!="host" and (k=="app" or not v.get("ports")) for k,v in s.items()) and len(p)==1 and p[0].get("host_ip","0.0.0.0" if sys.argv[1]=="0.0.0.0" else "")==sys.argv[1] and str(p[0].get("target"))=="3000" and str(p[0].get("published"))==sys.argv[2] and p[0].get("protocol","tcp")=="tcp"))' "$bind" "$port"
+  elif command -v node >/dev/null 2>&1; then
+    node -e 'const s=JSON.parse(require("fs").readFileSync(0,"utf8")).services,p=s.app.ports; process.exit(Object.entries(s).every(([k,v])=>v.network_mode!=="host"&&(k==="app"||!v.ports||Array.isArray(v.ports)&&v.ports.length===0))&&Array.isArray(p)&&p.length===1&&(p[0].host_ip===undefined?(process.argv[1]==="0.0.0.0"?"0.0.0.0":""):p[0].host_ip)===process.argv[1]&&String(p[0].target)==="3000"&&String(p[0].published)===process.argv[2]&&(p[0].protocol===undefined?"tcp":p[0].protocol)==="tcp"?0:1)' "$bind" "$port"
+  elif command -v jq >/dev/null 2>&1; then
+    jq -e --arg bind "$bind" --arg port "$port" 'all(.services | to_entries[]; .value.network_mode!="host" and (.key=="app" or ((.value.ports // [])|length)==0)) and (.services.app.ports as $p | ($p|length)==1 and ($p[0] | if has("host_ip") then .host_ip elif $bind=="0.0.0.0" then "0.0.0.0" else "" end)==$bind and ($p[0].target|tostring)=="3000" and ($p[0].published|tostring)==$port and ($p[0] | if has("protocol") then .protocol else "tcp" end)=="tcp")' >/dev/null
   else
-    # Without a JSON parser, accept only the canonical single-port Compose output.
+    # shortcut: parser-free validation accepts canonical single-port Compose JSON; install Python, Node or jq for other layouts.
     awk -v bind="$bind" -v port="$port" '
-      NR==1 && $0!="{" {bad=1} {last=$0} /^  "services": \{$/ {s=1;next} s && /^  \},?$/ {s=0} s && /^    "app": \{$/ {a=1;apps++;next} a && /^    \},?$/ {a=0}
-      a && /^      "network_mode":/ {bad=1} a && /^      "ports": \[$/ {p=1;lists++;next} p && /^      \],?$/ {p=0} p && /^        \{$/ {items++}
-      p && /^          "(target|published|protocol|host_ip)":/ {v=$0; sub(/^.*:[[:space:]]*"?/,"",v); sub(/"?,?[[:space:]]*$/,"",v); if ($0 ~ /"target":/) {targets++;if(v!="3000")bad=1} else if ($0 ~ /"published":/) {published++;if(v!=port)bad=1} else if ($0 ~ /"host_ip":/) {hosts++;if(v!=bind)bad=1} else if(v!="tcp")bad=1}
-      END {if(last!="}" || apps!=1 || lists!=1 || items!=1 || targets!=1 || published!=1 || hosts!=1 || bad)exit 1}' || { printf '%s\n' 'Install Python 3, Node.js, or jq to verify this Compose binding.' >&2; return 1; }
+      NR==1 && $0!="{" {bad=1} {last=$0}
+      /^  "services": \{$/ {services=1;next} services && /^  \},?$/ {services=0} services && /^    "app": \{$/ {app=1;apps++;next} app && /^    \},?$/ {app=0}
+      /"network_mode"[[:space:]]*:/ {bad=1}
+      /"ports"[[:space:]]*:/ && !app && $0 !~ /"ports": \[\],?$/ {bad=1}
+      app && /^      "ports": \[$/ {ports=1;lists++;next} ports && /^      \],?$/ {ports=0} ports && /^        \{$/ {items++}
+      /"host_ip"[[:space:]]*:/ {if(!ports)bad=1; hosts++;v=$0;sub(/^.*:[[:space:]]*"/,"",v);sub(/",?[[:space:]]*$/,"",v);if(v!=bind)bad=1}
+      ports && /^          "(target|published|protocol)":/ {v=$0;sub(/^.*:[[:space:]]*"?/,"",v);sub(/"?,?[[:space:]]*$/,"",v);if($0 ~ /"target":/){targets++;if(v!="3000")bad=1}else if($0 ~ /"published":/){published++;if(v!=port)bad=1}else if(v!="tcp")bad=1}
+      END {if(last!="}" || apps!=1 || lists!=1 || items!=1 || targets!=1 || published!=1 || (bind=="0.0.0.0" ? hosts>1 : hosts!=(bind!="")) || bad)exit 1}' || { printf '%s\n' 'Install Python 3, Node.js, or jq to verify this Compose layout.' >&2; return 1; }
   fi
+}
+require_sqlite_compose() {
+  local services
+  services="$(compose config --services)" || return 1
+  printf '%s\n' "$services" | grep -Fxq backend &&
+    printf '%s\n' "$services" | grep -Fxq app &&
+    ! printf '%s\n' "$services" | grep -Eq '^(db|cron)$' ||
+    die "Legacy PostgreSQL deployment detected. Do not replace its volume: export and migrate into a separate SQLite installation before switching traffic."
 }
 fetch_release_manifest() {
   prepare_temp_directory
@@ -517,16 +531,8 @@ wait_for_health() {
 }
 
 cleanup_failed_install() {
-  local volumes_before="$1"
-  local project_name
-  project_name="$(basename "$SUBBOOST_HOME")"
-  compose down --remove-orphans >/dev/null 2>&1 || true
-  while IFS= read -r volume; do
-    [ -n "$volume" ] || continue
-    if ! grep -Fxq "$volume" "$volumes_before"; then
-      docker_cmd volume rm "$volume" >/dev/null 2>&1 || true
-    fi
-  done < <(docker_cmd volume ls -q --filter "label=com.docker.compose.project=$project_name" 2>/dev/null || true)
+  # Keep even newly created volumes: a partially started server may contain data.
+  compose down >/dev/null 2>&1 || true
 }
 
 commit_candidate_install() {
@@ -554,17 +560,21 @@ main() {
   fi
   fetch_release_manifest
 
-  local manifest_image manifest_compose manifest_manager manifest_version
+  local manifest_image manifest_backend manifest_compose manifest_manager manifest_version
   manifest_image="$(json_get image "$RELEASE_FILE" || true)"
+  manifest_backend="$(json_get backendImage "$RELEASE_FILE" || true)"
   manifest_compose="$(json_get composeUrl "$RELEASE_FILE" || true)"
   manifest_manager="$(json_get managerUrl "$RELEASE_FILE" || true)"
   manifest_version="$(json_get version "$RELEASE_FILE" || true)"
+  local manifest_config config_url
+  manifest_config="$(json_get runtimeConfigUrl "$RELEASE_FILE" || true)"
+  config_url="${SUBBOOST_CONFIG_URL:-$(resolve_url "$SUBBOOST_RELEASE_URL" "${manifest_config:-subboost.toml}")}"
 
   local image compose_url manager_url
   image="${SUBBOOST_IMAGE:-${manifest_image:-$DEFAULT_IMAGE}}"
   compose_url="${SUBBOOST_COMPOSE_URL:-$(resolve_url "$SUBBOOST_RELEASE_URL" "${manifest_compose:-$DEFAULT_COMPOSE_URL}")}"
   manager_url="${SUBBOOST_MANAGER_URL:-$(resolve_url "$SUBBOOST_RELEASE_URL" "${manifest_manager:-$DEFAULT_MANAGER_URL}")}"
-  [ -n "$image" ] && [ -n "$compose_url" ] && [ -n "$manager_url" ] || die "Release metadata is missing image, composeUrl, or managerUrl."
+  [ -n "$image" ] && [ -n "${SUBBOOST_BACKEND_IMAGE:-$manifest_backend}" ] && [ -n "$compose_url" ] && [ -n "$manager_url" ] || die "Release metadata must name frontend and backend images, composeUrl and managerUrl."
 
   say "Installing SubBoost."
   say "Install directory: $SUBBOOST_HOME"
@@ -590,28 +600,21 @@ main() {
   : > "$ENV_FILE"
   download_to_temp "$compose_url" "$COMPOSE_FILE"
   download_to_temp "$manager_url" "$candidate_manager"
+  download_to_temp "$config_url" "$TMP_DIR/subboost.toml"
+  [ -s "$TMP_DIR/subboost.toml" ] || die "Runtime configuration is empty."
+  run_root install -m 644 "$TMP_DIR/subboost.toml" "$SUBBOOST_HOME/subboost.toml"
   [ -s "$COMPOSE_FILE" ] || die "Candidate Compose file is empty."
   [ -s "$candidate_manager" ] && bash -n "$candidate_manager" || die "Candidate manager is invalid."
 
   set_env_value SUBBOOST_IMAGE "$image"
+  set_env_value SUBBOOST_BACKEND_IMAGE "${SUBBOOST_BACKEND_IMAGE:-$manifest_backend}"
   set_env_value SUBBOOST_CANDIDATE_IMAGE "$image"
   set_env_value SUBBOOST_RELEASE_URL "$SUBBOOST_UPDATE_RELEASE_URL"
   set_env_value SUBBOOST_COMPOSE_URL "$compose_url"
   set_env_value SUBBOOST_MANAGER_URL "$manager_url"
-  ensure_env_value POSTGRES_DB "subboost"
-  ensure_env_value POSTGRES_USER "subboost"
-  ensure_env_value POSTGRES_PASSWORD "$(random_hex 18)"
-  ensure_env_value ENCRYPTION_KEY "$(random_hex 32)"
-  ensure_env_value JWT_SECRET "$(random_hex 32)"
-  ensure_env_value CRON_SECRET "$(random_hex 32)"
   ensure_env_value LOCAL_SETUP_TOKEN "$(random_hex 32)"
 
-  local db_name db_user db_pass database_url current_url current_port selected_port final_url recommended_port access_mode binding
-  db_name="$(env_value POSTGRES_DB)"
-  db_user="$(env_value POSTGRES_USER)"
-  db_pass="$(env_value POSTGRES_PASSWORD)"
-  database_url="postgresql://$db_user:$db_pass@db:5432/$db_name?schema=public"
-  ensure_env_value DATABASE_URL "$database_url"
+  local current_url current_port selected_port final_url recommended_port access_mode binding
 
   current_port="${SUBBOOST_PORT:-$(env_value SUBBOOST_PORT || true)}"
   current_url="${APP_URL:-$(env_value APP_URL || true)}"
@@ -629,14 +632,14 @@ main() {
       final_url="${current_url:-$(prompt '输入已配置 HTTPS 的反向代理地址（例如 https://local.subboost.test）: ' '')}"
       final_url="${final_url%/}"
       valid_web_url "$final_url" https || die "请输入有效的 HTTPS 地址，不能包含路径。"
-      warn "请自行配置 HTTPS 证书和反向代理，将请求转发到 http://127.0.0.1:$selected_port；安装器不会配置 TLS。"
+      warn "请自行配置 HTTPS 证书和反向代理，将请求转发到 http://127.0.0.1:${selected_port}；安装器不会配置 TLS。"
       ;;
     public-http)
       final_url="${current_url:-$(prompt '输入服务器地址（HTTP）: ' "http://$(detect_public_host)")}"
       final_url="$(ensure_scheme "${final_url%/}")"
       valid_web_url "$final_url" http || die "请输入有效的 HTTP 地址，不能包含路径。"
       if ! url_has_port "$final_url"; then final_url="$final_url:$selected_port"; fi
-      binding=""
+      binding="0.0.0.0"
       warn "HTTP 未加密，设置令牌、密码和会话可能被网络上的其他人读取；只在可信网络使用。"
       ;;
     *) die "访问方式须为 ssh、https 或 public-http。" ;;
@@ -657,24 +660,17 @@ main() {
   set_env_value APP_URL "$final_url"
 
   compose config >/dev/null
-  if [ -n "$binding" ]; then
-    compose config --format json | validate_compose_binding "$binding" "$selected_port" || die "Candidate Compose does not safely publish app on $binding:$selected_port (port 3000/tcp); use a compatible Compose file."
-  fi
-  local services
-  services="$(compose config --services)"
-  for service in app db cron; do
-    printf '%s\n' "$services" | grep -Fxq "$service" || die "Candidate Compose is missing service: $service"
-  done
-  docker_cmd volume ls -q > "$volumes_before"
+  compose config --format json | validate_compose_binding "$binding" "$selected_port" || die "Candidate Compose does not safely publish only app on $binding:$selected_port (port 3000/tcp)."
+  require_sqlite_compose
   say "Pulling SubBoost image before creating containers..."
   compose pull
   say "Starting SubBoost..."
-  if ! compose up -d db app || ! wait_for_health "$(env_value SUBBOOST_PORT)" || ! compose up -d cron; then
-    cleanup_failed_install "$volumes_before"
-    die "New installation failed; only resources created by this run were cleaned up."
+  if ! compose up -d backend app || ! wait_for_health "$(env_value SUBBOOST_PORT)"; then
+    cleanup_failed_install
+    die "New installation failed; data volumes were preserved."
   fi
   if ! commit_candidate_install "$ENV_FILE" "$COMPOSE_FILE" "$candidate_manager" "$live_env" "$live_compose"; then
-    cleanup_failed_install "$volumes_before"
+    cleanup_failed_install
     run_root rm -f "$live_env" "$live_compose" "${live_env}.candidate.$$" "${live_compose}.candidate.$$" "${SUBBOOST_BIN}.candidate.$$"
     die "Failed to atomically install candidate metadata."
   fi
@@ -685,10 +681,9 @@ main() {
   say "SubBoost 已启动。"
   say "访问地址: $(env_value APP_URL)"
   if [ "$access_mode" = "ssh" ]; then say "从远程电脑访问前运行: ssh -L $selected_port:127.0.0.1:$selected_port <用户名>@<服务器地址>"; fi
-  say "首次初始化链接: $(env_value APP_URL)/login#setup-token=$(env_value LOCAL_SETUP_TOKEN)"
-  say "请通过上面的链接创建第一个管理员；初始化成功后页面会清除令牌片段。"
+  say "Guests can use the application immediately; optional admin setup: $(env_value APP_URL)/login#setup-token=$(env_value LOCAL_SETUP_TOKEN)"
   say "管理命令: subboost"
-  say "重要提醒: 请把 $ENV_FILE 和数据库备份一起保存好。"
+  say "Back up the entire SQLite volume, including its key: subboost backup"
 }
 
 if [ "${SUBBOOST_SCRIPT_SOURCE_ONLY:-0}" != "1" ]; then

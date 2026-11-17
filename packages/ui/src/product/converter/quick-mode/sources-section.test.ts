@@ -289,6 +289,8 @@ describe("quick mode SourcesSection", () => {
     expect(mocks.captures.editor).toEqual(expect.objectContaining({ source: urlSource }));
     expect(mocks.captures.addSourceMenus[0]).toEqual(expect.objectContaining({ open: true }));
     expect(mocks.captures.sourceTypeChoices).toHaveLength(2);
+    expect(mocks.captures.inputs[0]["aria-label"]).toBeTruthy();
+    expect(mocks.captures.textareas[0]["aria-label"]).toBeTruthy();
   });
 
   it("updates source content and metadata through the shared editor contract", () => {

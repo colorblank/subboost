@@ -52,7 +52,7 @@ function withTempVersionRepo(run: (root: string) => void): void {
     writeText(
       root,
       "public/local/docker-compose.image.yml",
-      "services:\n  app:\n    image: ${SUBBOOST_IMAGE:?set SUBBOOST_IMAGE}\n",
+      "services:\n  app:\n    image: ${SUBBOOST_IMAGE:?set SUBBOOST_IMAGE}\n  backend:\n    image: ${SUBBOOST_BACKEND_IMAGE:-ghcr.io/subboost/subboost-backend:latest}\n",
     );
     writeText(
       root,
@@ -69,6 +69,7 @@ function withTempVersionRepo(run: (root: string) => void): void {
       ].join("\r\n"),
     );
     writeText(root, "public/local/scripts/subboost.sh", "#!/usr/bin/env bash\r\necho subboost\r\n");
+    writeText(root, "public/config/subboost.toml", "[application]\ndatabase = 'subboost.sqlite3'\n");
     run(root);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -84,6 +85,8 @@ describe("public selfhost release assets script", () => {
         "dist/assets",
         "--image",
         "ghcr.io/subboost/subboost@sha256:abc123",
+        "--backend-image",
+        "ghcr.io/subboost/subboost-backend@sha256:backend123",
         "--image-repository",
         "ghcr.io/subboost/subboost",
         "--release-tag",
@@ -100,6 +103,8 @@ describe("public selfhost release assets script", () => {
         buildVersion: "9.8.7+sha.abcdef123456",
         composeUrl: "https://github.com/SubBoost/subboost/releases/download/v9.8.7/docker-compose.image.yml",
         image: "ghcr.io/subboost/subboost@sha256:abc123",
+        backendImage: "ghcr.io/subboost/subboost-backend@sha256:backend123",
+        runtimeConfigUrl: "https://github.com/SubBoost/subboost/releases/download/v9.8.7/subboost.toml",
         imageTag: "ghcr.io/subboost/subboost:v9.8.7",
         installerUrl: "https://github.com/SubBoost/subboost/releases/download/v9.8.7/install.sh",
         managerUrl: "https://github.com/SubBoost/subboost/releases/download/v9.8.7/subboost-manager",
@@ -138,6 +143,8 @@ describe("public selfhost release assets script", () => {
         "image: ${SUBBOOST_CANDIDATE_IMAGE:-ghcr.io/subboost/subboost@sha256:abc123}",
       );
       expect(releaseCompose).not.toContain("${SUBBOOST_IMAGE:?set SUBBOOST_IMAGE}");
+      expect(releaseCompose).toContain("image: ${SUBBOOST_CANDIDATE_BACKEND_IMAGE:-ghcr.io/subboost/subboost-backend@sha256:backend123}");
+      expect(readFileSync(join(bundle.output, "subboost.toml"), "utf8")).toContain("database = 'subboost.sqlite3'");
       expectExecutable(join(bundle.output, "install.sh"));
       expectExecutable(join(bundle.output, "subboost-manager"));
       expect(JSON.parse(readFileSync(join(bundle.output, "release.json"), "utf8"))).toMatchObject(manifest);
@@ -306,10 +313,11 @@ describe("public selfhost release assets script", () => {
       writeText(
         root,
         "local/docker-compose.image.yml",
-        "services:\n  app:\n    image: ${SUBBOOST_IMAGE:?set SUBBOOST_IMAGE}\n",
+        "services:\n  app:\n    image: ${SUBBOOST_IMAGE:?set SUBBOOST_IMAGE}\n  backend:\n    image: ${SUBBOOST_BACKEND_IMAGE:-ghcr.io/subboost/subboost-backend:latest}\n",
       );
       writeText(root, "local/scripts/install.sh", "#!/usr/bin/env bash\necho install\n");
       writeText(root, "local/scripts/subboost.sh", "#!/usr/bin/env bash\necho subboost\n");
+      writeText(root, "config/subboost.toml", "[application]\ndatabase = 'subboost.sqlite3'\n");
 
       expect(() => publicReleaseAssets.buildManifest(root, publicReleaseAssets.parseArgs([]))).toThrow(
         "git rev-parse HEAD failed"

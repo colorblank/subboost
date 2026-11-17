@@ -155,7 +155,7 @@ describe("useSubscriptionLink", () => {
     });
   });
 
-  it("shows the login action and captures the current draft for guests", () => {
+  it("shows the login action only when no identity could be loaded", () => {
     useRenderedHook({ user: null }).handleGenerateSubscription("quick");
 
     const loginToast = mocks.toast.mock.calls.at(-1)?.[0] as any;
@@ -244,13 +244,18 @@ describe("useSubscriptionLink", () => {
     expect(console.error).toHaveBeenCalledWith("Accept save requirement error:", error);
   });
 
-  it("saves a normalized subscription payload and tracks success", async () => {
+  it.each([false, true])("saves a normalized subscription payload (guest=%s)", async (isGuest) => {
     const adapter = makeAdapter();
-    let hook = useRenderedHook({ subscriptionAdapter: adapter });
+    const user = { id: "owner-1", isGuest, isAdmin: false, saveRequirementSatisfied: true };
+    let hook = useRenderedHook({ subscriptionAdapter: adapter, user });
+    hook.handleGenerateSubscription("quick");
+    hook = useRenderedHook({ subscriptionAdapter: adapter, user });
+    expect(hook.subscriptionDialog).toBe(true);
+    expect(window.location.href).toBe("");
     hook.setSubscriptionName(" My Sub ");
     hook.setAutoUpdateEnabled(true);
     hook.setAutoUpdateHours(24);
-    hook = useRenderedHook({ subscriptionAdapter: adapter });
+    hook = useRenderedHook({ subscriptionAdapter: adapter, user });
 
     await hook.handleCreateSubscription();
     hook = useRenderedHook({ subscriptionAdapter: adapter });

@@ -20,6 +20,7 @@ export interface User {
   trustLevel: number;
   aiAssistantEnabled: boolean;
   isAdmin: boolean;
+  isGuest?: boolean;
   isBanned: boolean;
   bannedUntil?: string | null;
   banReason?: string | null;

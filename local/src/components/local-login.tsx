@@ -4,7 +4,8 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { getLocalAdminSetupCredentialError, LOCAL_ADMIN_PASSWORD_MIN_LENGTH } from "@local/lib/admin-credentials";
+import { getLocalAdminSetupCredentialError } from "@local/lib/admin-credentials";
+import { useRuntimeConfig } from "@local/lib/runtime-config";
 import { Button } from "@subboost/ui/components/ui/button";
 import { FormField } from "@subboost/ui/components/ui/form-field";
 import { Input } from "@subboost/ui/components/ui/input";
@@ -14,6 +15,8 @@ import { hasAuthConfigHandoff } from "@subboost/ui/store/config-store/auth-hando
 type AuthState = {
   setupRequired: boolean;
   authenticated: boolean;
+  isGuest?: boolean;
+  adminSetupRequired?: boolean;
 };
 
 async function readJson<T>(response: Response): Promise<T> {
@@ -26,6 +29,7 @@ function getPostLoginHref(): string {
 }
 
 export function LocalLogin() {
+  const runtime = useRuntimeConfig();
   const [auth, setAuth] = React.useState<AuthState | null>(null);
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -43,7 +47,7 @@ export function LocalLogin() {
       .then((nextAuth) => {
         if (!cancelled) {
           setAuth(nextAuth);
-          if (nextAuth.authenticated) window.location.href = getPostLoginHref();
+          if (nextAuth.authenticated && !nextAuth.isGuest) window.location.href = getPostLoginHref();
         }
       })
       .catch((loadError) => {
@@ -54,13 +58,15 @@ export function LocalLogin() {
     };
   }, []);
 
-  const setupRequired = auth?.setupRequired === true;
+  const setupRequired = (auth?.adminSetupRequired ?? auth?.setupRequired) === true;
+  if (!runtime.config) return <p className="p-6" role={runtime.error ? "alert" : "status"}>{runtime.error || "读取运行配置…"}</p>;
+  const minimumPasswordCharacters = runtime.config.minimumPasswordCharacters;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
     const credentialError = setupRequired
-      ? getLocalAdminSetupCredentialError({ username, password, passwordConfirm })
+      ? getLocalAdminSetupCredentialError({ username, password, passwordConfirm }, minimumPasswordCharacters)
       : "";
     if (credentialError) {
       setError(credentialError);
@@ -102,7 +108,10 @@ export function LocalLogin() {
             <Image src="/logo.png" alt="SubBoost" width={64} height={64} className="rounded-2xl shadow-lg shadow-blue-500/25" />
           </Link>
           <h1 className="text-2xl font-bold mt-4 text-fg">欢迎使用 SubBoost</h1>
-          <p className="text-fg-50 mt-2">{setupRequired ? "初始化本地管理员账号" : "登录以使用订阅管理功能"}</p>
+          <p className="text-fg-50 mt-2">{setupRequired ? "初始化本地管理员账号" : "管理员登录（可选）"}</p>
+          <Link href="/" className="mt-3 inline-block text-sm text-indigo-400 underline underline-offset-4">
+            以游客身份继续，无需登录即可保存订阅和模板
+          </Link>
         </div>
 
         <div className="bg-ink/5 backdrop-blur-sm border border-ink/10 rounded-2xl p-6 space-y-4">
@@ -120,7 +129,7 @@ export function LocalLogin() {
               <PasswordField
                 label="密码"
                 autoComplete={setupRequired ? "new-password" : "current-password"}
-                description={setupRequired ? `至少 ${LOCAL_ADMIN_PASSWORD_MIN_LENGTH} 个字符` : undefined}
+                description={setupRequired ? `至少 ${minimumPasswordCharacters} 个字符` : undefined}
                 placeholder="密码"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

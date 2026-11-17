@@ -1,8 +1,25 @@
 import path from "node:path";
+import fs from "node:fs";
+
+function loadFrontendConfig() {
+  const customPath = process.env.SUBBOOST_FRONTEND_CONFIG;
+  const configUrl = customPath ? path.resolve(customPath) : new URL("../config/frontend.json", import.meta.url);
+  try {
+    return JSON.parse(fs.readFileSync(configUrl, "utf8"));
+  } catch {
+    return {
+      development: { hostname: "127.0.0.1", port: 3001 },
+      backendUrl: "http://127.0.0.1:3002",
+    };
+  }
+}
+
+const frontend = loadFrontendConfig();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  agentRules: false,
   outputFileTracingRoot: path.resolve(process.cwd(), ".."),
   transpilePackages: ["@subboost/core", "@subboost/server-core", "@subboost/ui", "@subboost/config"],
   webpack(config) {
@@ -13,6 +30,10 @@ const nextConfig = {
       ...(config.resolve.modules || []),
     ];
     return config;
+  },
+  async rewrites() {
+    const backend = (process.env.SUBBOOST_BACKEND_URL || frontend.backendUrl || "http://127.0.0.1:3002").replace(/\/+$/, "");
+    return [{ source: "/api/:path*", destination: `${backend}/api/:path*` }];
   },
   async headers() {
     const headers = [

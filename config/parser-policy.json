@@ -1,0 +1,15 @@
+{
+  "maximum_input_bytes": 10485760,
+  "maximum_output_bytes": 16777216,
+  "maximum_nodes": 10000,
+  "maximum_lines": 200000,
+  "maximum_errors": 100,
+  "maximum_error_characters": 512,
+  "yaml_maximum_depth": 100,
+  "yaml_maximum_nodes": 250000,
+  "yaml_maximum_text_bytes": 33554432,
+  "yaml_maximum_merge_entries": 10000,
+  "regex_maximum_bytes": 2097152,
+  "regex_backtrack_limit": 100000,
+  "rule_maximum_line_characters": 8192
+}

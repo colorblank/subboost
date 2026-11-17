@@ -5,7 +5,7 @@ import {
 } from "@subboost/ui/dashboard/subscription-dashboard-surface";
 import { readJsonResponse } from "@subboost/ui/product/client-response";
 import type { RefreshSubscriptionResponse, Subscription, SubscriptionLink } from "@subboost/ui/dashboard/dashboard-types";
-import { LOCAL_AUTO_UPDATE_POLICY } from "@local/lib/auto-update-policy";
+import { useRuntimeConfig } from "@local/lib/runtime-config";
 
 function resolveLocalDashboardDownloadUrl(subscription: Subscription): string {
   try {
@@ -22,8 +22,7 @@ const localDashboardAdapter: DashboardSurfaceAdapter = {
   newSubscriptionHref: "/?newSubscription=1",
   templatesHref: "/templates",
   settingsHref: "/dashboard/settings",
-  settingsDescription: "查看本地管理员和运行状态",
-  autoUpdateIntervalPolicy: LOCAL_AUTO_UPDATE_POLICY,
+  settingsDescription: "查看工作空间、订阅源安全和运行状态",
   fetchSubscriptions: async () => {
     const response = await fetch("/api/subscriptions");
     const data = await readJsonResponse<{ subscriptions?: Subscription[]; error?: string }>(response, "获取订阅失败");
@@ -61,5 +60,7 @@ const localDashboardAdapter: DashboardSurfaceAdapter = {
 };
 
 export default function DashboardPage() {
-  return <SubscriptionDashboardSurface adapter={localDashboardAdapter} />;
+  const runtime = useRuntimeConfig();
+  if (!runtime.config) return <p className="p-6" role={runtime.error ? "alert" : "status"}>{runtime.error || "读取运行配置…"}</p>;
+  return <SubscriptionDashboardSurface adapter={{ ...localDashboardAdapter, autoUpdateIntervalPolicy: runtime.config.autoUpdateIntervalPolicy }} />;
 }

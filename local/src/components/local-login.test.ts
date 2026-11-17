@@ -1,6 +1,7 @@
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("@local/lib/runtime-config", () => import("../../../test/runtime-config-fixture"));
 
 const mocks = vi.hoisted(() => ({
   forms: [] as any[],
@@ -160,6 +161,33 @@ describe("local login component", () => {
     expect(globalThis.fetch).toHaveBeenCalledWith("/api/auth/me", { cache: "no-store" });
     expect(setters[0]).toHaveBeenCalledWith({ setupRequired: false, authenticated: true });
     expect(win.location.href).toBe("/");
+  });
+
+  it("keeps optional admin login available to automatically initialized guests", async () => {
+    const win = installWindow();
+    const guest = { setupRequired: false, authenticated: true, isGuest: true, adminSetupRequired: false };
+    vi.stubGlobal("fetch", vi.fn(async () => response(guest)));
+    const { setters } = renderLogin({}, true);
+    await flushPromises();
+    expect(setters[0]).toHaveBeenCalledWith(guest);
+    expect(win.location.href).toBe("");
+    renderLogin({ 0: guest });
+    expect(mocks.forms).toHaveLength(1);
+    expect(mocks.inputs.find((input) => input.autoComplete === "username")).toBeDefined();
+  });
+
+  it("offers first-admin setup without requiring guest setup", async () => {
+    installWindow("#setup-token=setup-secret");
+    vi.stubGlobal("fetch", vi.fn(async () => response({ success: true })));
+    renderLogin({
+      0: { setupRequired: false, authenticated: true, isGuest: true, adminSetupRequired: true },
+      1: "admin",
+      2: "long-secret",
+      3: "long-secret",
+      6: "setup-secret",
+    });
+    await mocks.forms[0].onSubmit({ preventDefault: vi.fn() });
+    expect(globalThis.fetch).toHaveBeenCalledWith("/api/setup/admin", expect.objectContaining({ method: "POST" }));
   });
 
   it("shows setup mismatch errors before sending a request", async () => {

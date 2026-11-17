@@ -205,6 +205,20 @@ describe("UserMenu", () => {
     expect(mocks.dropdownRoots[0].open).toBe(true);
   });
 
+  it("initializes guests and keeps subscription/settings access without destructive logout", () => {
+    mocks.userState.user = {
+      id: "browser-owner", isGuest: true, username: "游客", name: null,
+      avatarUrl: null, isAdmin: false, subscriptionCount: 0, quota: { maxSubscriptions: 9999 },
+    };
+    renderToStaticMarkup(React.createElement(UserMenu));
+    expect(mocks.fetchUser).toHaveBeenCalled();
+    expect(mocks.links.map((link) => link.href)).toEqual(["/dashboard", "/dashboard/settings", "/login"]);
+    expect(mocks.dropdownItems.every((item) => item.onSelect === undefined)).toBe(true);
+    mocks.links.find((link) => link.href === "/login").onClick();
+    expect(mocks.captureAuthConfigHandoff).toHaveBeenCalled();
+    expect(mocks.logout).not.toHaveBeenCalled();
+  });
+
   it.each([
     [undefined, false],
     [false, false],

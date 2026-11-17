@@ -51,8 +51,8 @@ export function SourcesSection() {
           return (
             <div key={source.id} className="flex flex-col gap-1.5 flex-shrink-0">
               {/* Source Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <SourceTypeChoices value={source.type} onChange={(type) => updateSourceType(source.id, type)} />
                   <span className="text-xs text-fg-50">
                     {sourceDisplayLabel}
@@ -63,13 +63,13 @@ export function SourcesSection() {
                   )}
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="flex flex-col">
+                  <div className="flex sm:flex-col">
                     <IconButton
                       label="上移"
                       variant="ghost"
                       onClick={() => moveSource(source.id, "up")}
                       disabled={index <= 0}
-                      className="flex h-3.5 w-4 items-center justify-center text-fg-30 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30"
+                      className="flex h-9 w-9 items-center justify-center text-fg-50 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30 sm:h-5 sm:w-6"
                     >
                       <ChevronUp className="h-2.5 w-2.5" aria-hidden="true" />
                     </IconButton>
@@ -78,7 +78,7 @@ export function SourcesSection() {
                       variant="ghost"
                       onClick={() => moveSource(source.id, "down")}
                       disabled={index >= sources.length - 1}
-                      className="flex h-3.5 w-4 items-center justify-center text-fg-30 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30"
+                      className="flex h-9 w-9 items-center justify-center text-fg-50 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30 sm:h-5 sm:w-6"
                     >
                       <ChevronDown className="h-2.5 w-2.5" aria-hidden="true" />
                     </IconButton>
@@ -87,7 +87,7 @@ export function SourcesSection() {
                     label="高级编辑"
                     variant="ghost"
                     onClick={() => setExpandedSourceId(source.id)}
-                    className="h-6 w-6 rounded p-1 text-fg-30 hover:bg-ink/5 hover:text-fg-60"
+                    className="h-10 w-10 rounded p-1 text-fg-50 hover:bg-ink/5 hover:text-fg-70 sm:h-8 sm:w-8"
                   >
                     <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
                   </IconButton>
@@ -97,7 +97,7 @@ export function SourcesSection() {
                     onClick={() => void handleImportSource(source.id)}
                     disabled={!source.content.trim() || source.parsing}
                     className={cn(
-                      "h-6 w-6 rounded p-1 transition-colors disabled:opacity-100",
+                      "h-10 w-10 rounded p-1 transition-colors disabled:opacity-100 sm:h-8 sm:w-8",
                       source.parsing
                         ? "text-indigo-400"
                         : source.parsed
@@ -119,7 +119,7 @@ export function SourcesSection() {
                       label="删除导入源"
                       variant="ghost"
                       onClick={() => removeSource(source.id)}
-                      className="h-6 w-6 rounded p-1 text-fg-50 transition-colors hover:text-red-400"
+                      className="h-10 w-10 rounded p-1 text-fg-50 transition-colors hover:text-red-400 sm:h-8 sm:w-8"
                     >
                       <X className="h-3.5 w-3.5" aria-hidden="true" />
                     </IconButton>
@@ -130,6 +130,7 @@ export function SourcesSection() {
               {/* Source Input */}
               {source.type === "url" ? (
                 <Input
+                  aria-label={`${sourceDisplayLabel}订阅链接`}
                   value={source.content}
                   onChange={(e) => updateSource(source.id, e.target.value)}
                   placeholder={typeInfo.placeholder}
@@ -137,6 +138,7 @@ export function SourcesSection() {
                 />
               ) : (
                 <Textarea
+                  aria-label={`${sourceDisplayLabel}节点内容`}
                   value={source.content}
                   onChange={(e) => updateSource(source.id, e.target.value)}
                   placeholder={typeInfo.placeholder}

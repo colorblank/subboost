@@ -205,7 +205,6 @@ describe("HomeLayout", () => {
     expect(html).toContain("quick-mode");
     expect(html).toContain("advanced-mode");
     expect(html).toContain("visual-graph");
-    expect(html).toContain("# 请先添加订阅或节点");
     expect(html).toContain("AI 助手施工中");
     expect(html).toContain("notice-slot");
     expect(html).toContain("save-requirement-slot");

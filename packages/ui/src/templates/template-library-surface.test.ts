@@ -379,6 +379,17 @@ describe("TemplateLibrarySurface", () => {
     expect(privateAdapter.loadTemplates).toHaveBeenCalledWith("my");
   });
 
+  it("allows an isolated guest to save a private config template", async () => {
+    mocks.userStore.user = { id: "browser-owner", isGuest: true, isAdmin: false };
+    const adapter = createAdapter({ allowPublicTemplates: false, allowEngagement: false });
+    renderSurface(adapter, { 2: "my", 6: true, 7: "Guest config", 12: "config" });
+    await mocks.captures.uploadDialog.onUpload();
+    expect(adapter.uploadTemplate).toHaveBeenCalledWith(expect.objectContaining({
+      name: "Guest config", isPublic: false, config: expect.objectContaining({ schema: "subboost-template-config/v1" }),
+    }));
+    expect(mocks.router.push).not.toHaveBeenCalled();
+  });
+
   it("renders loading, empty, disabled tabs, and guest upload states", () => {
     renderSurface(createAdapter(), { 3: [], 4: true });
     expect(mocks.captures.cards).toEqual([]);

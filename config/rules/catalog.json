@@ -1,0 +1,2756 @@
+[
+  {
+    "id": "category-ads-all",
+    "name": "category-ads-all",
+    "nameZh": "广告拦截 (全)",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ads-all.mrs"
+  },
+  {
+    "id": "category-ads",
+    "name": "category-ads",
+    "nameZh": "广告域名",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ads.mrs"
+  },
+  {
+    "id": "adguard",
+    "name": "adguard",
+    "nameZh": "AdGuard",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/adguard.mrs"
+  },
+  {
+    "id": "easylist",
+    "name": "easylist",
+    "nameZh": "EasyList",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/easylist.mrs"
+  },
+  {
+    "id": "google@ads",
+    "name": "google@ads",
+    "nameZh": "Google 广告",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google@ads.mrs"
+  },
+  {
+    "id": "openai@ads",
+    "name": "openai@ads",
+    "nameZh": "OpenAI 广告",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/openai@ads.mrs"
+  },
+  {
+    "id": "github@ads",
+    "name": "github@ads",
+    "nameZh": "GitHub 广告",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/github@ads.mrs"
+  },
+  {
+    "id": "youtube@ads",
+    "name": "youtube@ads",
+    "nameZh": "YouTube 广告",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube@ads.mrs"
+  },
+  {
+    "id": "tencent@ads",
+    "name": "tencent@ads",
+    "nameZh": "腾讯广告",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tencent@ads.mrs"
+  },
+  {
+    "id": "netease@ads",
+    "name": "netease@ads",
+    "nameZh": "网易广告",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netease@ads.mrs"
+  },
+  {
+    "id": "qihoo360@ads",
+    "name": "qihoo360@ads",
+    "nameZh": "360 广告",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/qihoo360@ads.mrs"
+  },
+  {
+    "id": "openai",
+    "name": "openai",
+    "nameZh": "OpenAI",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/openai.mrs"
+  },
+  {
+    "id": "anthropic",
+    "name": "anthropic",
+    "nameZh": "Anthropic (Claude)",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/anthropic.mrs"
+  },
+  {
+    "id": "category-ai-chat-!cn",
+    "name": "category-ai-chat-!cn",
+    "nameZh": "AI 服务 (非中国)",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ai-chat-!cn.mrs"
+  },
+  {
+    "id": "perplexity",
+    "name": "perplexity",
+    "nameZh": "Perplexity",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/perplexity.mrs"
+  },
+  {
+    "id": "bing",
+    "name": "bing",
+    "nameZh": "必应 (含 Copilot)",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bing.mrs"
+  },
+  {
+    "id": "google-gemini",
+    "name": "google-gemini",
+    "nameZh": "Google Gemini",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-gemini.mrs"
+  },
+  {
+    "id": "github-copilot",
+    "name": "github-copilot",
+    "nameZh": "GitHub Copilot",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/github-copilot.mrs"
+  },
+  {
+    "id": "google-deepmind",
+    "name": "google-deepmind",
+    "nameZh": "Google DeepMind",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-deepmind.mrs"
+  },
+  {
+    "id": "apple-intelligence",
+    "name": "apple-intelligence",
+    "nameZh": "Apple Intelligence",
+    "category": "ai",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple-intelligence.mrs"
+  },
+  {
+    "id": "google",
+    "name": "google",
+    "nameZh": "谷歌",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs"
+  },
+  {
+    "id": "google-cn",
+    "name": "google-cn",
+    "nameZh": "谷歌中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-cn.mrs"
+  },
+  {
+    "id": "google-trust-services",
+    "name": "google-trust-services",
+    "nameZh": "谷歌信任服务",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-trust-services.mrs"
+  },
+  {
+    "id": "google-trust-services@cn",
+    "name": "google-trust-services@cn",
+    "nameZh": "谷歌信任服务中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-trust-services@cn.mrs"
+  },
+  {
+    "id": "google-play",
+    "name": "google-play",
+    "nameZh": "Google Play",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-play.mrs"
+  },
+  {
+    "id": "google-play@cn",
+    "name": "google-play@cn",
+    "nameZh": "Google Play 中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google-play@cn.mrs"
+  },
+  {
+    "id": "googlefcm",
+    "name": "googlefcm",
+    "nameZh": "Google FCM",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/googlefcm.mrs"
+  },
+  {
+    "id": "youtube",
+    "name": "youtube",
+    "nameZh": "油管",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube.mrs"
+  },
+  {
+    "id": "duckduckgo",
+    "name": "duckduckgo",
+    "nameZh": "DuckDuckGo",
+    "category": "privacy",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/duckduckgo.mrs"
+  },
+  {
+    "id": "yahoo",
+    "name": "yahoo",
+    "nameZh": "雅虎",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/yahoo.mrs"
+  },
+  {
+    "id": "yandex",
+    "name": "yandex",
+    "nameZh": "Yandex",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/yandex.mrs"
+  },
+  {
+    "id": "baidu",
+    "name": "baidu",
+    "nameZh": "百度",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/baidu.mrs"
+  },
+  {
+    "id": "sogou",
+    "name": "sogou",
+    "nameZh": "搜狗",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/sogou.mrs"
+  },
+  {
+    "id": "qihoo360",
+    "name": "qihoo360",
+    "nameZh": "360",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/qihoo360.mrs"
+  },
+  {
+    "id": "telegram",
+    "name": "telegram",
+    "nameZh": "电报",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/telegram.mrs"
+  },
+  {
+    "id": "twitter",
+    "name": "twitter",
+    "nameZh": "推特/X",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/twitter.mrs"
+  },
+  {
+    "id": "facebook",
+    "name": "facebook",
+    "nameZh": "脸书",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/facebook.mrs"
+  },
+  {
+    "id": "instagram",
+    "name": "instagram",
+    "nameZh": "Instagram",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/instagram.mrs"
+  },
+  {
+    "id": "whatsapp",
+    "name": "whatsapp",
+    "nameZh": "WhatsApp",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/whatsapp.mrs"
+  },
+  {
+    "id": "discord",
+    "name": "discord",
+    "nameZh": "Discord",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/discord.mrs"
+  },
+  {
+    "id": "line",
+    "name": "line",
+    "nameZh": "Line",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/line.mrs"
+  },
+  {
+    "id": "linkedin",
+    "name": "linkedin",
+    "nameZh": "领英",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/linkedin.mrs"
+  },
+  {
+    "id": "reddit",
+    "name": "reddit",
+    "nameZh": "Reddit",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/reddit.mrs"
+  },
+  {
+    "id": "snap",
+    "name": "snap",
+    "nameZh": "Snapchat",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/snap.mrs"
+  },
+  {
+    "id": "pinterest",
+    "name": "pinterest",
+    "nameZh": "Pinterest",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/pinterest.mrs"
+  },
+  {
+    "id": "tumblr",
+    "name": "tumblr",
+    "nameZh": "Tumblr",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tumblr.mrs"
+  },
+  {
+    "id": "signal",
+    "name": "signal",
+    "nameZh": "Signal",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/signal.mrs"
+  },
+  {
+    "id": "slack",
+    "name": "slack",
+    "nameZh": "Slack",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/slack.mrs"
+  },
+  {
+    "id": "zoom",
+    "name": "zoom",
+    "nameZh": "Zoom",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/zoom.mrs"
+  },
+  {
+    "id": "clubhouse",
+    "name": "clubhouse",
+    "nameZh": "Clubhouse",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/clubhouse.mrs"
+  },
+  {
+    "id": "medium",
+    "name": "medium",
+    "nameZh": "Medium",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/medium.mrs"
+  },
+  {
+    "id": "quora",
+    "name": "quora",
+    "nameZh": "Quora",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/quora.mrs"
+  },
+  {
+    "id": "viber",
+    "name": "viber",
+    "nameZh": "Viber",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/viber.mrs"
+  },
+  {
+    "id": "vk",
+    "name": "vk",
+    "nameZh": "VK",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/vk.mrs"
+  },
+  {
+    "id": "kakao",
+    "name": "kakao",
+    "nameZh": "Kakao",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/kakao.mrs"
+  },
+  {
+    "id": "naver",
+    "name": "naver",
+    "nameZh": "Naver",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/naver.mrs"
+  },
+  {
+    "id": "category-social-media-!cn",
+    "name": "category-social-media-!cn",
+    "nameZh": "社交媒体 (非中国)",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-social-media-!cn.mrs"
+  },
+  {
+    "id": "tiktok",
+    "name": "tiktok",
+    "nameZh": "TikTok",
+    "category": "social",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tiktok.mrs"
+  },
+  {
+    "id": "douyin",
+    "name": "douyin",
+    "nameZh": "抖音",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/douyin.mrs"
+  },
+  {
+    "id": "kuaishou",
+    "name": "kuaishou",
+    "nameZh": "快手",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/kuaishou.mrs"
+  },
+  {
+    "id": "zhihu",
+    "name": "zhihu",
+    "nameZh": "知乎",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/zhihu.mrs"
+  },
+  {
+    "id": "xiaohongshu",
+    "name": "xiaohongshu",
+    "nameZh": "小红书",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/xiaohongshu.mrs"
+  },
+  {
+    "id": "netflix",
+    "name": "netflix",
+    "nameZh": "奈飞",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netflix.mrs"
+  },
+  {
+    "id": "disney",
+    "name": "disney",
+    "nameZh": "迪士尼+",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/disney.mrs"
+  },
+  {
+    "id": "hbo",
+    "name": "hbo",
+    "nameZh": "HBO",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hbo.mrs"
+  },
+  {
+    "id": "hulu",
+    "name": "hulu",
+    "nameZh": "Hulu",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hulu.mrs"
+  },
+  {
+    "id": "primevideo",
+    "name": "primevideo",
+    "nameZh": "亚马逊视频",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/primevideo.mrs"
+  },
+  {
+    "id": "spotify",
+    "name": "spotify",
+    "nameZh": "Spotify",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/spotify.mrs"
+  },
+  {
+    "id": "tidal",
+    "name": "tidal",
+    "nameZh": "Tidal",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tidal.mrs"
+  },
+  {
+    "id": "deezer",
+    "name": "deezer",
+    "nameZh": "Deezer",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/deezer.mrs"
+  },
+  {
+    "id": "soundcloud",
+    "name": "soundcloud",
+    "nameZh": "SoundCloud",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/soundcloud.mrs"
+  },
+  {
+    "id": "twitch",
+    "name": "twitch",
+    "nameZh": "Twitch",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/twitch.mrs"
+  },
+  {
+    "id": "dailymotion",
+    "name": "dailymotion",
+    "nameZh": "Dailymotion",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/dailymotion.mrs"
+  },
+  {
+    "id": "vimeo",
+    "name": "vimeo",
+    "nameZh": "Vimeo",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/vimeo.mrs"
+  },
+  {
+    "id": "plex",
+    "name": "plex",
+    "nameZh": "Plex",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/plex.mrs"
+  },
+  {
+    "id": "bilibili",
+    "name": "bilibili",
+    "nameZh": "哔哩哔哩",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bilibili.mrs"
+  },
+  {
+    "id": "biliintl",
+    "name": "biliintl",
+    "nameZh": "哔哩哔哩国际版",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/biliintl.mrs"
+  },
+  {
+    "id": "iqiyi",
+    "name": "iqiyi",
+    "nameZh": "爱奇艺",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/iqiyi.mrs"
+  },
+  {
+    "id": "youku",
+    "name": "youku",
+    "nameZh": "优酷",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youku.mrs"
+  },
+  {
+    "id": "bahamut",
+    "name": "bahamut",
+    "nameZh": "巴哈姆特",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bahamut.mrs"
+  },
+  {
+    "id": "niconico",
+    "name": "niconico",
+    "nameZh": "N站",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/niconico.mrs"
+  },
+  {
+    "id": "abema",
+    "name": "abema",
+    "nameZh": "Abema",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/abema.mrs"
+  },
+  {
+    "id": "dazn",
+    "name": "dazn",
+    "nameZh": "DAZN",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/dazn.mrs"
+  },
+  {
+    "id": "viu",
+    "name": "viu",
+    "nameZh": "Viu",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/viu.mrs"
+  },
+  {
+    "id": "kktv",
+    "name": "kktv",
+    "nameZh": "KKTV",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/kktv.mrs"
+  },
+  {
+    "id": "mytvsuper",
+    "name": "mytvsuper",
+    "nameZh": "myTV SUPER",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/mytvsuper.mrs"
+  },
+  {
+    "id": "sohu",
+    "name": "sohu",
+    "nameZh": "搜狐",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/sohu.mrs"
+  },
+  {
+    "id": "kugou",
+    "name": "kugou",
+    "nameZh": "酷狗音乐",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/kugou.mrs"
+  },
+  {
+    "id": "kuwo",
+    "name": "kuwo",
+    "nameZh": "酷我音乐",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/kuwo.mrs"
+  },
+  {
+    "id": "ximalaya",
+    "name": "ximalaya",
+    "nameZh": "喜马拉雅",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ximalaya.mrs"
+  },
+  {
+    "id": "category-media",
+    "name": "category-media",
+    "nameZh": "流媒体合集",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-media.mrs"
+  },
+  {
+    "id": "category-entertainment",
+    "name": "category-entertainment",
+    "nameZh": "娱乐合集",
+    "category": "media",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-entertainment.mrs"
+  },
+  {
+    "id": "steam",
+    "name": "steam",
+    "nameZh": "Steam",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/steam.mrs"
+  },
+  {
+    "id": "steam@cn",
+    "name": "steam@cn",
+    "nameZh": "Steam中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/steam@cn.mrs"
+  },
+  {
+    "id": "epicgames",
+    "name": "epicgames",
+    "nameZh": "Epic Games",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/epicgames.mrs"
+  },
+  {
+    "id": "ea",
+    "name": "ea",
+    "nameZh": "EA",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ea.mrs"
+  },
+  {
+    "id": "ubisoft",
+    "name": "ubisoft",
+    "nameZh": "育碧",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ubisoft.mrs"
+  },
+  {
+    "id": "blizzard",
+    "name": "blizzard",
+    "nameZh": "暴雪",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/blizzard.mrs"
+  },
+  {
+    "id": "xbox",
+    "name": "xbox",
+    "nameZh": "Xbox",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/xbox.mrs"
+  },
+  {
+    "id": "xbox@cn",
+    "name": "xbox@cn",
+    "nameZh": "Xbox 中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/xbox@cn.mrs"
+  },
+  {
+    "id": "playstation",
+    "name": "playstation",
+    "nameZh": "PlayStation",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/playstation.mrs"
+  },
+  {
+    "id": "nintendo",
+    "name": "nintendo",
+    "nameZh": "任天堂",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/nintendo.mrs"
+  },
+  {
+    "id": "riot",
+    "name": "riot",
+    "nameZh": "拳头游戏",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/riot.mrs"
+  },
+  {
+    "id": "riot@cn",
+    "name": "riot@cn",
+    "nameZh": "拳头游戏中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/riot@cn.mrs"
+  },
+  {
+    "id": "gog",
+    "name": "gog",
+    "nameZh": "GOG",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gog.mrs"
+  },
+  {
+    "id": "garena",
+    "name": "garena",
+    "nameZh": "Garena",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/garena.mrs"
+  },
+  {
+    "id": "mihoyo",
+    "name": "mihoyo",
+    "nameZh": "米哈游",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/mihoyo.mrs"
+  },
+  {
+    "id": "hoyoverse",
+    "name": "hoyoverse",
+    "nameZh": "HoYoverse",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hoyoverse.mrs"
+  },
+  {
+    "id": "tencent-games",
+    "name": "tencent-games",
+    "nameZh": "腾讯游戏",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tencent-games.mrs"
+  },
+  {
+    "id": "category-games",
+    "name": "category-games",
+    "nameZh": "游戏合集",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-games.mrs"
+  },
+  {
+    "id": "category-games@cn",
+    "name": "category-games@cn",
+    "nameZh": "中国游戏",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-games@cn.mrs"
+  },
+  {
+    "id": "supercell",
+    "name": "supercell",
+    "nameZh": "Supercell",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/supercell.mrs"
+  },
+  {
+    "id": "pubg",
+    "name": "pubg",
+    "nameZh": "PUBG",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/pubg.mrs"
+  },
+  {
+    "id": "roblox",
+    "name": "roblox",
+    "nameZh": "Roblox",
+    "category": "game",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/roblox.mrs"
+  },
+  {
+    "id": "microsoft",
+    "name": "microsoft",
+    "nameZh": "微软",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft.mrs"
+  },
+  {
+    "id": "microsoft-dev",
+    "name": "microsoft-dev",
+    "nameZh": "微软开发",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft-dev.mrs"
+  },
+  {
+    "id": "microsoft-dev@cn",
+    "name": "microsoft-dev@cn",
+    "nameZh": "微软开发中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft-dev@cn.mrs"
+  },
+  {
+    "id": "microsoft-pki",
+    "name": "microsoft-pki",
+    "nameZh": "微软 PKI",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft-pki.mrs"
+  },
+  {
+    "id": "microsoft@ads",
+    "name": "microsoft@ads",
+    "nameZh": "微软广告",
+    "category": "ads",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft@ads.mrs"
+  },
+  {
+    "id": "onedrive",
+    "name": "onedrive",
+    "nameZh": "OneDrive",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/onedrive.mrs"
+  },
+  {
+    "id": "github",
+    "name": "github",
+    "nameZh": "GitHub",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/github.mrs"
+  },
+  {
+    "id": "gitlab",
+    "name": "gitlab",
+    "nameZh": "GitLab",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gitlab.mrs"
+  },
+  {
+    "id": "sourceforge",
+    "name": "sourceforge",
+    "nameZh": "SourceForge",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/sourceforge.mrs"
+  },
+  {
+    "id": "gitee",
+    "name": "gitee",
+    "nameZh": "Gitee 码云",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gitee.mrs"
+  },
+  {
+    "id": "apple",
+    "name": "apple",
+    "nameZh": "苹果",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple.mrs"
+  },
+  {
+    "id": "apple-cn",
+    "name": "apple-cn",
+    "nameZh": "苹果中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple-cn.mrs"
+  },
+  {
+    "id": "apple-dev",
+    "name": "apple-dev",
+    "nameZh": "苹果开发者",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple-dev.mrs"
+  },
+  {
+    "id": "apple-dev@cn",
+    "name": "apple-dev@cn",
+    "nameZh": "苹果开发者中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple-dev@cn.mrs"
+  },
+  {
+    "id": "apple-update",
+    "name": "apple-update",
+    "nameZh": "苹果更新",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple-update.mrs"
+  },
+  {
+    "id": "icloud",
+    "name": "icloud",
+    "nameZh": "iCloud",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/icloud.mrs"
+  },
+  {
+    "id": "amazon",
+    "name": "amazon",
+    "nameZh": "亚马逊",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/amazon.mrs"
+  },
+  {
+    "id": "aws",
+    "name": "aws",
+    "nameZh": "AWS",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/aws.mrs"
+  },
+  {
+    "id": "azure",
+    "name": "azure",
+    "nameZh": "Azure",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/azure.mrs"
+  },
+  {
+    "id": "digitalocean",
+    "name": "digitalocean",
+    "nameZh": "DigitalOcean",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/digitalocean.mrs"
+  },
+  {
+    "id": "vultr",
+    "name": "vultr",
+    "nameZh": "Vultr",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/vultr.mrs"
+  },
+  {
+    "id": "heroku",
+    "name": "heroku",
+    "nameZh": "Heroku",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/heroku.mrs"
+  },
+  {
+    "id": "vercel",
+    "name": "vercel",
+    "nameZh": "Vercel",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/vercel.mrs"
+  },
+  {
+    "id": "netlify",
+    "name": "netlify",
+    "nameZh": "Netlify",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netlify.mrs"
+  },
+  {
+    "id": "cloudflare",
+    "name": "cloudflare",
+    "nameZh": "Cloudflare",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cloudflare.mrs"
+  },
+  {
+    "id": "cloudflare-cn",
+    "name": "cloudflare-cn",
+    "nameZh": "Cloudflare 中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cloudflare-cn.mrs"
+  },
+  {
+    "id": "cloudflare-cn@cn",
+    "name": "cloudflare-cn@cn",
+    "nameZh": "Cloudflare 中国服务",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cloudflare-cn@cn.mrs"
+  },
+  {
+    "id": "cloudflare-ipfs",
+    "name": "cloudflare-ipfs",
+    "nameZh": "Cloudflare IPFS",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cloudflare-ipfs.mrs"
+  },
+  {
+    "id": "fastly",
+    "name": "fastly",
+    "nameZh": "Fastly",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/fastly.mrs"
+  },
+  {
+    "id": "akamai",
+    "name": "akamai",
+    "nameZh": "Akamai",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/akamai.mrs"
+  },
+  {
+    "id": "docker",
+    "name": "docker",
+    "nameZh": "Docker",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/docker.mrs"
+  },
+  {
+    "id": "npmjs",
+    "name": "npmjs",
+    "nameZh": "npmjs",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/npmjs.mrs"
+  },
+  {
+    "id": "jetbrains",
+    "name": "jetbrains",
+    "nameZh": "JetBrains",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/jetbrains.mrs"
+  },
+  {
+    "id": "notion",
+    "name": "notion",
+    "nameZh": "Notion",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/notion.mrs"
+  },
+  {
+    "id": "dropbox",
+    "name": "dropbox",
+    "nameZh": "Dropbox",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/dropbox.mrs"
+  },
+  {
+    "id": "nvidia",
+    "name": "nvidia",
+    "nameZh": "Nvidia",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/nvidia.mrs"
+  },
+  {
+    "id": "amd",
+    "name": "amd",
+    "nameZh": "AMD",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/amd.mrs"
+  },
+  {
+    "id": "intel",
+    "name": "intel",
+    "nameZh": "Intel",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/intel.mrs"
+  },
+  {
+    "id": "atlassian",
+    "name": "atlassian",
+    "nameZh": "Atlassian",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/atlassian.mrs"
+  },
+  {
+    "id": "figma",
+    "name": "figma",
+    "nameZh": "Figma",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/figma.mrs"
+  },
+  {
+    "id": "canva",
+    "name": "canva",
+    "nameZh": "Canva",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/canva.mrs"
+  },
+  {
+    "id": "adobe",
+    "name": "adobe",
+    "nameZh": "Adobe",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/adobe.mrs"
+  },
+  {
+    "id": "autodesk",
+    "name": "autodesk",
+    "nameZh": "Autodesk",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/autodesk.mrs"
+  },
+  {
+    "id": "mozilla",
+    "name": "mozilla",
+    "nameZh": "Mozilla",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/mozilla.mrs"
+  },
+  {
+    "id": "firefox",
+    "name": "firefox",
+    "nameZh": "Firefox",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/firefox.mrs"
+  },
+  {
+    "id": "oracle",
+    "name": "oracle",
+    "nameZh": "Oracle 甲骨文",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/oracle.mrs"
+  },
+  {
+    "id": "salesforce",
+    "name": "salesforce",
+    "nameZh": "Salesforce",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/salesforce.mrs"
+  },
+  {
+    "id": "ibm",
+    "name": "ibm",
+    "nameZh": "IBM",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ibm.mrs"
+  },
+  {
+    "id": "redhat",
+    "name": "redhat",
+    "nameZh": "Red Hat",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/redhat.mrs"
+  },
+  {
+    "id": "stackexchange",
+    "name": "stackexchange",
+    "nameZh": "Stack Exchange",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/stackexchange.mrs"
+  },
+  {
+    "id": "wikimedia",
+    "name": "wikimedia",
+    "nameZh": "维基媒体",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/wikimedia.mrs"
+  },
+  {
+    "id": "archive",
+    "name": "archive",
+    "nameZh": "互联网档案馆",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/archive.mrs"
+  },
+  {
+    "id": "category-dev",
+    "name": "category-dev",
+    "nameZh": "开发工具合集",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-dev.mrs"
+  },
+  {
+    "id": "mapbox",
+    "name": "mapbox",
+    "nameZh": "Mapbox",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/mapbox.mrs"
+  },
+  {
+    "id": "openstreetmap",
+    "name": "openstreetmap",
+    "nameZh": "OpenStreetMap",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/openstreetmap.mrs"
+  },
+  {
+    "id": "samsung",
+    "name": "samsung",
+    "nameZh": "三星",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/samsung.mrs"
+  },
+  {
+    "id": "huawei",
+    "name": "huawei",
+    "nameZh": "华为",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/huawei.mrs"
+  },
+  {
+    "id": "xiaomi",
+    "name": "xiaomi",
+    "nameZh": "小米",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/xiaomi.mrs"
+  },
+  {
+    "id": "oppo",
+    "name": "oppo",
+    "nameZh": "OPPO",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/oppo.mrs"
+  },
+  {
+    "id": "vivo",
+    "name": "vivo",
+    "nameZh": "vivo",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/vivo.mrs"
+  },
+  {
+    "id": "meizu",
+    "name": "meizu",
+    "nameZh": "魅族",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/meizu.mrs"
+  },
+  {
+    "id": "oneplus",
+    "name": "oneplus",
+    "nameZh": "一加",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/oneplus.mrs"
+  },
+  {
+    "id": "paypal",
+    "name": "paypal",
+    "nameZh": "PayPal",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/paypal.mrs"
+  },
+  {
+    "id": "visa",
+    "name": "visa",
+    "nameZh": "Visa",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/visa.mrs"
+  },
+  {
+    "id": "mastercard",
+    "name": "mastercard",
+    "nameZh": "Mastercard",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/mastercard.mrs"
+  },
+  {
+    "id": "stripe",
+    "name": "stripe",
+    "nameZh": "Stripe",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/stripe.mrs"
+  },
+  {
+    "id": "wise",
+    "name": "wise",
+    "nameZh": "Wise",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/wise.mrs"
+  },
+  {
+    "id": "hsbc",
+    "name": "hsbc",
+    "nameZh": "汇丰银行",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hsbc.mrs"
+  },
+  {
+    "id": "schwab",
+    "name": "schwab",
+    "nameZh": "嘉信理财",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/schwab.mrs"
+  },
+  {
+    "id": "binance",
+    "name": "binance",
+    "nameZh": "币安",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/binance.mrs"
+  },
+  {
+    "id": "kraken",
+    "name": "kraken",
+    "nameZh": "Kraken",
+    "category": "finance",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/kraken.mrs"
+  },
+  {
+    "id": "unionpay",
+    "name": "unionpay",
+    "nameZh": "银联",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/unionpay.mrs"
+  },
+  {
+    "id": "category-scholar-!cn",
+    "name": "category-scholar-!cn",
+    "nameZh": "学术资源 (非中国)",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-scholar-!cn.mrs"
+  },
+  {
+    "id": "category-scholar-cn",
+    "name": "category-scholar-cn",
+    "nameZh": "学术资源 (中国)",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-scholar-cn.mrs"
+  },
+  {
+    "id": "category-education-cn",
+    "name": "category-education-cn",
+    "nameZh": "教育资源中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-education-cn.mrs"
+  },
+  {
+    "id": "category-wiki-cn",
+    "name": "category-wiki-cn",
+    "nameZh": "中文百科",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-wiki-cn.mrs"
+  },
+  {
+    "id": "coursera",
+    "name": "coursera",
+    "nameZh": "Coursera",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/coursera.mrs"
+  },
+  {
+    "id": "udemy",
+    "name": "udemy",
+    "nameZh": "Udemy",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/udemy.mrs"
+  },
+  {
+    "id": "edx",
+    "name": "edx",
+    "nameZh": "edX",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/edx.mrs"
+  },
+  {
+    "id": "khanacademy",
+    "name": "khanacademy",
+    "nameZh": "可汗学院",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/khanacademy.mrs"
+  },
+  {
+    "id": "skillshare",
+    "name": "skillshare",
+    "nameZh": "Skillshare",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/skillshare.mrs"
+  },
+  {
+    "id": "udacity",
+    "name": "udacity",
+    "nameZh": "Udacity",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/udacity.mrs"
+  },
+  {
+    "id": "mit",
+    "name": "mit",
+    "nameZh": "MIT",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/mit.mrs"
+  },
+  {
+    "id": "cambridge",
+    "name": "cambridge",
+    "nameZh": "Cambridge",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cambridge.mrs"
+  },
+  {
+    "id": "elsevier",
+    "name": "elsevier",
+    "nameZh": "Elsevier",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/elsevier.mrs"
+  },
+  {
+    "id": "springer",
+    "name": "springer",
+    "nameZh": "Springer",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/springer.mrs"
+  },
+  {
+    "id": "sci-hub",
+    "name": "sci-hub",
+    "nameZh": "Sci-Hub",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/sci-hub.mrs"
+  },
+  {
+    "id": "libgen",
+    "name": "libgen",
+    "nameZh": "Libgen",
+    "category": "edu",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/libgen.mrs"
+  },
+  {
+    "id": "ebay",
+    "name": "ebay",
+    "nameZh": "eBay",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ebay.mrs"
+  },
+  {
+    "id": "wish",
+    "name": "wish",
+    "nameZh": "Wish",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/wish.mrs"
+  },
+  {
+    "id": "shopify",
+    "name": "shopify",
+    "nameZh": "Shopify",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/shopify.mrs"
+  },
+  {
+    "id": "ikea",
+    "name": "ikea",
+    "nameZh": "宜家",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ikea.mrs"
+  },
+  {
+    "id": "bestbuy",
+    "name": "bestbuy",
+    "nameZh": "Best Buy",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bestbuy.mrs"
+  },
+  {
+    "id": "walmart",
+    "name": "walmart",
+    "nameZh": "沃尔玛",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/walmart.mrs"
+  },
+  {
+    "id": "target",
+    "name": "target",
+    "nameZh": "Target",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/target.mrs"
+  },
+  {
+    "id": "costco",
+    "name": "costco",
+    "nameZh": "Costco",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/costco.mrs"
+  },
+  {
+    "id": "jd",
+    "name": "jd",
+    "nameZh": "京东",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/jd.mrs"
+  },
+  {
+    "id": "pinduoduo",
+    "name": "pinduoduo",
+    "nameZh": "拼多多",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/pinduoduo.mrs"
+  },
+  {
+    "id": "suning",
+    "name": "suning",
+    "nameZh": "苏宁",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/suning.mrs"
+  },
+  {
+    "id": "dangdang",
+    "name": "dangdang",
+    "nameZh": "当当",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/dangdang.mrs"
+  },
+  {
+    "id": "meituan",
+    "name": "meituan",
+    "nameZh": "美团",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/meituan.mrs"
+  },
+  {
+    "id": "bbc",
+    "name": "bbc",
+    "nameZh": "BBC",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bbc.mrs"
+  },
+  {
+    "id": "cnn",
+    "name": "cnn",
+    "nameZh": "CNN",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cnn.mrs"
+  },
+  {
+    "id": "nytimes",
+    "name": "nytimes",
+    "nameZh": "纽约时报",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/nytimes.mrs"
+  },
+  {
+    "id": "wsj",
+    "name": "wsj",
+    "nameZh": "华尔街日报",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/wsj.mrs"
+  },
+  {
+    "id": "reuters",
+    "name": "reuters",
+    "nameZh": "路透社",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/reuters.mrs"
+  },
+  {
+    "id": "theguardian",
+    "name": "theguardian",
+    "nameZh": "卫报",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/theguardian.mrs"
+  },
+  {
+    "id": "bloomberg",
+    "name": "bloomberg",
+    "nameZh": "彭博",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bloomberg.mrs"
+  },
+  {
+    "id": "forbes",
+    "name": "forbes",
+    "nameZh": "福布斯",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/forbes.mrs"
+  },
+  {
+    "id": "ft",
+    "name": "ft",
+    "nameZh": "金融时报",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ft.mrs"
+  },
+  {
+    "id": "economist",
+    "name": "economist",
+    "nameZh": "经济学人",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/economist.mrs"
+  },
+  {
+    "id": "huffpost",
+    "name": "huffpost",
+    "nameZh": "赫芬顿邮报",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/huffpost.mrs"
+  },
+  {
+    "id": "cnet",
+    "name": "cnet",
+    "nameZh": "CNET",
+    "category": "news",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cnet.mrs"
+  },
+  {
+    "id": "sina",
+    "name": "sina",
+    "nameZh": "新浪",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/sina.mrs"
+  },
+  {
+    "id": "jiemian",
+    "name": "jiemian",
+    "nameZh": "界面",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/jiemian.mrs"
+  },
+  {
+    "id": "36kr",
+    "name": "36kr",
+    "nameZh": "36氪",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/36kr.mrs"
+  },
+  {
+    "id": "geolocation-cn",
+    "name": "geolocation-cn",
+    "nameZh": "国内域名 (精简)",
+    "category": "geo",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-cn.mrs"
+  },
+  {
+    "id": "geolocation-!cn",
+    "name": "geolocation-!cn",
+    "nameZh": "非中国域名",
+    "category": "geo",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-!cn.mrs"
+  },
+  {
+    "id": "cn",
+    "name": "cn",
+    "nameZh": "国内域名 (完整)",
+    "category": "geo",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
+  },
+  {
+    "id": "tld-cn",
+    "name": "tld-cn",
+    "nameZh": ".cn 顶级域",
+    "category": "geo",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tld-cn.mrs"
+  },
+  {
+    "id": "tld-!cn",
+    "name": "tld-!cn",
+    "nameZh": "非.cn顶级域",
+    "category": "geo",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tld-!cn.mrs"
+  },
+  {
+    "id": "gfw",
+    "name": "gfw",
+    "nameZh": "GFW 屏蔽列表",
+    "category": "geo",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gfw.mrs"
+  },
+  {
+    "id": "greatfire",
+    "name": "greatfire",
+    "nameZh": "GreatFire",
+    "category": "geo",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/greatfire.mrs"
+  },
+  {
+    "id": "private",
+    "name": "private",
+    "nameZh": "私有网络",
+    "category": "privacy",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/private.mrs"
+  },
+  {
+    "id": "category-vpnservices",
+    "name": "category-vpnservices",
+    "nameZh": "VPN 服务",
+    "category": "privacy",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-vpnservices.mrs"
+  },
+  {
+    "id": "tor",
+    "name": "tor",
+    "nameZh": "Tor",
+    "category": "privacy",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tor.mrs"
+  },
+  {
+    "id": "protonmail",
+    "name": "protonmail",
+    "nameZh": "Proton Mail",
+    "category": "privacy",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/protonmail.mrs"
+  },
+  {
+    "id": "lastpass",
+    "name": "lastpass",
+    "nameZh": "LastPass",
+    "category": "privacy",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/lastpass.mrs"
+  },
+  {
+    "id": "bitwarden",
+    "name": "bitwarden",
+    "nameZh": "Bitwarden",
+    "category": "privacy",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bitwarden.mrs"
+  },
+  {
+    "id": "tracker",
+    "name": "tracker",
+    "nameZh": "BT Tracker",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tracker.mrs"
+  },
+  {
+    "id": "speedtest",
+    "name": "speedtest",
+    "nameZh": "Speedtest",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/speedtest.mrs"
+  },
+  {
+    "id": "pixiv",
+    "name": "pixiv",
+    "nameZh": "Pixiv",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/pixiv.mrs"
+  },
+  {
+    "id": "ehentai",
+    "name": "ehentai",
+    "nameZh": "E-Hentai",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ehentai.mrs"
+  },
+  {
+    "id": "dmm",
+    "name": "dmm",
+    "nameZh": "DMM",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/dmm.mrs"
+  },
+  {
+    "id": "category-porn",
+    "name": "category-porn",
+    "nameZh": "成人内容",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-porn.mrs"
+  },
+  {
+    "id": "pornhub",
+    "name": "pornhub",
+    "nameZh": "Pornhub",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/pornhub.mrs"
+  },
+  {
+    "id": "xvideos",
+    "name": "xvideos",
+    "nameZh": "XVideos",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/xvideos.mrs"
+  },
+  {
+    "id": "1337x",
+    "name": "1337x",
+    "nameZh": "1337x",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/1337x.mrs"
+  },
+  {
+    "id": "rarbg",
+    "name": "rarbg",
+    "nameZh": "RARBG",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/rarbg.mrs"
+  },
+  {
+    "id": "nyaa",
+    "name": "nyaa",
+    "nameZh": "Nyaa",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/nyaa.mrs"
+  },
+  {
+    "id": "category-pt",
+    "name": "category-pt",
+    "nameZh": "PT 网站",
+    "category": "other",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-pt.mrs"
+  },
+  {
+    "id": "tencent",
+    "name": "tencent",
+    "nameZh": "腾讯",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tencent.mrs"
+  },
+  {
+    "id": "alibaba",
+    "name": "alibaba",
+    "nameZh": "阿里巴巴",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/alibaba.mrs"
+  },
+  {
+    "id": "bytedance",
+    "name": "bytedance",
+    "nameZh": "字节跳动",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bytedance.mrs"
+  },
+  {
+    "id": "netease",
+    "name": "netease",
+    "nameZh": "网易",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netease.mrs"
+  },
+  {
+    "id": "netease@!cn",
+    "name": "netease@!cn",
+    "nameZh": "网易海外",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netease@!cn.mrs"
+  },
+  {
+    "id": "didi",
+    "name": "didi",
+    "nameZh": "滴滴",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/didi.mrs"
+  },
+  {
+    "id": "ctrip",
+    "name": "ctrip",
+    "nameZh": "携程",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/ctrip.mrs"
+  },
+  {
+    "id": "amap",
+    "name": "amap",
+    "nameZh": "高德地图",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/amap.mrs"
+  },
+  {
+    "id": "tencent-dev",
+    "name": "tencent-dev",
+    "nameZh": "腾讯开发者",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tencent-dev.mrs"
+  },
+  {
+    "id": "tencent@!cn",
+    "name": "tencent@!cn",
+    "nameZh": "腾讯海外",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tencent@!cn.mrs"
+  },
+  {
+    "id": "juejin",
+    "name": "juejin",
+    "nameZh": "掘金",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/juejin.mrs"
+  },
+  {
+    "id": "hupu",
+    "name": "hupu",
+    "nameZh": "虎扑",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hupu.mrs"
+  },
+  {
+    "id": "nga",
+    "name": "nga",
+    "nameZh": "NGA",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/nga.mrs"
+  },
+  {
+    "id": "smzdm",
+    "name": "smzdm",
+    "nameZh": "什么值得买",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/smzdm.mrs"
+  },
+  {
+    "id": "douban",
+    "name": "douban",
+    "nameZh": "豆瓣",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/douban.mrs"
+  },
+  {
+    "id": "jianshu",
+    "name": "jianshu",
+    "nameZh": "简书",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/jianshu.mrs"
+  },
+  {
+    "id": "csdn",
+    "name": "csdn",
+    "nameZh": "CSDN",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/csdn.mrs"
+  },
+  {
+    "id": "cnblogs",
+    "name": "cnblogs",
+    "nameZh": "博客园",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cnblogs.mrs"
+  },
+  {
+    "id": "oschina",
+    "name": "oschina",
+    "nameZh": "开源中国",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/oschina.mrs"
+  },
+  {
+    "id": "dingtalk",
+    "name": "dingtalk",
+    "nameZh": "钉钉",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/dingtalk.mrs"
+  },
+  {
+    "id": "feishu",
+    "name": "feishu",
+    "nameZh": "飞书",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/feishu.mrs"
+  },
+  {
+    "id": "115",
+    "name": "115",
+    "nameZh": "115网盘",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/115.mrs"
+  },
+  {
+    "id": "lanzou",
+    "name": "lanzou",
+    "nameZh": "蓝奏云",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/lanzou.mrs"
+  },
+  {
+    "id": "uc",
+    "name": "uc",
+    "nameZh": "UC",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/uc.mrs"
+  },
+  {
+    "id": "cnki",
+    "name": "cnki",
+    "nameZh": "知网",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cnki.mrs"
+  },
+  {
+    "id": "wanfang",
+    "name": "wanfang",
+    "nameZh": "万方",
+    "category": "cn",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/wanfang.mrs"
+  },
+  {
+    "id": "rakuten",
+    "name": "rakuten",
+    "nameZh": "乐天",
+    "category": "shopping",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/rakuten.mrs"
+  },
+  {
+    "id": "softbank",
+    "name": "softbank",
+    "nameZh": "软银",
+    "category": "common",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/softbank.mrs"
+  },
+  {
+    "id": "lg",
+    "name": "lg",
+    "nameZh": "LG",
+    "category": "tech",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/lg.mrs"
+  },
+  {
+    "id": "cn-ip",
+    "name": "cn",
+    "nameZh": "中国IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"
+  },
+  {
+    "id": "private-ip",
+    "name": "private",
+    "nameZh": "私有网络IP",
+    "category": "privacy",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs"
+  },
+  {
+    "id": "telegram-ip",
+    "name": "telegram",
+    "nameZh": "电报IP",
+    "category": "social",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/telegram.mrs"
+  },
+  {
+    "id": "google-ip",
+    "name": "google",
+    "nameZh": "谷歌IP",
+    "category": "common",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs"
+  },
+  {
+    "id": "netflix-ip",
+    "name": "netflix",
+    "nameZh": "奈飞IP",
+    "category": "media",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/netflix.mrs"
+  },
+  {
+    "id": "twitter-ip",
+    "name": "twitter",
+    "nameZh": "推特IP",
+    "category": "social",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/twitter.mrs"
+  },
+  {
+    "id": "facebook-ip",
+    "name": "facebook",
+    "nameZh": "脸书IP",
+    "category": "social",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/facebook.mrs"
+  },
+  {
+    "id": "cloudflare-ip",
+    "name": "cloudflare",
+    "nameZh": "Cloudflare IP",
+    "category": "tech",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cloudflare.mrs"
+  },
+  {
+    "id": "us-ip",
+    "name": "us",
+    "nameZh": "美国IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/us.mrs"
+  },
+  {
+    "id": "jp-ip",
+    "name": "jp",
+    "nameZh": "日本IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/jp.mrs"
+  },
+  {
+    "id": "kr-ip",
+    "name": "kr",
+    "nameZh": "韩国IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/kr.mrs"
+  },
+  {
+    "id": "hk-ip",
+    "name": "hk",
+    "nameZh": "香港IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/hk.mrs"
+  },
+  {
+    "id": "tw-ip",
+    "name": "tw",
+    "nameZh": "台湾IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/tw.mrs"
+  },
+  {
+    "id": "sg-ip",
+    "name": "sg",
+    "nameZh": "新加坡IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/sg.mrs"
+  },
+  {
+    "id": "uk-ip",
+    "name": "uk",
+    "nameZh": "英国IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/gb.mrs"
+  },
+  {
+    "id": "de-ip",
+    "name": "de",
+    "nameZh": "德国IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/de.mrs"
+  },
+  {
+    "id": "fr-ip",
+    "name": "fr",
+    "nameZh": "法国IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/fr.mrs"
+  },
+  {
+    "id": "au-ip",
+    "name": "au",
+    "nameZh": "澳大利亚IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/au.mrs"
+  },
+  {
+    "id": "ca-ip",
+    "name": "ca",
+    "nameZh": "加拿大IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/ca.mrs"
+  },
+  {
+    "id": "ru-ip",
+    "name": "ru",
+    "nameZh": "俄罗斯IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/ru.mrs"
+  },
+  {
+    "id": "in-ip",
+    "name": "in",
+    "nameZh": "印度IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/in.mrs"
+  },
+  {
+    "id": "br-ip",
+    "name": "br",
+    "nameZh": "巴西IP",
+    "category": "geo",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/br.mrs"
+  }
+]

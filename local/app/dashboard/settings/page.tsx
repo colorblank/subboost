@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { LogOut, Network, ServerCog, ShieldCheck } from "lucide-react";
 
 import { Button } from "@subboost/ui/components/ui/button";
@@ -55,7 +56,7 @@ export default function SettingsPage() {
     await logout();
     // Clear the mounted authenticated page and its cached state after logout.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const handleUnsafeSourceToggle = async (checked: boolean) => {
@@ -89,7 +90,7 @@ export default function SettingsPage() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold mb-1">账户设置</h1>
-          <p className="text-fg-50">本地管理员、订阅源安全和运行端点</p>
+          <p className="text-fg-50">浏览器独立空间、订阅源安全和运行端点</p>
         </div>
       </div>
 
@@ -99,21 +100,28 @@ export default function SettingsPage() {
             <div className="rounded-lg bg-indigo-500/20 p-2 text-indigo-300">
               <ShieldCheck className="h-5 w-5" />
             </div>
-            <CardTitle className="text-base">本地管理员</CardTitle>
+            <CardTitle className="text-base">{user?.isGuest ? "游客工作空间" : "本地管理员"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <p className="text-xs text-fg-40">用户名</p>
-              <p className="mt-1 font-medium">{user?.username || "未登录"}</p>
+              <p className="mt-1 font-medium">{user?.username || "正在连接工作空间…"}</p>
             </div>
             <div>
               <p className="text-xs text-fg-40">已保存订阅</p>
               <p className="mt-1 font-medium">{user ? `${user.subscriptionCount} / ${user.quota.maxSubscriptions}` : "-"}</p>
             </div>
-            <Button variant="destructive" className="gap-2" onClick={() => void handleLogout()} disabled={!user}>
-              <LogOut className="h-4 w-4" />
-              退出登录
-            </Button>
+            {user?.isGuest ? (
+              <div className="space-y-3">
+                <p className="text-sm leading-relaxed text-fg-60">无需登录即可保存订阅和模板。此空间由当前浏览器 Cookie 识别，清除 Cookie 后将无法访问原有数据。</p>
+                <Button asChild variant="outline"><Link href="/login">管理员登录（可选）</Link></Button>
+              </div>
+            ) : (
+              <Button variant="destructive" className="gap-2" onClick={() => void handleLogout()} disabled={!user}>
+                <LogOut className="h-4 w-4" />
+                退出登录
+              </Button>
+            )}
           </CardContent>
         </Card>
 

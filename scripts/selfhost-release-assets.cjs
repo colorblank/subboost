@@ -59,6 +59,7 @@ function parseArgs(argv) {
     buildSha: process.env.SUBBOOST_BUILD_SHA || "",
     dryRun: false,
     image: process.env.SUBBOOST_IMAGE || "",
+    backendImage: process.env.SUBBOOST_BACKEND_IMAGE || "",
     imageRepository: process.env.SUBBOOST_IMAGE_REPOSITORY || DEFAULT_IMAGE_REPOSITORY,
     imageTag: process.env.SUBBOOST_RELEASE_IMAGE_TAG || "",
     output: process.env.SUBBOOST_RELEASE_ASSET_OUTPUT || process.env.SUBBOOST_ONECLICK_OUTPUT || DEFAULT_OUTPUT,
@@ -77,6 +78,10 @@ function parseArgs(argv) {
       argIndex += 1;
     } else if (arg === "--dry-run") {
       args.dryRun = true;
+    } else if (arg === "--backend-image") {
+      args.backendImage = argv[argIndex + 1] || "";
+      if (!args.backendImage) throw new Error("--backend-image cannot be empty.");
+      argIndex += 1;
     } else if (arg === "--image") {
       args.image = argv[argIndex + 1] || "";
       argIndex += 1;
@@ -155,6 +160,8 @@ function buildManifest(publicRoot, args) {
     buildVersion,
     composeUrl: urlJoin(args.baseUrl, "docker-compose.image.yml"),
     image,
+    backendImage: args.backendImage || `${imageRepository}-backend:${releaseTag}`,
+    runtimeConfigUrl: urlJoin(args.baseUrl, "subboost.toml"),
     imageTag,
     installerUrl: urlJoin(args.baseUrl, "install.sh"),
     managerUrl: urlJoin(args.baseUrl, MANAGER_ASSET_NAME),
@@ -224,7 +231,7 @@ function copyInstallScript(publicRoot, to, args) {
   fs.writeFileSync(to, rewriteInstallerDefaults(content, args), "utf8");
 }
 
-function writeReleaseCompose(publicRoot, to, image) {
+function writeReleaseCompose(publicRoot, to, image, backendImage) {
   fs.mkdirSync(path.dirname(to), { recursive: true });
   const source = path.join(publicRoot, "local/docker-compose.image.yml");
   const content = fs.readFileSync(source, "utf8").replace(/\r\n/g, "\n");
@@ -234,7 +241,9 @@ function writeReleaseCompose(publicRoot, to, image) {
     throw new Error(`Expected exactly one SubBoost image marker in docker-compose.image.yml, found ${count}.`);
   }
   const resolvedImage = `image: ${"${SUBBOOST_CANDIDATE_IMAGE:-"}${image}}`;
-  fs.writeFileSync(to, content.replace(marker, resolvedImage), "utf8");
+  const backendMarker = "image: ${SUBBOOST_BACKEND_IMAGE:-ghcr.io/subboost/subboost-backend:latest}";
+  if (content.split(backendMarker).length - 1 !== 1) throw new Error("Expected exactly one Rust backend image marker.");
+  fs.writeFileSync(to, content.replace(marker, resolvedImage).replace(backendMarker, `image: ${"${SUBBOOST_CANDIDATE_BACKEND_IMAGE:-"}${backendImage}}`), "utf8");
 }
 
 function createBundle(publicRoot, args) {
@@ -244,9 +253,10 @@ function createBundle(publicRoot, args) {
 
   fs.rmSync(output, { force: true, recursive: true });
   fs.mkdirSync(output, { recursive: true });
-  writeReleaseCompose(publicRoot, path.join(output, "docker-compose.image.yml"), manifest.image);
+  writeReleaseCompose(publicRoot, path.join(output, "docker-compose.image.yml"), manifest.image, manifest.backendImage);
   copyInstallScript(publicRoot, path.join(output, "install.sh"), args);
   copyFile(publicRoot, "local/scripts/subboost.sh", path.join(output, MANAGER_ASSET_NAME), { normalizeLineEndings: true });
+  copyFile(publicRoot, "config/subboost.toml", path.join(output, "subboost.toml"), { normalizeLineEndings: true });
   fs.chmodSync(path.join(output, "install.sh"), 0o755);
   fs.chmodSync(path.join(output, MANAGER_ASSET_NAME), 0o755);
   fs.writeFileSync(path.join(output, "release.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");

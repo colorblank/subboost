@@ -149,7 +149,7 @@ export function HomeLayout({
           </span>
         </h1>
         <p className="text-fg-50 max-w-2xl mx-auto leading-snug text-[clamp(0.75rem,1vw,0.95rem)] [@media(max-height:1000px)]:text-[0.875rem]">
-          Clash 订阅转换、生成与管理服务，支持链式代理、智能分流、多协议和多订阅聚合
+          导入订阅或节点，选择分流配置，再导出 Clash YAML 或保存订阅链接
         </p>
       </div>
 
@@ -172,9 +172,9 @@ export function HomeLayout({
             <Card className={`w-full flex flex-col overflow-visible lg:flex-1 lg:overflow-hidden ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
               <CardHeader className="pb-3 flex-shrink-0">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <CardTitle className="text-base lg:text-lg flex items-center gap-2 min-w-0">
+                  <CardTitle className="text-base lg:text-lg flex flex-wrap items-center gap-2 min-w-0">
                     <Settings2 className="h-5 w-5 text-indigo-400" />
-                    <span className="shrink-0">配置生成器</span>
+                    <span className="shrink-0">导入与配置</span>
                     {isLoadingEditingSubscription && editSubscriptionId && (
                       <span className="inline-flex items-center gap-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[10px] text-indigo-100/90">
                         <Loader2 className="h-3 w-3 animate-spin" />
@@ -190,12 +190,12 @@ export function HomeLayout({
                       </span>
                     )}
                   </CardTitle>
-                  <TabsList className={cn(artisticTabsListClassName, "self-start")}>
-                    <TabsTrigger value="quick" className={cn(artisticTabsTriggerClassName, "min-w-[7rem]")}>
+                  <TabsList className={cn(artisticTabsListClassName, "self-start max-w-full")}>
+                    <TabsTrigger value="quick" className={cn(artisticTabsTriggerClassName, "min-w-0 sm:min-w-[7rem]")}>
                       <Zap className={artisticTabsIconClassName} />
                       快捷模式
                     </TabsTrigger>
-                    <TabsTrigger value="advanced" className={cn(artisticTabsTriggerClassName, "min-w-[7rem]")}>
+                    <TabsTrigger value="advanced" className={cn(artisticTabsTriggerClassName, "min-w-0 sm:min-w-[7rem]")}>
                       <Settings2 className={artisticTabsIconClassName} />
                       高级模式
                     </TabsTrigger>
@@ -216,8 +216,8 @@ export function HomeLayout({
                   <AdvancedMode />
                 </TabsContent>
               </CardContent>
-              <CardFooter className="justify-center gap-2 flex-shrink-0 pt-3 flex-row flex-wrap">
-                <Button className="h-10" onClick={() => handleGenerate(configTab)} disabled={configLoading || !hasValidSources}>
+              <CardFooter className="justify-center gap-2 flex-shrink-0 pt-3 flex-row flex-wrap [&>button]:flex-1 sm:[&>button]:flex-none">
+                <Button className="h-11 sm:h-10" onClick={() => handleGenerate(configTab)} disabled={configLoading || !hasValidSources}>
                   {configLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -258,10 +258,10 @@ export function HomeLayout({
           <Tabs defaultValue="visual" className={`w-full flex flex-col lg:flex-1 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
             <Card className={`w-full flex flex-col lg:flex-1 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
               <CardHeader className="pb-3 flex-shrink-0">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <CardTitle className="text-base lg:text-lg flex items-center gap-2">
                     <Eye className="h-5 w-5 text-indigo-400" />
-                    预览
+                    3 · 预览与导出
                   </CardTitle>
                   <TabsList className="h-8">
                     <TabsTrigger value="yaml" className="text-xs px-3 h-6">
@@ -293,25 +293,11 @@ export function HomeLayout({
                     ) : generatedYaml ? (
                       <YamlHighlight content={generatedYaml} className="h-full" />
                     ) : (
-                      <pre className="p-4 font-mono text-xs text-fg-60 whitespace-pre">
-                        {`# 请先添加订阅或节点
-# 配置将在此处预览
-
-# 示例配置结构:
-# proxies:
-#   - name: "节点名称"
-#     type: vmess
-#     ...
-#
-# proxy-groups:
-#   - name: "🚀 节点选择"
-#     type: select
-#     ...
-#
-# rules:
-#   - RULE-SET,xxx,代理组
-#   ...`}
-                      </pre>
+                      <div className="flex h-full min-h-64 flex-col items-center justify-center gap-3 px-6 text-center" role="status">
+                        <Eye className="h-8 w-8 text-fg-40" aria-hidden="true" />
+                        <p className="text-sm font-medium text-fg-70">还没有可导出的配置</p>
+                        <p className="max-w-xs text-xs leading-relaxed text-fg-50">先在配置区添加订阅链接或粘贴节点，选择模板后点击「生成配置」。YAML 将显示在这里。</p>
+                      </div>
                     )}
                     </div>
                   </div>
@@ -322,9 +308,9 @@ export function HomeLayout({
                   </div>
                 </TabsContent>
               </CardContent>
-              <CardFooter className="justify-center gap-2 flex-shrink-0 pt-3 flex-row flex-wrap">
+              <CardFooter className="justify-center gap-2 flex-shrink-0 pt-3 flex-row flex-wrap [&>button]:flex-1 sm:[&>button]:flex-none">
                 <Button
-                  className="h-10"
+                  className="h-11 sm:h-10"
                   disabled={!generatedYaml || Boolean(generatedYamlError)}
                   onClick={() => handleDownload(configTab)}
                 >
@@ -332,7 +318,7 @@ export function HomeLayout({
                   下载配置
                 </Button>
                 <Button
-                  className="h-10"
+                  className="h-11 sm:h-10"
                   variant="outline"
                   disabled={!generatedYaml || Boolean(generatedYamlError) || !authChecked}
                   onClick={() => subscription.handleGenerateSubscription(configTab)}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("@local/lib/runtime-config", () => import("../../runtime-config-fixture"));
 
 const harness = vi.hoisted(() => ({
   buttons: [] as Array<Record<string, any>>,

@@ -6,9 +6,16 @@ human-readable summary, not a full dependency license inventory.
 ## npm Dependencies
 
 The app depends on packages from the npm ecosystem, including Next.js, React,
-Prisma, Radix UI, lucide-react, js-yaml, Peggy, Tailwind CSS, Zustand, and
+Radix UI, lucide-react, js-yaml, Peggy, Tailwind CSS, Zustand, and
 related build/test tools. Their individual licenses are recorded in
 `package-lock.json` and distributed with the package registry metadata.
+
+## Rust Dependencies
+
+The native backend uses Axum, Tokio, rusqlite (with bundled SQLite), Reqwest,
+Serde, Clap, and cryptographic crates including aes-gcm and argon2. Versions
+are recorded in `Cargo.lock`; each crate distributes its own license metadata.
+SQLite is in the public domain.
 
 ## UI Components
 

@@ -1,12 +1,3 @@
-export const LOCAL_ADMIN_PASSWORD_MIN_LENGTH = 10;
-
-export const LOCAL_ADMIN_CREDENTIAL_MESSAGES = {
-  invalidJson: "请求格式有误，请刷新页面后重试",
-  adminExists: "已有管理员账号，请直接登录",
-  usernameRequired: "请输入管理员账号",
-  passwordMinLength: `密码至少需要 ${LOCAL_ADMIN_PASSWORD_MIN_LENGTH} 个字符`,
-  passwordMismatch: "两次输入的密码不一致，请重新确认",
-} as const;
 
 type LocalAdminCredentialInput = {
   username: string;
@@ -14,13 +5,15 @@ type LocalAdminCredentialInput = {
   passwordConfirm: string;
 };
 
-export function getLocalAdminSetupCredentialError(input: LocalAdminCredentialInput): string {
+export function getLocalAdminSetupCredentialError(input: LocalAdminCredentialInput, minimumPasswordCharacters: number): string {
   const username = input.username.trim();
   const password = input.password.trim();
   const passwordConfirm = input.passwordConfirm.trim();
 
-  if (!username) return LOCAL_ADMIN_CREDENTIAL_MESSAGES.usernameRequired;
-  if (password.length < LOCAL_ADMIN_PASSWORD_MIN_LENGTH) return LOCAL_ADMIN_CREDENTIAL_MESSAGES.passwordMinLength;
-  if (password !== passwordConfirm) return LOCAL_ADMIN_CREDENTIAL_MESSAGES.passwordMismatch;
+  if (!username) return "请输入管理员账号";
+  let characterCount = 0;
+  for (const _character of password) characterCount += 1;
+  if (characterCount < minimumPasswordCharacters) return `密码至少需要 ${minimumPasswordCharacters} 个字符`;
+  if (password !== passwordConfirm) return "两次输入的密码不一致，请重新确认";
   return "";
 }

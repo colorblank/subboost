@@ -305,6 +305,17 @@ describe("SubscriptionDashboardSurface", () => {
     expect(mocks.captures.settingsDialog).toEqual(expect.objectContaining({ open: false, userIsAdmin: false }));
   });
 
+  it("loads the guest dashboard without navigating to login", async () => {
+    mocks.userStore.user = { ...user, id: "browser-owner", isGuest: true };
+    const adapter = createAdapter();
+    renderSurface(adapter, {}, { runEffects: true });
+    await flushPromises();
+    expect(mocks.userStore.fetchUser).toHaveBeenCalled();
+    expect(adapter.fetchSubscriptions).toHaveBeenCalled();
+    expect(mocks.captures.stats.user.id).toBe("browser-owner");
+    expect(window.location.href).toBe("http://localhost/dashboard");
+  });
+
   it("runs mount effects, handles fetch failures, and shows disabled auto-update notices", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const adapter = createAdapter({ fetchSubscriptions: vi.fn(async () => [subscription]) });

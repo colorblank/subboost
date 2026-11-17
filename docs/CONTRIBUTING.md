@@ -27,12 +27,16 @@ Your contribution is licensed to the public under the repository license, AGPL-3
 Run the smallest relevant checks first:
 
 ```powershell
+cargo fmt --all --check
+cargo test --locked -p subboost
 npm run lint
 npm run test:unit
 npm run check:local-app
 ```
 
 For parser, template, subscription output, or deployment changes, also run the focused test or selftest that covers the changed behavior.
+
+Rust code follows the applicable [Google Rust Style Guide](https://google.github.io/styleguide/rustguide.html): rustfmt, named policy structures, explicit operation modes, borrowed inputs, and no blocking mutex guards across await points. Retain extensible JSON fields at subscription/protocol boundaries. Deployment policy belongs in `config/`, not duplicated in handlers or UI.
 
 ## UI Colors
 
