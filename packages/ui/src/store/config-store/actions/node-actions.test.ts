@@ -345,6 +345,18 @@ describe("createNodeActions", () => {
     ]);
   });
 
+  it.each([
+    { renames: [{ oldName: "A", newName: "AA" }, { oldName: "AA", newName: "AAA" }], ports: { AA: 1000, AAA: 2000 } },
+    { renames: [{ oldName: "A", newName: "AA" }, { oldName: "AA", newName: "A" }], ports: { AA: 1000, A: 2000 } },
+  ])("preserves each node's listener through overlapping renames: $renames", ({ renames, ports }) => {
+    const { actions, getState } = createHarness({
+      nodes: [node("A"), node("AA"), node("Unchanged")],
+      listenerPorts: { A: 1000, AA: 2000, Unchanged: 3000 },
+    });
+    actions.bulkRenameNodes(renames);
+    expect(getState().listenerPorts).toEqual({ ...ports, Unchanged: 3000 });
+  });
+
   it("bulk renames nodes and listener ports without duplicate names", () => {
     const { actions, getState } = createHarness({
       nodes: [node("A"), node("B"), node("C"), node("X")],

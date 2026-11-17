@@ -408,10 +408,10 @@ export function createNodeActions(
           if (!state.listenerPorts || typeof state.listenerPorts !== "object") return state.listenerPorts;
           let changed = false;
           const out: Record<string, number> = { ...state.listenerPorts };
+          for (const oldName of finalMap.keys()) delete out[oldName];
           finalMap.forEach((nextName, oldName) => {
-            const port = out[oldName];
+            const port = state.listenerPorts[oldName];
             if (typeof port !== "number") return;
-            delete out[oldName];
             out[nextName] = port;
             changed = true;
           });
