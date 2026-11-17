@@ -188,6 +188,23 @@ describe("useEditingSubscriptionLoader", () => {
     expect(mocks.useConfigStore.setState).not.toHaveBeenCalled();
   });
 
+  it("keeps a different node with the same origin when reopening a saved deletion", async () => {
+    const removed = node("Shared", { _originName: "Shared", server: "one.example.com" });
+    const remaining = node("Shared (2)", { _originName: "Shared", server: "two.example.com" });
+    const options = makeOptions({
+      loadSubscription: vi.fn(async () => response(200, {
+        subscription: {
+          id: "sub-1", token: "token-1", nodes: [remaining],
+          config: { deletedNodeNames: ["Shared"], deletedNodes: [{ originName: "Shared", name: "Shared", node: removed }] },
+        },
+      })),
+    });
+    useEditingSubscriptionLoader(options);
+    await flushAsync();
+    expect(mocks.bag.storeState.nodes).toEqual([expect.objectContaining(remaining)]);
+    expect(mocks.bag.storeState.deletedNodes[0].node).toEqual(removed);
+  });
+
   it("hydrates a saved subscription config into the editor store", async () => {
     const { reset, generateConfig } = resetStoreState({
       enabledProxyGroups: ["select", "auto", "ai", "youtube"],

@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { SubscriptionSource } from "@subboost/ui/store/config-store";
 import type { ParsedNode } from "@subboost/core/types/node";
+import { buildScopedNodeIdentityKey } from "@subboost/core/node-identity";
 import type { EditingSubscriptionLoaderOptions } from "./editing-subscription-types";
 import { normalizePersistedRuleOrder } from "@subboost/core/generator/rules";
 import { ensureCustomRulesHaveIds } from "@subboost/core/rules/custom-rule-utils";
@@ -30,6 +31,12 @@ import {
   getNodeOriginName,
   getNodeSourceIds,
 } from "./editing-subscription-node-sources";
+
+function isNodeSnapshot(value: unknown): value is ParsedNode {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value) &&
+    "name" in value && typeof value.name === "string" &&
+    "type" in value && typeof value.type === "string");
+}
 
 export function useEditingSubscriptionLoader({
   editSubscriptionId,
@@ -128,15 +135,20 @@ export function useEditingSubscriptionLoader({
         const deletedNodesFromCfg = Array.isArray((cfg as any).deletedNodes)
           ? ((cfg as any).deletedNodes as unknown[])
             .map((item) => {
-              if (!item || typeof item !== "object") return null;
-              const originName = (item as any).originName;
-              const name = (item as any).name;
+              if (!item || typeof item !== "object" || !("originName" in item)) return null;
+              const originName = item.originName;
+              const name = "name" in item ? item.name : undefined;
               if (typeof originName !== "string" || !originName.trim()) return null;
               const normalizedOriginName = originName.trim();
               const normalizedName = typeof name === "string" && name.trim() ? name.trim() : normalizedOriginName;
-              return { originName: normalizedOriginName, name: normalizedName };
+              const deletedNode = "node" in item ? item.node : undefined;
+              return {
+                originName: normalizedOriginName,
+                name: normalizedName,
+                ...(isNodeSnapshot(deletedNode) ? { node: deletedNode } : {}),
+              };
             })
-            .filter(Boolean) as Array<{ originName: string; name: string }>
+            .filter((item): item is NonNullable<typeof item> => item !== null)
           : [];
         const deletedNodeNamesFromCfg = Array.isArray((cfg as any).deletedNodeNames)
           ? ((cfg as any).deletedNodeNames as unknown[])
@@ -163,13 +175,17 @@ export function useEditingSubscriptionLoader({
         })();
 
         const deletedOriginNameSet = new Set<string>(deletedNodeNamesMerged);
-        const filteredLoadedNodes =
-          deletedOriginNameSet.size > 0
-            ? loadedNodes.filter((node) => {
-              const origin = getNodeOriginName(node);
-              return !deletedOriginNameSet.has(origin);
-            })
-            : loadedNodes;
+        const preciseOrigins = new Set(deletedNodesFromCfg.map((item) => item.originName));
+        const deletedKeys = new Set(deletedNodesFromCfg.filter((item) => item.node)
+          .map((item) => buildScopedNodeIdentityKey(item.originName, item.node!)));
+        const deletedDisplayNames = new Set(deletedNodesFromCfg.filter((item) => !item.node).map((item) => item.name));
+        const filteredLoadedNodes = loadedNodes.filter((node) => {
+          const origin = getNodeOriginName(node);
+          if (preciseOrigins.has(origin)) {
+            return !deletedKeys.has(buildScopedNodeIdentityKey(origin, node)) && !deletedDisplayNames.has(node.name);
+          }
+          return !deletedOriginNameSet.has(origin);
+        });
 
         // 优先从 config.sources 恢复用户当时的“输入源”（保留 YAML/节点链接/多个 URL 的顺序）
         // 若订阅记录尚未保存 sources，则仅按 urls 重建，避免插入空白 YAML/#nodes 导致顺序错乱。
