@@ -60,7 +60,7 @@ export function InputSection({
       />
 
       {isExpanded && (
-        <div className="mt-2 space-y-2 pl-6">
+        <div className="mt-2 space-y-2 sm:pl-6">
           {sources.map((source, index) => {
             const typeInfo = sourceTypeInfo[source.type];
             const sourceDisplayLabel = buildSourceDisplayLabel({
@@ -72,8 +72,8 @@ export function InputSection({
             const sourceNodes = nodesBySourceId.get(source.id) ?? [];
             return (
               <div key={source.id} className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <SourceTypeChoices
                       value={source.type}
                       onChange={(type) => updateSourceType(source.id, type)}
@@ -87,14 +87,14 @@ export function InputSection({
                       <SubscriptionImportErrorBadge errorInfo={source.errorInfo} errorMessage={source.error} />
                     )}
                   </div>
-                  <div className="flex items-center gap-0.5">
-                    <div className="flex flex-col">
+                  <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">
+                    <div className="flex sm:flex-col">
                       <IconButton
                         label="上移"
                         variant="ghost"
                         onClick={() => moveSource(source.id, "up")}
                         disabled={index <= 0}
-                        className="flex h-3.5 w-4 items-center justify-center text-fg-30 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="flex h-9 w-9 items-center justify-center text-fg-50 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30 sm:h-3.5 sm:w-4"
                       >
                         <ChevronUp className="h-2.5 w-2.5" aria-hidden="true" />
                       </IconButton>
@@ -103,7 +103,7 @@ export function InputSection({
                         variant="ghost"
                         onClick={() => moveSource(source.id, "down")}
                         disabled={index >= sources.length - 1}
-                        className="flex h-3.5 w-4 items-center justify-center text-fg-30 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="flex h-9 w-9 items-center justify-center text-fg-50 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30 sm:h-3.5 sm:w-4"
                       >
                         <ChevronDown className="h-2.5 w-2.5" aria-hidden="true" />
                       </IconButton>
@@ -112,7 +112,7 @@ export function InputSection({
                       label="高级编辑"
                       variant="ghost"
                       onClick={() => setExpandedSourceId(source.id)}
-                      className="h-6 w-6 rounded p-1 text-fg-30 hover:bg-ink/5 hover:text-fg-50"
+                      className="h-10 w-10 rounded p-1 text-fg-50 hover:bg-ink/5 hover:text-fg-70 sm:h-6 sm:w-6"
                     >
                       <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
                     </IconButton>
@@ -122,7 +122,7 @@ export function InputSection({
                       onClick={() => void handleImportSource(source.id)}
                       disabled={!source.content.trim() || source.parsing}
                       className={cn(
-                        "h-6 w-6 rounded p-1 transition-colors disabled:opacity-100",
+                        "h-10 w-10 rounded p-1 transition-colors disabled:opacity-100 sm:h-6 sm:w-6",
                         source.parsing
                           ? "text-indigo-400"
                           : source.parsed
@@ -144,7 +144,7 @@ export function InputSection({
                         label="删除导入源"
                         variant="ghost"
                         onClick={() => removeSource(source.id)}
-                        className="h-6 w-6 rounded p-1 text-fg-50 transition-colors hover:text-red-400"
+                        className="h-10 w-10 rounded p-1 text-fg-50 transition-colors hover:text-red-400 sm:h-6 sm:w-6"
                       >
                         <X className="h-3.5 w-3.5" aria-hidden="true" />
                       </IconButton>

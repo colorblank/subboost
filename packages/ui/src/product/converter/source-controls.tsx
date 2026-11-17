@@ -33,7 +33,7 @@ export function SourceTypeChoices({
   compact?: boolean;
 }) {
   return (
-    <ChoiceGroup label="导入源类型" className={compact ? "gap-0.5" : "gap-1"}>
+    <ChoiceGroup label="导入源类型" className={cn("shrink-0 flex-nowrap", compact ? "gap-0.5" : "gap-1")}>
       {sourceTypes.map((type) => {
         const info = sourceTypeInfo[type];
         const Icon = info.icon;
@@ -50,7 +50,7 @@ export function SourceTypeChoices({
               </>
             }
             className={cn(
-              "min-h-0 rounded border-0 p-1",
+              "min-h-9 min-w-9 rounded border-0 p-1 sm:min-h-0 sm:min-w-0",
               value === type
                 ? "bg-indigo-500/20 text-indigo-400"
                 : "bg-transparent text-fg-30 hover:bg-ink/5 hover:text-fg-50"
