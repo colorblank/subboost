@@ -166,6 +166,11 @@ export function LocalLogin() {
                 {setupRequired ? "创建管理员" : "登录"}
               </Button>
             </form>
+          ) : error ? (
+            <div className="space-y-3" role="alert">
+              <p className="text-sm text-red-400">{error}</p>
+              <Button type="button" variant="outline" onClick={() => window.location.reload()}>重新加载</Button>
+            </div>
           ) : (
             <div className="h-36 animate-pulse rounded-xl bg-ink/5" />
           )}

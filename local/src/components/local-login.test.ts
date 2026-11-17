@@ -149,6 +149,17 @@ describe("local login component", () => {
     expect(html).toContain("src=\"/logo.png\"");
     expect(html).toContain("animate-pulse");
   });
+  it("shows failed auth loading and lets the user reload instead of staying on the skeleton", () => {
+    const reload = vi.fn();
+    vi.stubGlobal("window", { location: { reload } });
+    const { html } = renderLogin({ 0: null, 5: "认证服务暂不可用" });
+    expect(html).toContain("认证服务暂不可用");
+    expect(html).toContain('role="alert"');
+    expect(html).not.toContain("animate-pulse");
+    mocks.buttons.find((button) => button.children === "重新加载").onClick();
+    expect(reload).toHaveBeenCalledOnce();
+  });
+
 
   it("loads auth state and redirects authenticated users", async () => {
     const win = installWindow();
