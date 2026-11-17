@@ -14,6 +14,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { ProxyGroupGroupType } from "@subboost/core/types/config";
+import { splitLeadingEmoji } from "@subboost/core/proxy-group-name";
 import { cn } from "@subboost/ui/lib/utils";
 
 export type VisualDisplayGroup = {
@@ -37,7 +38,7 @@ type DragOverGroup = {
 } | null;
 
 function getDisplayName(name: string) {
-  return name.replace(/^\S+\s+/, "");
+  return splitLeadingEmoji(name).label;
 }
 
 function formatDefaultProxy(proxyName: string) {

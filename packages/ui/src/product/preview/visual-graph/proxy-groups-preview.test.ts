@@ -137,6 +137,15 @@ afterEach(() => {
 });
 
 describe("ProxyGroupsPreview", () => {
+  it.each(["Hong Kong", "香港 节点", "Node 123"])("preserves ordinary multiword names: %s", (name) => {
+    const html = renderPreview({
+      displayGroups: [{ ...groups[0], name }],
+      defaultProxyByGroupName: new Map([[name, name]]),
+    });
+    expect(html).toContain(`aria-label="${name} 代理组"`);
+    expect(html).toContain(`默认：${name}`);
+  });
+
   it("renders group labels, defaults, rules, drag markers, and horizontal dialer layout", () => {
     const html = renderPreview();
 
