@@ -6,12 +6,15 @@ use std::{
     sync::LazyLock,
 };
 
+pub(crate) mod catalog;
+pub(crate) use catalog::RuleCatalog;
+
 const INVALID_CONTENT: &str = "无法识别规则文件，请使用有效的 text 或 YAML 规则集";
 static CURATED: LazyLock<Vec<Value>> = LazyLock::new(|| {
     let text = crate::config::load_file_or_embedded(
         "SUBBOOST_RULES_CATALOG",
         "config/rules/catalog.json",
-        include_str!("../../config/rules/catalog.json"),
+        include_str!("../../../config/rules/catalog.json"),
     );
     serde_json::from_str(&text).expect("embedded catalog data")
 });
@@ -261,7 +264,7 @@ fn behavior(entries: &[String]) -> Option<&'static str> {
     }
 }
 pub fn detect(content: &str, maximum_entries: usize) -> Result<Value> {
-    let policy = crate::parser_policy::policy()?;
+    let policy = crate::parser::policy()?;
     ensure!(
         content.len() <= policy.maximum_input_bytes,
         "规则文件超过解析大小限制"

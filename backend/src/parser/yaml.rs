@@ -3,7 +3,7 @@ use serde::de::{self, DeserializeSeed, EnumAccess, MapAccess, SeqAccess, Variant
 use std::{cell::Cell, fmt};
 
 struct Budget {
-    policy: &'static crate::parser_policy::ParserPolicy,
+    policy: &'static crate::parser::ParserPolicy,
     nodes: Cell<usize>,
     text: Cell<usize>,
     merges: Cell<usize>,
@@ -320,12 +320,12 @@ fn preserve_integer_scalars(input: &str) -> Result<String> {
         out.push('"');
         copied = stop;
         i = stop;
-        if out.len() > crate::parser_policy::policy()?.maximum_output_bytes {
+        if out.len() > crate::parser::policy()?.maximum_output_bytes {
             return Err(limited("YAML 标量规范化后的内容超过大小上限"));
         }
     }
     out.push_str(&input[copied..]);
-    if out.len() > crate::parser_policy::policy()?.maximum_output_bytes {
+    if out.len() > crate::parser::policy()?.maximum_output_bytes {
         return Err(limited("YAML 标量规范化后的内容超过大小上限"));
     }
     Ok(out)
@@ -334,7 +334,7 @@ fn preserve_integer_scalars(input: &str) -> Result<String> {
 pub(super) fn load(content: &str) -> Result<Value> {
     let normalized = preserve_integer_scalars(content)?;
     let budget = Budget {
-        policy: crate::parser_policy::policy()?,
+        policy: crate::parser::policy()?,
         nodes: Cell::new(0),
         text: Cell::new(0),
         merges: Cell::new(0),

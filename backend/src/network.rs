@@ -8,7 +8,7 @@ use std::{
 use url::Url;
 
 use crate::config::Network;
-use crate::subscription_snapshot::SubscriptionSnapshot;
+use crate::refresh::SubscriptionSnapshot;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RequestPurpose {

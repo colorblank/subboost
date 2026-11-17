@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use anyhow::{Context, Result, anyhow, ensure};
@@ -24,20 +23,11 @@ pub(crate) struct ParserPolicy {
 
 impl ParserPolicy {
     fn load() -> Result<Self> {
-        let explicit = std::env::var_os("SUBBOOST_PARSER_POLICY");
-        let path = explicit
-            .as_ref()
-            .map_or_else(|| PathBuf::from("config/parser-policy.json"), PathBuf::from);
-        let text = match std::fs::read_to_string(&path) {
-            Ok(text) => text,
-            Err(error) if explicit.is_none() && error.kind() == std::io::ErrorKind::NotFound => {
-                include_str!("../../config/parser-policy.json").to_owned()
-            }
-            Err(error) => {
-                return Err(error)
-                    .with_context(|| format!("Reading parser policy {}", path.display()));
-            }
-        };
+        let text = crate::config::load_file_or_embedded(
+            "SUBBOOST_PARSER_POLICY",
+            "config/parser-policy.json",
+            include_str!("../../../config/parser-policy.json"),
+        );
         let policy: Self = serde_json::from_str(&text).context("Invalid parser policy JSON")?;
         ensure!(
             [

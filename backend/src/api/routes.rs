@@ -1,233 +1,46 @@
-use crate::service::{Fault, Service, fault, now, required, token};
-use anyhow::{Context, Result, ensure};
+use std::{collections::HashMap, time::Duration};
+
+use anyhow::{Result, ensure};
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_hash::SaltString};
 use axum::{
-    Router,
     body::{Body, to_bytes},
-    extract::{ConnectInfo, State},
-    http::{HeaderMap, HeaderValue, Method, Request, StatusCode, header},
+    http::{HeaderValue, Method, Request, StatusCode, header},
     response::{IntoResponse, Response},
-    routing::any,
 };
 use chrono::Utc;
 use rusqlite::{OptionalExtension, params};
 use serde_json::{Value, json};
-use std::{
-    collections::HashMap,
-    net::SocketAddr,
-    sync::{Arc, Mutex},
-    time::{Duration, Instant},
+
+use crate::service::{Fault, fault, now, required, token};
+
+use super::{
+    ApiState,
+    auth::{append_cookie, cookie, cookie_value, identity},
+    csrf::{check_origin, secure_equal},
+    rate_limit::rate,
 };
 
-#[derive(Clone)]
-struct ApiState {
-    service: Service,
-    rates: Arc<Mutex<HashMap<String, RateWindow>>>,
-    logins: Arc<tokio::sync::Semaphore>,
-}
-#[derive(Clone)]
-struct Identity {
-    owner: String,
-    username: String,
-    guest: bool,
-    cookie: Option<String>,
-}
-
-struct RateWindow {
-    count: u32,
-    expires_at: Instant,
-}
-
-pub fn router(service: Service) -> Router {
-    let parallel_logins = service.config.authentication.parallel_logins;
-    let state = ApiState {
-        service,
-        rates: Arc::default(),
-        logins: Arc::new(tokio::sync::Semaphore::new(parallel_logins)),
-    };
-    Router::new()
-        .route("/api/{*path}", any(dispatch))
-        .with_state(state)
-}
-pub async fn serve(service: Service, listen: SocketAddr) -> Result<()> {
-    let listener = tokio::net::TcpListener::bind(listen).await?;
-    eprintln!(
-        "SubBoost Rust API listening on http://{}",
-        listener.local_addr()?
-    );
-    let updates = service
-        .config
-        .refresh
-        .enabled
-        .then(|| tokio::spawn(crate::scheduler::run(service.clone())));
-    let result = axum::serve(
-        listener,
-        router(service).into_make_service_with_connect_info::<SocketAddr>(),
-    )
-    .with_graceful_shutdown(async {
-        let _ = tokio::signal::ctrl_c().await;
-    })
-    .await;
-    if let Some(updates) = updates {
-        updates.abort();
-    }
-    result.context("HTTP server stopped")
-}
-fn rate(state: &ApiState, key: String, limit: u32, window: Duration) -> Result<()> {
-    let mut rates = state
-        .rates
-        .lock()
-        .map_err(|_| fault(500, "INTERNAL_ERROR", "Rate limiter unavailable"))?;
-    let maximum = state.service.config.rate_limits.maximum_clients;
-    if rates.len() >= maximum {
-        rates.retain(|_, entry| entry.expires_at > Instant::now());
-    }
-    ensure!(
-        rates.len() < maximum || rates.contains_key(&key),
-        fault(429, "RATE_LIMITED", "Too many active clients")
-    );
-    let entry = rates.entry(key).or_insert_with(|| RateWindow {
-        count: 0,
-        expires_at: Instant::now() + window,
-    });
-    if entry.expires_at <= Instant::now() {
-        *entry = RateWindow {
-            count: 0,
-            expires_at: Instant::now() + window,
-        };
-    }
-    entry.count = entry.count.saturating_add(1);
-    ensure!(
-        entry.count <= limit,
-        fault(429, "RATE_LIMITED", "Too many requests. Try again later.")
-    );
-    Ok(())
-}
-fn json_response(value: Value, status: u16) -> Response {
+pub(super) fn json_response(value: Value, status: u16) -> Response {
     (
         StatusCode::from_u16(status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
         axum::Json(value),
     )
         .into_response()
 }
-fn error_response(error: anyhow::Error) -> Response {
+
+pub(super) fn error_response(error: anyhow::Error) -> Response {
     if let Some(f) = error.downcast_ref::<Fault>() {
         return json_response(json!({"error":f.message,"code":f.code}), f.status);
     }
     eprintln!("API error: {error:#}");
     json_response(json!({"error":error.to_string(),"code":"BAD_REQUEST"}), 400)
 }
-fn append_cookie(response: &mut Response, cookie: &str) -> Result<()> {
-    response
-        .headers_mut()
-        .append(header::SET_COOKIE, HeaderValue::from_str(cookie)?);
-    Ok(())
-}
-fn cookie_value<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
-    headers
-        .get(header::COOKIE)?
-        .to_str()
-        .ok()?
-        .split(';')
-        .filter_map(|item| item.trim().split_once('='))
-        .find(|(key, _)| *key == name)
-        .map(|(_, value)| value)
-}
-fn cookie(service: &Service, name: &str, value: &str, seconds: i64) -> String {
-    format!(
-        "{name}={value}; Path=/; HttpOnly; SameSite=Lax; Max-Age={seconds}{}",
-        if service.config.application.app_url.starts_with("https:") {
-            "; Secure"
-        } else {
-            ""
-        }
-    )
-}
-async fn identity(service: &Service, headers: &HeaderMap) -> Result<Identity> {
-    let authentication = &service.config.authentication;
-    let admin = cookie_value(headers, &authentication.administrator_cookie)
-        .filter(|v| v.len() == crate::service::TOKEN_LENGTH)
-        .map(str::to_owned);
-    let guest = cookie_value(headers, &authentication.guest_cookie)
-        .filter(|v| v.len() == crate::service::TOKEN_LENGTH)
-        .map(str::to_owned);
-    for (value, want_guest) in [(admin, false), (guest, true)] {
-        if let Some(value) = value {
-            let row=service.store.run(move |db| Ok(db.query_row("SELECT owner,username,guest FROM sessions WHERE token=?1 AND expires>?2 AND guest=?3",params![value,Utc::now().timestamp(),want_guest],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,bool>(2)?))).optional()?)).await?;
-            if let Some((owner, username, guest)) = row {
-                return Ok(Identity {
-                    owner,
-                    username,
-                    guest,
-                    cookie: None,
-                });
-            }
-        }
-    }
-    let value = token();
-    let owner = format!("guest:{}", token());
-    let stored = value.clone();
-    let stored_owner = owner.clone();
-    let session_seconds = authentication.guest_session_seconds;
-    service.store.run(move |db| {
-        db.execute("DELETE FROM sessions WHERE expires<=?1",[Utc::now().timestamp()])?;
-        db.execute("INSERT INTO sessions(token,owner,username,guest,expires) VALUES(?1,?2,'游客',1,?3)",params![stored,stored_owner,Utc::now().timestamp()+session_seconds])?;Ok(())
-    }).await?;
-    Ok(Identity {
-        owner,
-        username: "游客".into(),
-        guest: true,
-        cookie: Some(cookie(
-            service,
-            &authentication.guest_cookie,
-            &value,
-            session_seconds,
-        )),
-    })
-}
-fn check_origin(service: &Service, headers: &HeaderMap) -> Result<()> {
-    ensure!(
-        headers.get("sec-fetch-site").and_then(|h| h.to_str().ok()) != Some("cross-site"),
-        fault(403, "FORBIDDEN", "Cross-site requests are not allowed")
-    );
-    if let Some(origin) = headers.get(header::ORIGIN) {
-        let origin = origin
-            .to_str()
-            .map_err(|_| fault(403, "FORBIDDEN", "Invalid Origin"))?;
-        let expected = url::Url::parse(&service.config.application.app_url)?
-            .origin()
-            .ascii_serialization();
-        ensure!(
-            origin == expected,
-            fault(403, "FORBIDDEN", "Origin does not match APP_URL")
-        );
-    }
-    Ok(())
-}
-async fn dispatch(State(state): State<ApiState>, request: Request<Body>) -> Response {
-    let peer = request
-        .extensions()
-        .get::<ConnectInfo<SocketAddr>>()
-        .map_or_else(|| "unknown".into(), |p| p.0.ip().to_string());
-    let result = dispatch_inner(&state, request, &peer).await;
-    let mut response = match result {
-        Ok(response) => response,
-        Err(error) => error_response(error),
-    };
-    let headers = response.headers_mut();
-    headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
-    headers.insert(
-        "x-content-type-options",
-        HeaderValue::from_static("nosniff"),
-    );
-    headers.insert("x-frame-options", HeaderValue::from_static("DENY"));
-    headers.insert(
-        "referrer-policy",
-        HeaderValue::from_static("strict-origin-when-cross-origin"),
-    );
-    response
-}
-async fn dispatch_inner(state: &ApiState, request: Request<Body>, peer: &str) -> Result<Response> {
+
+pub(super) async fn dispatch_inner(
+    state: &ApiState,
+    request: Request<Body>,
+    peer: &str,
+) -> Result<Response> {
     let service = &state.service;
     let configuration = &service.config;
     let rates = &configuration.rate_limits;
@@ -448,7 +261,21 @@ async fn dispatch_inner(state: &ApiState, request: Request<Body>, peer: &str) ->
         let stored_owner = owner.clone();
         let stored_username = username.clone();
         let session_seconds = authentication.administrator_session_seconds;
-        service.store.run(move |db| {db.execute("INSERT INTO sessions(token,owner,username,guest,expires) VALUES(?1,?2,?3,0,?4)",params![stored,stored_owner,stored_username,Utc::now().timestamp()+session_seconds])?;Ok(())}).await?;
+        service
+            .store
+            .run(move |db| {
+                db.execute(
+                    "INSERT INTO sessions(token,owner,username,guest,expires) VALUES(?1,?2,?3,0,?4)",
+                    params![
+                        stored,
+                        stored_owner,
+                        stored_username,
+                        Utc::now().timestamp() + session_seconds
+                    ],
+                )?;
+                Ok(())
+            })
+            .await?;
         let mut response = json_response(
             json!({"success":true,"user":{"id":owner,"username":username}}),
             200,
@@ -677,15 +504,7 @@ async fn dispatch_inner(state: &ApiState, request: Request<Body>, peer: &str) ->
     }
     Ok(response)
 }
-fn secure_equal(left: &[u8], right: &[u8]) -> bool {
-    if left.len() != right.len() {
-        return false;
-    }
-    left.iter()
-        .zip(right)
-        .fold(0u8, |diff, (a, b)| diff | (a ^ b))
-        == 0
-}
+
 async fn latest_release(settings: &crate::config::Network) -> Value {
     fn version(v: &str) -> Option<Vec<u64>> {
         let parts: Vec<_> = v
@@ -719,132 +538,4 @@ async fn latest_release(settings: &crate::config::Network) -> Value {
         return fallback;
     };
     json!({"currentVersion":current,"latestVersion":tag.trim_start_matches('v'),"latestTag":tag,"releaseUrl":data["html_url"],"hasUpdate":version(current).is_some_and(|v|latest>v)})
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use http_body_util::BodyExt;
-    use tower::ServiceExt;
-    async fn call(
-        router: Router,
-        method: Method,
-        path: &str,
-        cookie: Option<&str>,
-        body: Value,
-    ) -> Result<(StatusCode, HeaderMap, Value)> {
-        let mut builder = Request::builder()
-            .method(method)
-            .uri(path)
-            .header(header::CONTENT_TYPE, "application/json");
-        if let Some(cookie) = cookie {
-            builder = builder.header(header::COOKIE, cookie);
-        }
-        let response = router
-            .oneshot(builder.body(Body::from(body.to_string()))?)
-            .await?;
-        let status = response.status();
-        let headers = response.headers().clone();
-        let bytes = response.into_body().collect().await?.to_bytes();
-        Ok((status, headers, serde_json::from_slice(&bytes)?))
-    }
-    #[tokio::test]
-    async fn guests_save_without_login_and_cannot_cross_owner_boundary() -> Result<()> {
-        let dir = tempfile::tempdir()?;
-        let service = Service::open({
-            let mut configuration = crate::config::Config::default();
-            configuration.application.database = (&dir.path().join("test.db")).to_path_buf();
-            configuration.application.app_url = ("http://127.0.0.1:3001").to_owned();
-            configuration
-        })
-        .await?;
-        let app = router(service);
-        let (status, headers, me) =
-            call(app.clone(), Method::GET, "/api/auth/me", None, json!({})).await?;
-        assert_eq!(status, StatusCode::OK);
-        assert_eq!(me["authenticated"], true);
-        assert_eq!(me["isGuest"], true);
-        let cookie = headers[header::SET_COOKIE]
-            .to_str()?
-            .split(';')
-            .next()
-            .context("cookie")?;
-        let (_, other_headers, _) =
-            call(app.clone(), Method::GET, "/api/auth/me", None, json!({})).await?;
-        let other = other_headers[header::SET_COOKIE]
-            .to_str()?
-            .split(';')
-            .next()
-            .context("cookie")?;
-        let input = json!({"name":"private","nodes":[{"name":"node","type":"ss","server":"example.com","port":443,"cipher":"aes-128-gcm","password":"secret"}]});
-        let (status, _, created) = call(
-            app.clone(),
-            Method::POST,
-            "/api/subscriptions",
-            Some(cookie),
-            input,
-        )
-        .await?;
-        assert_eq!(status, StatusCode::CREATED);
-        let id = created["subscription"]["id"].as_str().context("id")?;
-        let (status, _, _) = call(
-            app.clone(),
-            Method::GET,
-            &format!("/api/subscriptions/{id}"),
-            Some(other),
-            json!({}),
-        )
-        .await?;
-        assert_eq!(status, StatusCode::NOT_FOUND);
-        let (_, _, list) = call(
-            app.clone(),
-            Method::GET,
-            "/api/subscriptions",
-            Some(cookie),
-            json!({}),
-        )
-        .await?;
-        assert_eq!(list["subscriptions"][0]["id"], id);
-        let (_, _, list) = call(
-            app.clone(),
-            Method::GET,
-            "/api/subscriptions",
-            Some(other),
-            json!({}),
-        )
-        .await?;
-        assert_eq!(list["subscriptions"], json!([]));
-        let (status, _, _) = call(
-            app,
-            Method::PATCH,
-            "/api/settings/source-import",
-            Some(other),
-            json!({"allowUnsafeSubscriptionSources":true}),
-        )
-        .await?;
-        assert_eq!(status, StatusCode::FORBIDDEN);
-        Ok(())
-    }
-    #[tokio::test]
-    async fn csrf_rejects_cross_origin_mutations() -> Result<()> {
-        let dir = tempfile::tempdir()?;
-        let service = Service::open({
-            let mut configuration = crate::config::Config::default();
-            configuration.application.database = (&dir.path().join("test.db")).to_path_buf();
-            configuration.application.app_url = ("http://127.0.0.1:3001").to_owned();
-            configuration
-        })
-        .await?;
-        let response = router(service)
-            .oneshot(
-                Request::builder()
-                    .method("POST")
-                    .uri("/api/auth/logout")
-                    .header("Origin", "https://attacker.example")
-                    .body(Body::empty())?,
-            )
-            .await?;
-        assert_eq!(response.status(), StatusCode::FORBIDDEN);
-        Ok(())
-    }
 }

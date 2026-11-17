@@ -50,7 +50,7 @@ fn state() -> Value {
 pub struct Service {
     pub(crate) store: Store,
     pub(crate) config: Arc<Config>,
-    catalog: Arc<crate::rule_catalog::RuleCatalog>,
+    catalog: Arc<crate::rules::RuleCatalog>,
 }
 impl Service {
     pub async fn open(config: Config) -> Result<Self> {
@@ -61,7 +61,7 @@ impl Service {
         )
         .await?;
         let config = Arc::new(config);
-        let catalog = Arc::new(crate::rule_catalog::RuleCatalog::new(Arc::clone(&config)));
+        let catalog = Arc::new(crate::rules::RuleCatalog::new(Arc::clone(&config)));
         Ok(Self {
             store,
             config,

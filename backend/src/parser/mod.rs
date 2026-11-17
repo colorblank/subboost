@@ -1,4 +1,3 @@
-use crate::parser_policy::{self, ParserPolicy};
 use anyhow::{Result, anyhow, bail};
 use base64::{
     Engine,
@@ -10,11 +9,13 @@ use std::collections::HashSet;
 mod legacy_yaml;
 mod links;
 mod platform;
+pub(crate) mod policy;
 #[cfg(test)]
 mod tests;
 mod validation;
 mod yaml;
 
+pub(crate) use policy::{ParserPolicy, policy};
 pub use validation::sanitize_for_generation;
 
 /// Bounded YAML loader shared by imports and configuration generation.
@@ -37,13 +38,13 @@ fn limited(reason: &str) -> anyhow::Error {
     anyhow!("订阅解析受限: {reason}")
 }
 fn check_items(count: usize) -> Result<()> {
-    if count > parser_policy::policy()?.maximum_nodes {
+    if count > policy::policy()?.maximum_nodes {
         return Err(limited("节点或分段数量超过上限"));
     }
     Ok(())
 }
 fn check_input(content: &str) -> Result<()> {
-    let policy = parser_policy::policy()?;
+    let policy = policy::policy()?;
     if content.len() > policy.maximum_input_bytes {
         return Err(limited("输入内容超过大小上限"));
     }
@@ -170,7 +171,7 @@ struct Parsed {
 impl Parsed {
     fn new() -> Result<Self> {
         Ok(Self {
-            policy: parser_policy::policy()?,
+            policy: policy::policy()?,
             nodes: Vec::new(),
             errors: Vec::new(),
             bytes: 0,
@@ -432,7 +433,7 @@ pub fn validate_nodes(value: &Value) -> Result<Vec<Value>> {
     let items = value
         .as_array()
         .ok_or_else(|| anyhow!("节点列表必须是数组"))?;
-    let policy = parser_policy::policy()?;
+    let policy = policy::policy()?;
     if items.len() > policy.maximum_nodes {
         bail!("Node count exceeds parser safety policy");
     }

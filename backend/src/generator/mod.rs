@@ -19,7 +19,7 @@ pub(crate) fn base_defaults() -> &'static Value {
         let text = crate::config::load_file_or_embedded(
             "SUBBOOST_MIHOMO_BASE",
             "config/mihomo/base.json",
-            include_str!("../../config/mihomo/base.json"),
+            include_str!("../../../config/mihomo/base.json"),
         );
         serde_json::from_str(&text).expect("valid Mihomo base defaults")
     });
@@ -54,7 +54,7 @@ pub(crate) fn modules() -> &'static [Value] {
         let text = crate::config::load_file_or_embedded(
             "SUBBOOST_MIHOMO_MODULES",
             "config/mihomo/modules.json",
-            include_str!("../../config/mihomo/modules.json"),
+            include_str!("../../../config/mihomo/modules.json"),
         );
         serde_json::from_str(&text).expect("embedded module data")
     });

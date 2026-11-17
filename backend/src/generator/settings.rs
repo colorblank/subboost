@@ -82,8 +82,7 @@ pub(crate) fn parse_yaml_mapping(input: &str) -> Result<Map<String, Value>> {
 
 /// Rule files deliberately reject aliases even though base configuration supports them.
 pub(crate) fn parse_rule_yaml_mapping(input: &str) -> Result<Map<String, Value>> {
-    let max_bytes =
-        crate::parser_policy::policy().map_or(10 * 1024 * 1024, |p| p.yaml_maximum_text_bytes);
+    let max_bytes = crate::parser::policy().map_or(10 * 1024 * 1024, |p| p.yaml_maximum_text_bytes);
     ensure!(input.len() <= max_bytes, "YAML 超过大小限制");
     let mut quote = None;
     let mut escaped = false;
@@ -322,7 +321,7 @@ pub(super) enum FilterRegex {
 }
 impl FilterRegex {
     pub(super) fn compile(pattern: &str) -> Result<Self> {
-        let policy = crate::parser_policy::policy()?;
+        let policy = crate::parser::policy()?;
         if let Ok(re) = RegexBuilder::new(pattern)
             .case_insensitive(true)
             .size_limit(policy.regex_maximum_bytes)
