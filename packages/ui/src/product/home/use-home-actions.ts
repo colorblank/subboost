@@ -137,7 +137,7 @@ export function useHomeActions({
       }
 
       toast({
-        title: changed ? "已生成配置" : "配置未变化",
+        title: changed ? "已生成配置" : "配置已就绪，可直接下载或保存订阅",
         variant: changed ? "success" : "info",
       });
       trackConfigGenerate(mode, "success");
@@ -173,7 +173,7 @@ export function useHomeActions({
       toast({ title: "基础和 DNS 配置有错误", description: error, variant: "destructive" });
       return;
     }
-    toast({ title: before !== after ? "已生成配置" : "配置未变化", variant: before !== after ? "success" : "info" });
+    toast({ title: before !== after ? "已生成配置" : "配置已就绪，可直接下载或保存订阅", variant: before !== after ? "success" : "info" });
     trackConfigGenerate(mode, storeSources.some((source) => source.content.trim()) ? "success" : "noInput");
   }, [
     clearNodes,

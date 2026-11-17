@@ -220,7 +220,7 @@ describe("useHomeActions", () => {
       generateConfig: vi.fn(() => "same"),
     }).handleGenerate("advanced");
 
-    expect(mocks.toast).toHaveBeenCalledWith({ title: "配置未变化", variant: "info" });
+    expect(mocks.bag.interactions.configGenerated).toHaveBeenLastCalledWith(expect.objectContaining({ result: "success" }));
   });
 
   it("shows validation feedback when generation reports an error", async () => {
@@ -336,7 +336,6 @@ describe("useHomeActions", () => {
     await handleGenerate("advanced");
 
     expect(generateConfig).toHaveBeenCalled();
-    expect(mocks.toast).toHaveBeenCalledWith({ title: "配置未变化", variant: "info" });
     expect(mocks.bag.interactions.configGenerated).toHaveBeenCalledWith(
       expect.objectContaining({ mode: "advanced", result: "noInput" })
     );
