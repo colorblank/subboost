@@ -113,6 +113,7 @@ export function HomeLayout({
 }: Props) {
   const [configTab, setConfigTab] = React.useState<"quick" | "advanced">(editSubscriptionId ? "advanced" : "quick");
   const interactions = useProductInteractionAdapter();
+  const editorLoading = Boolean(editSubscriptionId && (!authChecked || isLoadingEditingSubscription));
 
   React.useEffect(() => {
     if (!editSubscriptionId) return;
@@ -154,9 +155,10 @@ export function HomeLayout({
       </div>
 
       {noticeSlot}
+      {editorLoading && <p className="mb-3 text-sm text-fg-60" role="status">正在加载订阅，加载完成后可编辑。</p>}
 
       {/* Main Content - Three Column Layout */}
-      <div className={`grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 lg:flex-1 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
+      <div inert={editorLoading} aria-busy={editorLoading} className={`grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 lg:flex-1 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
         {/* Left Column - Configuration */}
         <div
           id="config"

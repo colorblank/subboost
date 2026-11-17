@@ -159,7 +159,7 @@ describe("useEditingSubscriptionLoader", () => {
     const isLoading = useEditingSubscriptionLoader(options);
     await flushAsync();
 
-    expect(isLoading).toBe(false);
+    expect(isLoading).toBe(Boolean(id));
     expect(options.loadSubscription).not.toHaveBeenCalled();
     expect(mocks.useConfigStore.setState).not.toHaveBeenCalled();
   });

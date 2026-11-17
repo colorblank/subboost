@@ -51,7 +51,7 @@ export function useEditingSubscriptionLoader({
   setSubscriptionName,
   setSubscriptionUrl,
 }: EditingSubscriptionLoaderOptions): boolean {
-  const [isLoadingEditingSubscription, setIsLoadingEditingSubscription] = React.useState(false);
+  const [isLoadingEditingSubscription, setIsLoadingEditingSubscription] = React.useState(Boolean(editSubscriptionId));
   const previousEditId = React.useRef<string | null>(null);
 
   // 编辑状态以网址为准：网址没有 editSubscriptionId 时，丢弃其它页面留下的编辑记录，
