@@ -1,3 +1,5 @@
+//! 命令行参数解析与 I/O 辅助函数。
+
 use std::{borrow::Cow, path::Path};
 
 use anyhow::{Context, Result, bail, ensure};
@@ -5,6 +7,7 @@ use clap::Args;
 use serde_json::{Value, json};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWriteExt};
 
+/// 通用输入源参数，支持指定文件路径或 `-` 表示标准输入。
 #[derive(Args)]
 pub(super) struct Input {
     /// UTF-8 input file, or - for stdin (default).
@@ -12,6 +15,7 @@ pub(super) struct Input {
     pub(super) file: std::path::PathBuf,
 }
 
+/// JSON 格式参数，支持行内文本、`@FILE` 引用或 `@-` 标准输入。
 #[derive(Args)]
 pub(super) struct JsonArgs {
     /// Object as inline JSON, @FILE, or @- for stdin.
@@ -19,6 +23,7 @@ pub(super) struct JsonArgs {
     pub(super) json: String,
 }
 
+/// 向标准输出写入结果字符串，并确保包含尾部换行符。
 pub(super) async fn write_output(output: &str) -> Result<()> {
     let mut stdout = tokio::io::stdout();
     stdout.write_all(output.as_bytes()).await?;
@@ -29,6 +34,7 @@ pub(super) async fn write_output(output: &str) -> Result<()> {
     Ok(())
 }
 
+/// 解析可选的 JSON 参数，若未指定则返回空的 JSON 对象 `{}`。
 pub(super) async fn optional_json(
     value: Option<String>,
     maximum_input_bytes: usize,
@@ -39,6 +45,7 @@ pub(super) async fn optional_json(
     }
 }
 
+/// 读取并解析 JSON 参数，支持行内 JSON、`@FILE` 或 `@-` 输入。
 pub(super) async fn read_json(value: &str, maximum_input_bytes: usize) -> Result<Value> {
     let text = match value.strip_prefix('@') {
         Some("") => bail!("@FILE requires a file path"),

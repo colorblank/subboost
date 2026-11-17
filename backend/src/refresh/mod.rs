@@ -1,3 +1,8 @@
+//! 订阅更新与快照比对子系统。
+//!
+//! 负责定时或手动拉取订阅源、安全校验节点变化、智能保留用户自定义节点重命名，
+//! 并在部分源请求失败时保持原有有效节点不丢失。
+
 use crate::{
     network, parser,
     service::{Service, fault, now, required},
@@ -387,12 +392,16 @@ fn reconcile(config: &mut Value, nodes: &[Value], renames: &HashMap<String, Stri
     }
 }
 
+/// 订阅刷新触发模式。
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum RefreshMode {
+    /// 用户通过前端或 API 手动触发。
     Manual,
+    /// 由后台定时调度器自动触发。
     Automatic,
 }
 
+/// 执行指定订阅的拉取、解析、快照比对与状态更新。
 pub(crate) async fn refresh(
     service: &Service,
     owner: &str,

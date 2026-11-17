@@ -1,3 +1,5 @@
+//! HTTP API 路由分发器与处理器实现。
+
 use std::{collections::HashMap, time::Duration};
 
 use anyhow::{Result, ensure};
@@ -20,6 +22,7 @@ use super::{
     rate_limit::rate,
 };
 
+/// 构造标准的 JSON HTTP 响应。
 pub(super) fn json_response(value: Value, status: u16) -> Response {
     (
         StatusCode::from_u16(status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
@@ -28,6 +31,7 @@ pub(super) fn json_response(value: Value, status: u16) -> Response {
         .into_response()
 }
 
+/// 将内部错误（包括业务 Fault 与未知错误）转换为标准 JSON 错误响应。
 pub(super) fn error_response(error: anyhow::Error) -> Response {
     if let Some(f) = error.downcast_ref::<Fault>() {
         return json_response(json!({"error":f.message,"code":f.code}), f.status);
@@ -36,6 +40,7 @@ pub(super) fn error_response(error: anyhow::Error) -> Response {
     json_response(json!({"error":error.to_string(),"code":"BAD_REQUEST"}), 400)
 }
 
+/// 核心路由分发逻辑，处理身份识别、请求校验及各类业务操作。
 pub(super) async fn dispatch_inner(
     state: &ApiState,
     request: Request<Body>,

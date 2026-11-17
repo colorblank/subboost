@@ -1,3 +1,5 @@
+//! 远程规则集目录与元数据缓存子模块。
+
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
@@ -28,7 +30,7 @@ struct CatalogCache {
     discoveries: HashMap<String, Arc<Discovery>>,
 }
 
-/// On-demand remote metadata with per-instance caching and single-flight fetches.
+/// 规则目录与在线规则发现管理器，具备内存缓存与防并发击穿（Single-Flight）机制。
 pub(crate) struct RuleCatalog {
     config: Arc<Config>,
     cache: Mutex<CatalogCache>,

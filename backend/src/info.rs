@@ -1,3 +1,8 @@
+//! 订阅用量信息与到期时间解析工具。
+//!
+//! 负责从 HTTP `subscription-userinfo` 响应头或机场占位提示节点名称中，
+//! 正则提取已用上传/下载流量、总配额、到期时间以及官网/套餐信息。
+
 use chrono::{DateTime, NaiveDate};
 use regex::Regex;
 use serde_json::{Value, json};
@@ -49,6 +54,7 @@ fn bytes(value: &str) -> Option<f64> {
     let value = (value * 1024_f64.powi(exponent as i32)).round();
     value.is_finite().then_some(value)
 }
+/// 从 HTTP 头或节点列表中提取结构化的订阅用量信息（upload, download, total, expire 等）。
 pub fn subscription_info(headers: &Value, nodes: &[Value]) -> Value {
     let mut info = json!({});
     if let Some(header) = headers["subscription-userinfo"].as_str() {

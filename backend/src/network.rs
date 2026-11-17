@@ -1,3 +1,8 @@
+//! 安全出网客户端与 SSRF 防御子系统。
+//!
+//! 提供基于自定义 DNS-over-HTTPS (DoH) 的主机解析、私有/保留 IP 地址范围拦截过滤、
+//! 重定向限制、响应字节大小熔断以及自适应 User-Agent 切换能力。
+
 use anyhow::{Context, Result, bail, ensure};
 use serde_json::{Value, json};
 use std::{
@@ -10,22 +15,32 @@ use url::Url;
 use crate::config::Network;
 use crate::refresh::SubscriptionSnapshot;
 
+/// 网络请求业务意图类型。
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RequestPurpose {
+    /// 抓取订阅节点或规则文件正文内容。
     Content,
+    /// 探测订阅用户信息与流量统计头。
     UserInfo,
+    /// 请求 GitHub Releases 等公开元数据。
     GitHubMetadata,
 }
 
+/// 订阅源网络安全策略，决定是否允许连接私有或局域网 IP。
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SourcePolicy {
+    /// 严格模式：仅允许公网 IP，拦截任何私网与保留网段。
     PublicOnly,
+    /// 宽松模式：允许用户自定义的私网与局域网节点源。
     AllowPrivate,
 }
 
+/// 网络抓取结果数据封装。
 #[derive(Debug)]
 pub struct FetchResponse {
+    /// 响应正文文本内容。
     pub content: String,
+    /// 小写规范化后的响应头部映射表。
     pub headers: BTreeMap<String, String>,
 }
 
@@ -340,51 +355,6 @@ pub async fn import(request: &Value, policy: SourcePolicy, settings: &Network) -
     )
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn denies_reserved_and_embedded_private_addresses() {
-        for ip in [
-            "127.0.0.1",
-            "10.0.0.1",
-            "100.64.0.1",
-            "198.18.0.1",
-            "192.0.2.1",
-            "::1",
-            "::ffff:127.0.0.1",
-            "64:ff9b::a00:1",
-            "2002:7f00:1::",
-            "2001:db8::1",
-            "3fff::1",
-        ] {
-            assert!(!is_public_ip(ip.parse().unwrap()), "{ip}");
-        }
-        for ip in ["8.8.8.8", "1.1.1.1", "2606:4700:4700::1111", "2001:1::1"] {
-            assert!(is_public_ip(ip.parse().unwrap()), "{ip}");
-        }
-        assert!(validate_url("file:///etc/passwd").is_err());
-        assert!(validate_url("https://user:pass@example.com/sub").is_err());
-    }
-    #[tokio::test]
-    async fn rejects_localhost_without_contacting_it() {
-        let settings = crate::config::Config::default().network;
-        assert!(
-            fetch(
-                "http://localhost:1/",
-                "test",
-                RequestPurpose::Content,
-                SourcePolicy::PublicOnly,
-                &settings
-            )
-            .await
-            .expect_err("private address")
-            .to_string()
-            .contains("内网")
-        );
-    }
-}
-
 async fn bounded_text(mut response: reqwest::Response, maximum_bytes: usize) -> Result<String> {
     ensure!(
         response
@@ -441,4 +411,49 @@ async fn resolve_fake_ip(hostname: &str, port: u16, settings: &Network) -> Resul
         "Fake-IP DNS recheck returned no public addresses"
     );
     Ok(addresses)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn denies_reserved_and_embedded_private_addresses() {
+        for ip in [
+            "127.0.0.1",
+            "10.0.0.1",
+            "100.64.0.1",
+            "198.18.0.1",
+            "192.0.2.1",
+            "::1",
+            "::ffff:127.0.0.1",
+            "64:ff9b::a00:1",
+            "2002:7f00:1::",
+            "2001:db8::1",
+            "3fff::1",
+        ] {
+            assert!(!is_public_ip(ip.parse().unwrap()), "{ip}");
+        }
+        for ip in ["8.8.8.8", "1.1.1.1", "2606:4700:4700::1111", "2001:1::1"] {
+            assert!(is_public_ip(ip.parse().unwrap()), "{ip}");
+        }
+        assert!(validate_url("file:///etc/passwd").is_err());
+        assert!(validate_url("https://user:pass@example.com/sub").is_err());
+    }
+    #[tokio::test]
+    async fn rejects_localhost_without_contacting_it() {
+        let settings = crate::config::Config::default().network;
+        assert!(
+            fetch(
+                "http://localhost:1/",
+                "test",
+                RequestPurpose::Content,
+                SourcePolicy::PublicOnly,
+                &settings
+            )
+            .await
+            .expect_err("private address")
+            .to_string()
+            .contains("内网")
+        );
+    }
 }

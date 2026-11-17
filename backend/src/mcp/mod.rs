@@ -1,3 +1,8 @@
+//! Model Context Protocol (MCP 2024-11-05) 协议服务端实现。
+//!
+//! 通过标准输入/输出（stdin/stdout）提供基于换行分隔 JSON-RPC 的工具调用接口，
+//! 支持大模型直接调用 SubBoost 的订阅解析、转换、存储管理与规则查询功能。
+
 use anyhow::Result;
 use serde_json::{Value, json};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader};
@@ -12,6 +17,7 @@ use tools::{Tool, tools};
 
 const PROTOCOL_VERSION: &str = "2024-11-05";
 
+/// 启动基于标准输入输出的 MCP 2024-11-05 服务端。
 pub async fn serve(service: Service, owner: &str) -> Result<()> {
     serve_io(
         &service,
@@ -22,6 +28,7 @@ pub async fn serve(service: Service, owner: &str) -> Result<()> {
     .await
 }
 
+/// 在给定的异步输入与输出流上运行 JSON-RPC 消息处理循环。
 async fn serve_io(
     service: &Service,
     owner: &str,

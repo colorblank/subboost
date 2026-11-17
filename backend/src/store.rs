@@ -1,3 +1,8 @@
+//! 加密 SQLite 持久化存储引擎。
+//!
+//! 提供基于 AES-256-GCM 的文档级静态数据加密、乐观锁版本控制（Revision）、
+//! 租户配额限制以及跨表事务原子导入能力。
+
 use aes_gcm::{Aes256Gcm, KeyInit, Nonce, aead::Aead};
 use anyhow::{Context, Result, anyhow, ensure};
 use base64::{Engine, engine::general_purpose::STANDARD};
@@ -11,6 +16,7 @@ use std::{
     time::Duration,
 };
 
+/// 线程安全的本地加密 SQLite 存储连接。
 #[derive(Clone)]
 pub struct Store {
     connection: Arc<Mutex<Connection>>,
@@ -18,6 +24,7 @@ pub struct Store {
 }
 
 impl Store {
+    /// 打开或初始化指定路径的 SQLite 数据库，并加载同名的 AES-256 主密钥。
     pub async fn open(path: &Path, busy_timeout: Duration) -> Result<Self> {
         let path = path.to_owned();
         tokio::task::spawn_blocking(move || {
@@ -250,79 +257,6 @@ impl PrivateOpen for OpenOptions {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json::json;
-
-    #[tokio::test]
-    async fn persistence_encryption_owner_and_revision_are_enforced() -> Result<()> {
-        let dir = tempfile::tempdir()?;
-        let path = dir.path().join("test.sqlite3");
-        let store = Store::open(&path, Duration::from_secs(1)).await?;
-        let document =
-            json!({"id":"a","token":"secret-token","nodes":[{"password":"secret-password"}]});
-        store.insert("subscription", "alice", &document, 1).await?;
-        assert!(store.get("subscription", "bob", "a").await?.is_none());
-        store.update("subscription", "alice", &document, 1).await?;
-        assert!(
-            store
-                .update("subscription", "alice", &document, 1)
-                .await
-                .is_err()
-        );
-        drop(store);
-        let store = Store::open(&path, Duration::from_secs(1)).await?;
-        assert_eq!(
-            store
-                .get("subscription", "alice", "a")
-                .await?
-                .context("missing row")?
-                .0,
-            document
-        );
-        let data = store
-            .run(
-                |db| Ok(db.query_row("SELECT data FROM documents", [], |r| r.get::<_, String>(0))?),
-            )
-            .await?;
-        assert!(!data.contains("secret-password"));
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn concurrent_connections_cannot_exceed_the_document_quota() -> Result<()> {
-        let directory = tempfile::tempdir()?;
-        let path = directory.path().join("quota.sqlite3");
-        let first = Store::open(&path, Duration::from_secs(1)).await?;
-        let second = Store::open(&path, Duration::from_secs(1)).await?;
-        let first_document = json!({"id":"first","token":"first-token"});
-        let second_document = json!({"id":"second","token":"second-token"});
-        let (left, right) = tokio::join!(
-            first.insert("subscription", "guest:quota", &first_document, 1),
-            second.insert("subscription", "guest:quota", &second_document, 1)
-        );
-        assert_ne!(left.is_ok(), right.is_ok());
-        let error = left
-            .err()
-            .or_else(|| right.err())
-            .context("Expected quota rejection")?;
-        assert_eq!(
-            error
-                .downcast_ref::<crate::service::Fault>()
-                .map(|fault| fault.status),
-            Some(403)
-        );
-        assert_eq!(
-            first.list("subscription", Some("guest:quota")).await?.len(),
-            1
-        );
-        assert_eq!(first.count("subscription", "guest:quota").await?, 1);
-        assert_eq!(second.count("subscription", "guest:other").await?, 0);
-        Ok(())
-    }
-}
-
 impl Store {
     pub async fn owner_of(&self, id: &str) -> Result<Option<String>> {
         let id = id.to_owned();
@@ -425,4 +359,77 @@ fn load_key(database: &Path, path: &Path) -> Result<[u8; 32]> {
     std::fs::File::open(path)?.read_to_end(&mut key)?;
     key.try_into()
         .map_err(|_| anyhow!("Invalid encryption key file: {}", path.display()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn persistence_encryption_owner_and_revision_are_enforced() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let path = dir.path().join("test.sqlite3");
+        let store = Store::open(&path, Duration::from_secs(1)).await?;
+        let document =
+            json!({"id":"a","token":"secret-token","nodes":[{"password":"secret-password"}]});
+        store.insert("subscription", "alice", &document, 1).await?;
+        assert!(store.get("subscription", "bob", "a").await?.is_none());
+        store.update("subscription", "alice", &document, 1).await?;
+        assert!(
+            store
+                .update("subscription", "alice", &document, 1)
+                .await
+                .is_err()
+        );
+        drop(store);
+        let store = Store::open(&path, Duration::from_secs(1)).await?;
+        assert_eq!(
+            store
+                .get("subscription", "alice", "a")
+                .await?
+                .context("missing row")?
+                .0,
+            document
+        );
+        let data = store
+            .run(
+                |db| Ok(db.query_row("SELECT data FROM documents", [], |r| r.get::<_, String>(0))?),
+            )
+            .await?;
+        assert!(!data.contains("secret-password"));
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn concurrent_connections_cannot_exceed_the_document_quota() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let path = directory.path().join("quota.sqlite3");
+        let first = Store::open(&path, Duration::from_secs(1)).await?;
+        let second = Store::open(&path, Duration::from_secs(1)).await?;
+        let first_document = json!({"id":"first","token":"first-token"});
+        let second_document = json!({"id":"second","token":"second-token"});
+        let (left, right) = tokio::join!(
+            first.insert("subscription", "guest:quota", &first_document, 1),
+            second.insert("subscription", "guest:quota", &second_document, 1)
+        );
+        assert_ne!(left.is_ok(), right.is_ok());
+        let error = left
+            .err()
+            .or_else(|| right.err())
+            .context("Expected quota rejection")?;
+        assert_eq!(
+            error
+                .downcast_ref::<crate::service::Fault>()
+                .map(|fault| fault.status),
+            Some(403)
+        );
+        assert_eq!(
+            first.list("subscription", Some("guest:quota")).await?.len(),
+            1
+        );
+        assert_eq!(first.count("subscription", "guest:quota").await?, 1);
+        assert_eq!(second.count("subscription", "guest:other").await?, 0);
+        Ok(())
+    }
 }

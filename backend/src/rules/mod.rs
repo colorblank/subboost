@@ -1,3 +1,7 @@
+//! 规则集目录与智能推荐管理模块。
+//!
+//! 提供 Mihomo 规则集格式检测、精选规则索引、远程目录抓取与分类分流配置推荐。
+
 use crate::generator::{self, array, modules, strings, text};
 use anyhow::{Context, Result, ensure};
 use serde_json::{Value, json};
@@ -263,6 +267,7 @@ fn behavior(entries: &[String]) -> Option<&'static str> {
         None
     }
 }
+/// 检测文本内容是否为有效的规则集格式（text / yaml），并统计其行为类型与条目数。
 pub fn detect(content: &str, maximum_entries: usize) -> Result<Value> {
     let policy = crate::parser::policy()?;
     ensure!(

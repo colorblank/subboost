@@ -1,3 +1,8 @@
+//! 订阅转换模版与配置 Schema 验证。
+//!
+//! 提供精简版（minimal）、标准版（standard）和完整版（full）三套官方内置预设，
+//! 并负责自定义模版配置的 JSON Schema 与结构完整性校验。
+
 use crate::generator::settings::normalize_advanced as advanced;
 use crate::generator::{
     self, array, group_type, modules, routing, strings, template_modules, text,
@@ -6,6 +11,8 @@ use anyhow::{Context, Result, ensure};
 use serde_json::{Map, Value, json};
 
 const SCHEMA: &str = "subboost-template-config/v1";
+
+/// 构造官方内置模版列表（精简版、标准版、完整版）。
 pub fn builtin_templates(defaults: &crate::config::Generation) -> Value {
     Value::Array([
         ("minimal","精简版","基础代理组 + 国内外分流，适合轻度用户"),

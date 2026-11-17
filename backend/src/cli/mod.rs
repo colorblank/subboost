@@ -1,3 +1,8 @@
+//! 命令行工具（CLI）子模块。
+//!
+//! 提供纯 Rust 实现的直接命令行接口，支持免 HTTP 服务的本地 SQLite 交互、
+//! 订阅解析与转换、模版管理、规则检索、数据导入导出以及 MCP 服务启动。
+
 use std::{borrow::Cow, path::PathBuf};
 
 use anyhow::{Context, Result, ensure};
@@ -17,6 +22,7 @@ use commands::{
     TemplateCommand,
 };
 
+/// SubBoost 命令行根参数解析结构。
 #[derive(Parser)]
 #[command(
     name = "subboost",
@@ -38,10 +44,12 @@ struct Cli {
     command: Command,
 }
 
+/// 解析命令行参数并执行对应的子命令逻辑。
 pub async fn run() -> Result<()> {
     run_cli(Cli::parse()).await
 }
 
+/// 根据解析出的 CLI 结构配置运行环境并分发执行。
 async fn run_cli(cli: Cli) -> Result<()> {
     let mut configuration = match cli.settings {
         Some(path) => Config::load(&path)?,

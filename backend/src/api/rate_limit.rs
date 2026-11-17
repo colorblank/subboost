@@ -1,3 +1,5 @@
+//! 内存滑动窗口速率限制器。
+
 use std::time::{Duration, Instant};
 
 use anyhow::{Result, ensure};
@@ -6,11 +8,15 @@ use crate::service::fault;
 
 use super::ApiState;
 
+/// 单个客户端或操作维度的速率限制计数窗口。
 pub(crate) struct RateWindow {
+    /// 当前时间窗口内的累计请求计数。
     pub(super) count: u32,
+    /// 当前速率窗口的过期时间点。
     pub(super) expires_at: Instant,
 }
 
+/// 基于指定键对请求进行速率限制检查，超过限额时返回 429 错误。
 pub(super) fn rate(state: &ApiState, key: String, limit: u32, window: Duration) -> Result<()> {
     let mut rates = state
         .rates

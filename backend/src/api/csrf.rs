@@ -1,8 +1,11 @@
+//! CSRF 防护与恒定时间比对工具。
+
 use anyhow::{Result, ensure};
 use axum::http::{HeaderMap, header};
 
 use crate::service::{Service, fault};
 
+/// 校验请求来源（Sec-Fetch-Site 与 Origin 头部），防止跨站请求伪造攻击。
 pub(super) fn check_origin(service: &Service, headers: &HeaderMap) -> Result<()> {
     ensure!(
         headers.get("sec-fetch-site").and_then(|h| h.to_str().ok()) != Some("cross-site"),
@@ -23,6 +26,7 @@ pub(super) fn check_origin(service: &Service, headers: &HeaderMap) -> Result<()>
     Ok(())
 }
 
+/// 恒定时间字节比对，防止基于时序分析的侧信道攻击。
 pub(super) fn secure_equal(left: &[u8], right: &[u8]) -> bool {
     if left.len() != right.len() {
         return false;

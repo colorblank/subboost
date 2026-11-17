@@ -1,3 +1,7 @@
+//! API 鉴权与会话身份管理子模块。
+//!
+//! 负责从 HTTP Cookie 中提取会话令牌、校验管理员身份，或自动签发受限访客（guest）临时身份。
+
 use anyhow::Result;
 use axum::{
     http::{HeaderMap, HeaderValue, header},
@@ -8,14 +12,20 @@ use rusqlite::{OptionalExtension, params};
 
 use crate::service::{Service, token};
 
+/// 请求发送者的认证身份上下文。
 #[derive(Clone)]
 pub(super) struct Identity {
+    /// 资源归属者标识（管理员为用户名，访客为 `guest:<token>` 格式）。
     pub(super) owner: String,
+    /// 登录用户名或访客显示名。
     pub(super) username: String,
+    /// 是否为受限访客会话。
     pub(super) guest: bool,
+    /// 新生成的 Set-Cookie 字符串（如新签发访客令牌时附带）。
     pub(super) cookie: Option<String>,
 }
 
+/// 向响应头部追加 `Set-Cookie` 指令。
 pub(super) fn append_cookie(response: &mut Response, cookie: &str) -> Result<()> {
     response
         .headers_mut()
@@ -23,6 +33,7 @@ pub(super) fn append_cookie(response: &mut Response, cookie: &str) -> Result<()>
     Ok(())
 }
 
+/// 从请求头部中按名称检索 Cookie 值。
 pub(super) fn cookie_value<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
     headers
         .get(header::COOKIE)?
@@ -34,6 +45,7 @@ pub(super) fn cookie_value<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a
         .map(|(_, value)| value)
 }
 
+/// 构造包含标准安全选项（HttpOnly, SameSite=Lax, Secure）的 Cookie 字符串。
 pub(super) fn cookie(service: &Service, name: &str, value: &str, seconds: i64) -> String {
     format!(
         "{name}={value}; Path=/; HttpOnly; SameSite=Lax; Max-Age={seconds}{}",
@@ -45,6 +57,7 @@ pub(super) fn cookie(service: &Service, name: &str, value: &str, seconds: i64) -
     )
 }
 
+/// 解析当前请求的身份，若管理员 Cookie 有效则确认为管理员，否则使用或生成访客身份。
 pub(super) async fn identity(service: &Service, headers: &HeaderMap) -> Result<Identity> {
     let authentication = &service.config.authentication;
     let admin = cookie_value(headers, &authentication.administrator_cookie)

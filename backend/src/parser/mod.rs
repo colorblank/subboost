@@ -1,3 +1,9 @@
+//! 订阅与协议节点解析引擎。
+//!
+//! 支持自动识别 Base64 订阅包装、标准/非标分享链接、Clash/Mihomo YAML 配置、
+//! Surge 托管配置以及 SIP002/SIP008、SSD 等多种格式，并在解析过程中应用严格的
+//! 资源上限保护与协议清洗验证。
+
 use anyhow::{Result, anyhow, bail};
 use base64::{
     Engine,
@@ -18,7 +24,7 @@ mod yaml;
 pub(crate) use policy::{ParserPolicy, policy};
 pub use validation::sanitize_for_generation;
 
-/// Bounded YAML loader shared by imports and configuration generation.
+/// 解析 YAML 文本为 JSON Value，应用防深度嵌套与实体爆炸的安全预算。
 pub fn parse_yaml_value(content: &str) -> Result<Value> {
     check_input(content)?;
     yaml::load(content)
@@ -243,7 +249,7 @@ impl Parsed {
     }
 }
 
-/// Parse local subscription text without fetching providers or executing any input.
+/// 解析订阅原始文本，自动探测 Base64、URI 分享链接、YAML 或 JSON 结构，并返回节点列表与解析错误。
 pub fn parse(content: &str) -> Result<Value> {
     let mut parsed = Parsed::new()?;
     match parse_inner(content, &mut parsed) {
@@ -428,7 +434,7 @@ fn parse_ssd(raw: &str, parsed: &mut Parsed) -> Result<()> {
     Ok(())
 }
 
-/// Validate the entire list before persistence, retaining unmodeled protocol fields.
+/// 在持久化存储前全量验证节点列表，规范化字段格式并清除控制字符。
 pub fn validate_nodes(value: &Value) -> Result<Vec<Value>> {
     let items = value
         .as_array()

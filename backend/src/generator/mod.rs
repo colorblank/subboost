@@ -1,3 +1,8 @@
+//! Mihomo (Clash.Meta) YAML 配置生成核心。
+//!
+//! 根据用户选择的模版或自定义配置，合并代理组定义、节点过滤与链式引用、
+//! 规则集路由、DNS 与基础网络参数，最终输出合规的 Mihomo YAML 文件。
+
 use anyhow::{Context, Result, ensure};
 use serde_json::{Value, json};
 use std::{collections::HashSet, sync::LazyLock};
@@ -180,6 +185,7 @@ pub(crate) fn active_custom(config: &Value) -> Vec<Value> {
 }
 
 /// Generate from the persisted subscription JSON contract, not frontend GenerateOptions.
+/// 根据已校验的节点列表和订阅配置生成最终的 Mihomo YAML 文本。
 pub fn generate(nodes: &[Value], config: &Value) -> Result<String> {
     let value = generate_config(nodes, config)?;
     serde_yaml::to_string(&value).context("无法序列化 Clash YAML")

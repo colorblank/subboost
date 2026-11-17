@@ -1,9 +1,16 @@
+//! MCP 工具定义与输入 Schema 清单。
+
 use serde_json::{Value, json};
 
+/// MCP 工具元数据与参数验证结构。
 pub(super) struct Tool {
+    /// 工具对外部暴露的唯一名称（例如 `subscriptions_list`）。
     pub(super) name: &'static str,
+    /// 工具功能描述，供大模型理解用途。
     pub(super) description: &'static str,
+    /// 映射至内部 Service 的操作指令（例如 `subscriptions.list`）。
     pub(super) operation: &'static str,
+    /// 工具入参的 JSON Schema 描述。
     pub(super) schema: Value,
 }
 
@@ -25,6 +32,7 @@ fn tool(
     }
 }
 
+/// 构造 MCP 服务端支持的全部工具列表及其严格的 JSON Schema。
 pub(super) fn tools(configuration: &crate::config::Rules) -> Vec<Tool> {
     let text = json!({"type": "string"});
     let identifier = json!({"type": "string", "minLength": 1});

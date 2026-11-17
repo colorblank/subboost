@@ -1,3 +1,7 @@
+//! 业务编排服务层（Service）。
+//!
+//! 协调存储持久化、配置规则、网络出网与订阅刷新，提供全功能操作分发接口。
+
 use crate::config::Config;
 use crate::{generator, network, parser, rules, store::Store, templates};
 use anyhow::{Context, Result, ensure};
@@ -6,10 +10,14 @@ use chrono::{Duration, Utc};
 use serde_json::{Value, json};
 use std::{fmt, sync::Arc};
 
+/// 具备标准 HTTP 状态码与业务错误码的结构化错误。
 #[derive(Debug)]
 pub struct Fault {
+    /// 对应的 HTTP 响应状态码（如 400, 403, 404, 429）。
     pub status: u16,
+    /// 业务错误码字符串（如 "BAD_REQUEST", "NOT_FOUND"）。
     pub code: &'static str,
+    /// 人类可读的错误提示消息。
     pub message: String,
 }
 impl fmt::Display for Fault {
@@ -18,6 +26,8 @@ impl fmt::Display for Fault {
     }
 }
 impl std::error::Error for Fault {}
+
+/// 快速构造一个包含状态码和业务代码的 `anyhow::Error`。
 pub fn fault(status: u16, code: &'static str, message: impl Into<String>) -> anyhow::Error {
     Fault {
         status,
@@ -26,6 +36,8 @@ pub fn fault(status: u16, code: &'static str, message: impl Into<String>) -> any
     }
     .into()
 }
+
+/// 从 JSON 对象中提取必填的非空字符串字段。
 pub fn required<'a>(value: &'a Value, key: &str) -> Result<&'a str> {
     value[key]
         .as_str()
@@ -33,10 +45,16 @@ pub fn required<'a>(value: &'a Value, key: &str) -> Result<&'a str> {
         .filter(|v| !v.is_empty())
         .ok_or_else(|| fault(400, "BAD_REQUEST", format!("{key} is required")))
 }
+
+/// 返回当前时间的毫秒级 RFC3339 字符串表示。
 pub fn now() -> String {
     Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
 }
+
+/// 安全随机令牌长度。
 pub const TOKEN_LENGTH: usize = 43;
+
+/// 生成 32 字节密码学安全随机令牌，并转换为 URL-safe Base64。
 pub fn token() -> String {
     URL_SAFE_NO_PAD.encode(rand::random::<[u8; 32]>())
 }
@@ -46,6 +64,7 @@ fn state() -> Value {
     "lastNodeQuotaLimit":null,"disabledAt":null,"disabledReason":null,"disabledPreviousInterval":null})
 }
 
+/// SubBoost 核心应用服务。
 #[derive(Clone)]
 pub struct Service {
     pub(crate) store: Store,
@@ -53,6 +72,7 @@ pub struct Service {
     catalog: Arc<crate::rules::RuleCatalog>,
 }
 impl Service {
+    /// 打开底层加密 SQLite 存储并初始化全局业务服务。
     pub async fn open(config: Config) -> Result<Self> {
         config.validate()?;
         let store = Store::open(
@@ -68,6 +88,7 @@ impl Service {
             catalog,
         })
     }
+    /// 统一操作执行分发入口，供 HTTP API、CLI 和 MCP 服务调用。
     pub async fn execute(&self, owner: &str, operation: &str, args: Value) -> Result<Value> {
         ensure!(args.is_object(), "Arguments must be a JSON object");
         ensure!(!owner.is_empty(), "Owner required");
