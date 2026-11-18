@@ -523,7 +523,7 @@ describe("advanced mode InputSection", () => {
 
   it("imports sources and reports success, runtime, and validation outcomes", async () => {
     renderSection();
-    mocks.captures.iconButtons.find((props: any) => props.label === "重新导入").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "重新导入").onClick();
     await Promise.resolve();
     await Promise.resolve();
     expect(mocks.store.parseSingleSource).toHaveBeenCalledWith("s1");
@@ -540,7 +540,7 @@ describe("advanced mode InputSection", () => {
     mocks.store.parseSingleSource.mockClear();
     mocks.store.sources = [{ ...urlSource, parsed: false, error: "failed", nodeCount: 0 }];
     renderSection();
-    mocks.captures.iconButtons.find((props: any) => props.label === "导入此源").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "导入此源").onClick();
     await Promise.resolve();
     await Promise.resolve();
     expect(mocks.interactions.sourceImported).toHaveBeenCalledWith(expect.objectContaining({ result: "runtimeError" }));
@@ -548,7 +548,7 @@ describe("advanced mode InputSection", () => {
     mocks.interactions.sourceImported.mockClear();
     mocks.store.sources = [{ ...urlSource, parsed: false, error: undefined, errorInfo: undefined, nodeCount: undefined }];
     renderSection();
-    mocks.captures.iconButtons.find((props: any) => props.label === "导入此源").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "导入此源").onClick();
     await Promise.resolve();
     await Promise.resolve();
     expect(mocks.interactions.sourceImported).toHaveBeenCalledWith(expect.objectContaining({ result: "validationError" }));
@@ -559,7 +559,7 @@ describe("advanced mode InputSection", () => {
       mocks.store.sources = [];
     });
     renderSection();
-    mocks.captures.iconButtons.find((props: any) => props.label === "导入此源").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "导入此源").onClick();
     await Promise.resolve();
     await Promise.resolve();
     expect(mocks.interactions.sourceImported).toHaveBeenCalledWith(expect.objectContaining({ result: "runtimeError" }));

@@ -364,7 +364,6 @@ describe("quick mode TemplatesSection", () => {
     const result = renderSection({ [PICKER_SOURCE]: "catalog", [PICKER_TEMPLATES]: catalogItems });
 
     expect(result.html).toContain("模板目录");
-    expect(result.html).toContain("选择模板");
     expect(mocks.captures.cards).toHaveLength(3);
   });
 

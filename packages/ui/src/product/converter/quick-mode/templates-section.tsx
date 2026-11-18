@@ -322,15 +322,14 @@ export function TemplatesSection({ templateUpload }: Props) {
   return (
     <>
       {/* Template Selection */}
-      <div className="space-y-1.5">
-        <p className="text-xs text-fg-50">选择模板</p>
-        <div className="grid gap-1.5">
+      <div className="space-y-3">
+        <div className="grid gap-2">
           {templates.map((template) => (
             <Card
               key={template.id}
               className={cn(
-                "p-2.5 transition-all border-2",
-                selectedTemplate === template.id ? "border-indigo-500 bg-indigo-500/10" : "border-transparent hover:border-ink/20"
+                "rounded-xl border p-3 transition-colors",
+                selectedTemplate === template.id ? "border-indigo-500/50 bg-indigo-500/10" : "border-ink/10 hover:border-ink/20 hover:bg-ink/5"
               )}
             >
               <div className="flex items-center gap-3">
@@ -360,10 +359,10 @@ export function TemplatesSection({ templateUpload }: Props) {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-fg">{template.name}</span>
                     </div>
-                    <p className="text-xs text-fg-40 mt-0.5">{template.description}</p>
+                    <p className="mt-1 text-xs leading-5 text-fg-60">{template.description}</p>
                   </div>
                   </div>
-                  <div className="space-y-0.5 text-right text-xs text-fg-40">
+                  <div className="space-y-1 text-right text-xs tabular-nums text-fg-50">
                     <div>{template.groups} 代理组</div>
                     <div>{template.rules} 规则集</div>
                   </div>

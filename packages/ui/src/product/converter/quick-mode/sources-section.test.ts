@@ -371,7 +371,7 @@ describe("quick mode SourcesSection", () => {
   it("imports sources and reports success, runtime, and validation outcomes", async () => {
     renderSection();
 
-    mocks.captures.iconButtons.find((props: any) => props.label === "重新导入").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "重新导入").onClick();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -386,7 +386,7 @@ describe("quick mode SourcesSection", () => {
     });
 
     mocks.interactions.sourceImported.mockClear();
-    mocks.captures.iconButtons.find((props: any) => props.label === "导入此源").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "导入此源").onClick();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -398,7 +398,7 @@ describe("quick mode SourcesSection", () => {
     mocks.interactions.sourceImported.mockClear();
     mocks.store.sources = [{ ...textSource, error: undefined, errorInfo: undefined, parsed: false }];
     renderSection();
-    mocks.captures.iconButtons.find((props: any) => props.label === "导入此源").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "导入此源").onClick();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -540,13 +540,13 @@ describe("quick mode SourcesSection", () => {
     mocks.store.parseSingleSource.mockClear();
     mocks.store.sources = [{ ...urlSource, content: "", parsed: false, nodeCount: undefined }];
     renderSection();
-    mocks.captures.iconButtons.find((props: any) => props.label === "导入此源").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "导入此源").onClick();
     await Promise.resolve();
     expect(mocks.store.parseSingleSource).not.toHaveBeenCalled();
 
     mocks.store.sources = [{ ...urlSource, parsing: true }];
     renderSection();
-    mocks.captures.iconButtons.find((props: any) => props.label === "导入中").onClick();
+    mocks.captures.buttons.find((props) => props["aria-label"] === "导入中").onClick();
     await Promise.resolve();
     expect(mocks.store.parseSingleSource).not.toHaveBeenCalled();
   });

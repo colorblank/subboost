@@ -2,10 +2,10 @@
 
 import { AlertCircle, Check, Loader2, Maximize2, Server, X, ChevronUp, ChevronDown } from "lucide-react";
 import { Badge } from "@subboost/ui/components/ui/badge";
+import { Button } from "@subboost/ui/components/ui/button";
 import { IconButton } from "@subboost/ui/components/ui/icon-button";
 import { Input } from "@subboost/ui/components/ui/input";
 import { Textarea } from "@subboost/ui/components/ui/textarea";
-import { cn } from "@subboost/ui/lib/utils";
 import { buildSourceDisplayLabel } from "@subboost/ui/product/converter/source-display-label";
 import { AddSourceMenu, SourceStatusPopover, SourceTypeChoices } from "@subboost/ui/product/converter/source-controls";
 import { useSubscriptionSourcesController } from "@subboost/ui/product/converter/use-subscription-sources-controller";
@@ -60,7 +60,7 @@ export function InputSection({
       />
 
       {isExpanded && (
-        <div className="mt-2 space-y-2 sm:pl-6">
+        <div className="mt-3 space-y-3">
           {sources.map((source, index) => {
             const typeInfo = sourceTypeInfo[source.type];
             const sourceDisplayLabel = buildSourceDisplayLabel({
@@ -71,15 +71,10 @@ export function InputSection({
             });
             const sourceNodes = nodesBySourceId.get(source.id) ?? [];
             return (
-              <div key={source.id} className="space-y-1">
-                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <div key={source.id} className="space-y-3 rounded-xl border border-ink/10 p-3 transition-colors focus-within:border-indigo-500/40">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <SourceTypeChoices
-                      value={source.type}
-                      onChange={(type) => updateSourceType(source.id, type)}
-                      compact
-                    />
-                    <span className="text-xs text-fg-50">
+                    <span className="text-sm font-medium text-fg-80">
                       {sourceDisplayLabel}
                     </span>
                     <SourceStatusPopover source={source} nodes={sourceNodes} />
@@ -87,77 +82,76 @@ export function InputSection({
                       <SubscriptionImportErrorBadge errorInfo={source.errorInfo} errorMessage={source.error} />
                     )}
                   </div>
-                  <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">
-                    <div className="flex sm:flex-col">
+                  <div className="ml-auto flex shrink-0 items-center gap-1">
+                    <div className="flex items-center">
                       <IconButton
                         label="上移"
                         variant="ghost"
                         onClick={() => moveSource(source.id, "up")}
                         disabled={index <= 0}
-                        className="flex h-9 w-9 items-center justify-center text-fg-50 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30 sm:h-3.5 sm:w-4"
+                        className="h-8 w-8 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
                       >
-                        <ChevronUp className="h-2.5 w-2.5" aria-hidden="true" />
+                        <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
                       </IconButton>
                       <IconButton
                         label="下移"
                         variant="ghost"
                         onClick={() => moveSource(source.id, "down")}
                         disabled={index >= sources.length - 1}
-                        className="flex h-9 w-9 items-center justify-center text-fg-50 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-30 sm:h-3.5 sm:w-4"
+                        className="h-8 w-8 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
                       >
-                        <ChevronDown className="h-2.5 w-2.5" aria-hidden="true" />
+                        <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                       </IconButton>
                     </div>
                     <IconButton
                       label="高级编辑"
                       variant="ghost"
                       onClick={() => setExpandedSourceId(source.id)}
-                      className="h-10 w-10 rounded p-1 text-fg-50 hover:bg-ink/5 hover:text-fg-70 sm:h-6 sm:w-6"
+                      className="h-8 w-8 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
                     >
                       <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
                     </IconButton>
-                    <IconButton
-                      label={source.parsing ? "导入中" : source.parsed ? "重新导入" : "导入此源"}
-                      variant="ghost"
+                    <Button
+                      type="button"
+                      size="sm"
+                      aria-label={source.parsing ? "导入中" : source.parsed ? "重新导入" : "导入此源"}
+                      variant={source.parsed ? "secondary" : "default"}
                       onClick={() => void handleImportSource(source.id)}
                       disabled={!source.content.trim() || source.parsing}
-                      className={cn(
-                        "h-10 w-10 rounded p-1 transition-colors disabled:opacity-100 sm:h-6 sm:w-6",
-                        source.parsing
-                          ? "text-indigo-400"
-                          : source.parsed
-                            ? "text-green-400 hover:text-green-300"
-                            : source.content.trim()
-                              ? "text-fg-50 hover:text-indigo-400 hover:bg-indigo-500/10"
-                              : "text-fg-50 cursor-not-allowed"
-                      )}
+                      className="h-8 w-24 rounded-lg px-3"
                       title={source.parsing ? "导入中..." : source.parsed ? "重新导入" : "导入此源"}
                     >
                       {source.parsing ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-                      ) : (
+                      ) : source.parsed ? (
                         <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                      )}
-                    </IconButton>
+                      ) : null}
+                      <span>{source.parsing ? "导入中" : source.parsed ? "重新导入" : "导入"}</span>
+                    </Button>
                     {sources.length > 1 && (
                       <IconButton
                         label="删除导入源"
                         variant="ghost"
                         onClick={() => removeSource(source.id)}
-                        className="h-10 w-10 rounded p-1 text-fg-50 transition-colors hover:text-red-400 sm:h-6 sm:w-6"
+                        className="h-8 w-8 rounded-lg p-1 text-fg-50 hover:bg-red-500/10 hover:text-red-400"
                       >
                         <X className="h-3.5 w-3.5" aria-hidden="true" />
                       </IconButton>
                     )}
                   </div>
                 </div>
+                <SourceTypeChoices
+                  value={source.type}
+                  onChange={(type) => updateSourceType(source.id, type)}
+                  compact
+                />
                 {source.type === "url" ? (
                   <Input
                     aria-label={`${sourceDisplayLabel}订阅链接`}
                     value={source.content}
                     onChange={(e) => updateSource(source.id, e.target.value)}
                     placeholder={typeInfo.placeholder}
-                    className="text-xs h-8"
+                    className="h-10 text-sm"
                   />
                 ) : (
                   <Textarea
@@ -165,7 +159,7 @@ export function InputSection({
                     value={source.content}
                     onChange={(e) => updateSource(source.id, e.target.value)}
                     placeholder={typeInfo.placeholder}
-                    className="text-xs resize-none min-h-[60px]"
+                    className="min-h-28 font-mono text-sm leading-6"
                   />
                 )}
               </div>

@@ -30,11 +30,11 @@ export function DnsSection({
         }
       />
       {isExpanded && (
-        <div className="mt-2 pl-6">
+        <div className="mt-3">
           <Textarea
             value={dnsYaml}
             onChange={(e) => setDnsYaml(e.target.value)}
-            className="font-mono text-xs min-h-[400px] bg-ink/5 border-ink/10"
+            className="min-h-[400px] font-mono text-sm leading-6"
             placeholder={`# 基础配置
 mixed-port: ${DEFAULT_SUBBOOST_CONFIG.mixedPort}
 allow-lan: ${DEFAULT_SUBBOOST_CONFIG.allowLan}

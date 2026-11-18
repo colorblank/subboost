@@ -33,7 +33,7 @@ export function SourceTypeChoices({
   compact?: boolean;
 }) {
   return (
-    <ChoiceGroup label="导入源类型" className={cn("shrink-0 flex-nowrap", compact ? "gap-0.5" : "gap-1")}>
+    <ChoiceGroup label="导入源类型" className={cn("grid w-full grid-cols-3 gap-1 rounded-lg bg-ink/5", compact ? "p-0.5" : "p-1")}>
       {sourceTypes.map((type) => {
         const info = sourceTypeInfo[type];
         const Icon = info.icon;
@@ -46,14 +46,14 @@ export function SourceTypeChoices({
             label={
               <>
                 <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                <span className="sr-only">{info.label}</span>
+                <span className="truncate">{info.label}</span>
               </>
             }
             className={cn(
-              "min-h-9 min-w-9 rounded border-0 p-1 sm:min-h-0 sm:min-w-0",
+              "min-h-9 min-w-0 gap-1 rounded-md border-0 px-1 py-1.5 text-xs shadow-none",
               value === type
-                ? "bg-indigo-500/20 text-indigo-400"
-                : "bg-transparent text-fg-30 hover:bg-ink/5 hover:text-fg-50"
+                ? "bg-surface-raised text-indigo-300 shadow-sm"
+                : "bg-transparent text-fg-60 hover:bg-ink/5 hover:text-fg"
             )}
           />
         );
@@ -81,7 +81,7 @@ export function SourceStatusPopover({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-auto gap-1 whitespace-nowrap rounded-full border border-green-500/50 bg-green-500/5 px-2 py-0.5 text-xs font-semibold text-green-300 hover:bg-green-500/10"
+          className="h-7 gap-1.5 whitespace-nowrap rounded-lg border border-green-500/20 bg-green-500/10 px-2 text-xs font-medium text-green-300 hover:bg-green-500/15"
           title="查看流量/到期"
           aria-label="查看流量/到期"
         >
@@ -127,10 +127,7 @@ export function AddSourceMenu({
         <Button
           variant="outline"
           size="sm"
-          className={cn(
-            "w-full border-dashed border-ink/20 text-xs text-fg-50 hover:border-ink/30 hover:text-fg-70",
-            compact ? "h-7" : "h-8"
-          )}
+          className="h-10 w-full rounded-xl border-dashed border-ink/15 text-sm text-fg-60 hover:border-indigo-500/40 hover:bg-indigo-500/5 hover:text-fg"
         >
           <Plus className="h-3.5 w-3.5" aria-hidden="true" />
           添加订阅/节点源
