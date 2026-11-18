@@ -7,8 +7,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "local/src"),
-      "@subboost/core": path.resolve(__dirname, "packages/core/src"),
+      "@": path.resolve(import.meta.dirname, "local/src"),
+      "@subboost/core": path.resolve(import.meta.dirname, "packages/core/src"),
     },
   },
 });

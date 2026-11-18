@@ -29,18 +29,19 @@ export default defineConfig({
     include: [
       "packages/core/src/**/*.test.ts",
       "packages/ui/src/**/*.test.ts",
-      "local/**/*.test.ts",
+      "local/src/**/*.test.ts",
+      "local/scripts/**/*.test.ts",
       "test/regression/tooling/**/*.test.ts",
     ],
     restoreMocks: true,
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "local/src"),
-      "@local": path.resolve(__dirname, "local/src"),
-      "@subboost/core": path.resolve(__dirname, "packages/core/src"),
-      "@subboost/ui": path.resolve(__dirname, "packages/ui/src"),
-      "@subboost/config": path.resolve(__dirname, "packages/config"),
+      "@": path.resolve(import.meta.dirname, "local/src"),
+      "@local": path.resolve(import.meta.dirname, "local/src"),
+      "@subboost/core": path.resolve(import.meta.dirname, "packages/core/src"),
+      "@subboost/ui": path.resolve(import.meta.dirname, "packages/ui/src"),
+      "@subboost/config": path.resolve(import.meta.dirname, "packages/config"),
     },
   },
 });
