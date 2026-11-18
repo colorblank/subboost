@@ -53,7 +53,6 @@ export default defineConfig([
     "dist/**",
     "local/.next/**",
     "local/next-env.d.ts",
-    "local/src/generated/**",
     "node_modules/**",
   ]),
 ]);

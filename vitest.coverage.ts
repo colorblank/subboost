@@ -38,8 +38,6 @@ export default mergeConfig(
           "**/next.config.{ts,js,mjs}",
           "**/postcss.config.{ts,js,mjs}",
           "**/tailwind.config.{ts,js,mjs}",
-          "**/generated/prisma/**",
-          "**/prisma/generated/**",
         ],
         reporter: ["text", "json-summary", "html", "lcov"],
         reportsDirectory: "coverage",
