@@ -5,7 +5,7 @@ import {
   normalizeMihomoRealityPublicKey,
   normalizeMihomoVlessForGeneration,
   sanitizeMihomoProxyNode,
-} from "../packages/core/src/mihomo/proxy-sanitizer";
+} from "./proxy-sanitizer";
 
 const REALITY_PUBLIC_KEY = "A".repeat(43);
 const WIREGUARD_KEY = `${"A".repeat(43)}=`;
