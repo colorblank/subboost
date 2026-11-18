@@ -195,3 +195,78 @@ async fn csrf_rejects_cross_origin_mutations() -> Result<()> {
     assert_eq!(response.status(), StatusCode::FORBIDDEN);
     Ok(())
 }
+
+#[tokio::test]
+async fn nas_multi_entry_allows_lan_tailscale_and_rewrites_subscription_urls() -> Result<()> {
+    let dir = tempfile::tempdir()?;
+    let service = Service::open({
+        let mut configuration = crate::config::Config::default();
+        configuration.application.database = (&dir.path().join("test.db")).to_path_buf();
+        configuration.application.app_url = ("http://127.0.0.1:3001").to_owned();
+        configuration
+    })
+    .await?;
+    let app = router(service);
+
+    let input = json!({
+        "name": "nas-sub",
+        "nodes": [{
+            "name": "node",
+            "type": "ss",
+            "server": "example.com",
+            "port": 443,
+            "cipher": "aes-128-gcm",
+            "password": "secret"
+        }]
+    });
+    let create_response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/api/subscriptions")
+                .header("Origin", "http://192.168.1.50:3001")
+                .header(header::CONTENT_TYPE, "application/json")
+                .body(Body::from(input.to_string()))?,
+        )
+        .await?;
+    assert_eq!(create_response.status(), StatusCode::CREATED);
+    let cookie = create_response.headers()[header::SET_COOKIE]
+        .to_str()?
+        .split(';')
+        .next()
+        .context("cookie")?
+        .to_owned();
+    let created: Value = serde_json::from_slice(
+        &create_response.into_body().collect().await?.to_bytes(),
+    )?;
+    assert!(
+        created["subscription"]["subscriptionUrl"]
+            .as_str()
+            .unwrap_or_default()
+            .starts_with("http://192.168.1.50:3001/api/subscriptions/")
+    );
+
+    let list_response = app
+        .oneshot(
+            Request::builder()
+                .method("GET")
+                .uri("/api/subscriptions")
+                .header(header::COOKIE, &cookie)
+                .header("X-Forwarded-Proto", "https")
+                .header("X-Forwarded-Host", "sub.nas.example.com")
+                .body(Body::empty())?,
+        )
+        .await?;
+    assert_eq!(list_response.status(), StatusCode::OK);
+    let listed: Value = serde_json::from_slice(
+        &list_response.into_body().collect().await?.to_bytes(),
+    )?;
+    assert!(
+        listed["subscriptions"][0]["subscriptionUrl"]
+            .as_str()
+            .unwrap_or_default()
+            .starts_with("https://sub.nas.example.com/api/subscriptions/")
+    );
+    Ok(())
+}

@@ -8,6 +8,12 @@ coverage
 .env.*
 **/*.db
 data/
+**/data/
+target/
+**/target/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
 local/src/generated/
 .git
 .github

@@ -1,23 +1,31 @@
 services:
   backend:
     image: ${SUBBOOST_BACKEND_IMAGE:-ghcr.io/subboost/subboost-backend:latest}
+    container_name: subboost-backend
     restart: unless-stopped
     environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
       APP_URL: ${APP_URL:-http://127.0.0.1:3001}
       LOCAL_SETUP_TOKEN: ${LOCAL_SETUP_TOKEN:-}
     volumes:
       - subboost-data:/data
-      - ${SUBBOOST_CONFIG_FILE:-./subboost.toml}:/etc/subboost/subboost.toml:ro
+      - ./subboost.toml:/etc/subboost/subboost.toml:ro
 
   app:
     image: ${SUBBOOST_IMAGE:?set SUBBOOST_IMAGE}
+    container_name: subboost
     restart: unless-stopped
     depends_on:
       - backend
     ports:
       - "${SUBBOOST_BIND_ADDRESS:-127.0.0.1}:${SUBBOOST_PORT:-3001}:3000"
     environment:
-      SUBBOOST_BACKEND_URL: http://backend:3002
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      TZ: ${TZ:-Asia/Shanghai}
 
 volumes:
   subboost-data:

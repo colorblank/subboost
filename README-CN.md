@@ -73,17 +73,52 @@ MCP 使用原生 stdio JSON-RPC，支持工具发现、订阅/模板 CRUD、刷�
 
 刷新由 Rust 服务内部的顺序计时器完成，不堆积错过的周期；刷新失败保留上一次节点快照。端口、间隔和预算以配置文件为准。
 
-### 部署、备份与旧库迁移
+### 部署、私有 NAS 与旧库迁移
 
-从源码构建容器：
+#### 1. 私有 NAS 单容器部署（群晖 / 飞牛 FnOS / 绿联 / 极空间 / Unraid / 1Panel / Portainer 推荐）
+
+针对私有 NAS 场景，SubBoost 提供 **All-in-One (`aio`) 单容器模式**：仅需 **1 个容器 + 1 个端口 (`3001`) + 1 个本地目录 (`./data`)**：
+- **单目录持久化**：首次启动自动在 `/data` 下初始化可编辑的 `subboost.toml` 与 `subboost.sqlite3` 数据库，避免 Docker 单文件挂载因宿主文件不存在变成空目录而报错。
+- **多入口免配 `APP_URL`**：保持默认即可自动识别当前浏览器访问入口（如局域网 `http://192.168.x.x:3001`、Tailscale `http://100.x.x.x:3001`、`.local` 或 HTTPS 反向代理域名）并生成对应的订阅链接与二维码。
+- **NAS 权限与时区适配**：支持 `PUID`、`PGID`、`TZ` 环境变量（群晖常见 `PUID=1026` / `PGID=100`，飞牛及标准 Linux 常见 `1000:1000`）。
+
+单容器 `docker run` 一键启动：
 
 ```bash
-APP_URL=http://127.0.0.1:3001 docker compose -f local/docker-compose.yml up -d --build
+docker run -d \
+  --name subboost \
+  --restart unless-stopped \
+  -p 3001:3000 \
+  -e TZ=Asia/Shanghai \
+  -e PUID=1000 \
+  -e PGID=1000 \
+  -v ./data:/data \
+  ghcr.io/subboost/subboost-aio:latest
 ```
 
-只有前端端口对主机发布；Rust API、SQLite 和刷新器在同一个后端容器中。发行版 Compose 需要匹配的前端、后端镜像与 `subboost.toml` 附件，必须先通过新的发布工作流发布，不能混用旧版镜像。
+或在 NAS 的 Docker Compose / 项目管理界面直接粘贴 `local/docker-compose.nas.yml`（仓库根目录 `docker-compose.yml` 亦默认采用单容器模式）：
 
-SQLite 数据库和相邻的 `.key` 文件必须一起备份；缺失密钥无法解密数据。在线复制时还需要 WAL，建议先停止后端。运维脚本的 `backup` 会暂停写入，校验 SQLite 并保存数据库、WAL、密钥、环境文件和运行配置。`subboost backup export` 输出含节点凭据的明文 JSON，只能保存到私有文件。
+```bash
+# 使用预构建 NAS 单容器镜像启动
+docker compose -f local/docker-compose.nas.yml up -d
+
+# 或从源码构建单容器镜像并启动
+docker compose up -d --build
+```
+
+#### 2. 前后端分离双容器部署
+
+如需前后端独立容器运行，可使用 `local/docker-compose.yml`：
+
+```bash
+docker compose -f local/docker-compose.yml up -d --build
+```
+
+只有前端端口对主机发布；Rust API、SQLite 和刷新器在同一个后端容器中。发行版双容器 Compose（`local/docker-compose.image.yml`）需要匹配的前端、后端镜像与 `subboost.toml` 附件，请勿混用旧版镜像。
+
+#### 3. 数据备份与旧库迁移
+
+只需备份挂载的 `./data` 目录（包含 `subboost.sqlite3`、相邻的 `.key` 密钥文件及 `subboost.toml`）；缺失 `.key` 密钥文件无法解密数据。在线复制时还需要 WAL，建议先停止容器。运维脚本的 `backup` 会暂停写入，校验 SQLite 并保存数据库、WAL、密钥、环境文件和运行配置。`subboost backup export` 输出含节点凭据的明文 JSON，只能保存到私有文件。
 
 旧 PostgreSQL 部署不会被直接覆盖。先备份旧卷并暂停旧应用和 cron，再在旧数据库可达的环境导出：
 

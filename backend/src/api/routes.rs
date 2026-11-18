@@ -18,7 +18,7 @@ use crate::service::{Fault, fault, now, required, token};
 use super::{
     ApiState,
     auth::{append_cookie, cookie, cookie_value, identity},
-    csrf::{check_origin, secure_equal},
+    csrf::{check_origin, rewrite_subscription_urls, secure_equal},
     rate_limit::rate,
 };
 
@@ -289,6 +289,7 @@ pub(super) async fn dispatch_inner(
             &mut response,
             &cookie(
                 service,
+                &headers,
                 &authentication.administrator_cookie,
                 &value,
                 session_seconds,
@@ -310,7 +311,7 @@ pub(super) async fn dispatch_inner(
         let mut response = json_response(json!({"success":true}), 200);
         append_cookie(
             &mut response,
-            &cookie(service, &authentication.administrator_cookie, "", 0),
+            &cookie(service, &headers, &authentication.administrator_cookie, "", 0),
         )?;
         return Ok(response);
     }
@@ -496,7 +497,8 @@ pub(super) async fn dispatch_inner(
                 Duration::from_secs(rates.operation_window_seconds),
             )?;
         }
-        let result = service.execute(&identity.owner, operation, body).await?;
+        let mut result = service.execute(&identity.owner, operation, body).await?;
+        rewrite_subscription_urls(service, &headers, &mut result);
         let status = if result.get("error").is_some_and(Value::is_string) {
             503
         } else {

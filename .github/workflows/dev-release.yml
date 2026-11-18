@@ -92,7 +92,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [frontend, backend]
+        component: [frontend, backend, aio]
         arch: [amd64, arm64]
         include:
           - arch: amd64
@@ -129,7 +129,7 @@ jobs:
           cache-from: type=gha,scope=selfhost-dev-${{ matrix.component }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=selfhost-dev-${{ matrix.component }}-${{ matrix.arch }}
           provenance: false
-          tags: ${{ matrix.component == 'backend' && format('{0}-backend', needs.meta.outputs.image_name) || needs.meta.outputs.image_name }}
+          tags: ${{ matrix.component == 'frontend' && needs.meta.outputs.image_name || format('{0}-{1}', needs.meta.outputs.image_name, matrix.component) }}
 
       - name: Export digest
         shell: bash
@@ -182,6 +182,13 @@ jobs:
           path: ${{ runner.temp }}/digests/backend
           merge-multiple: true
 
+      - name: Download aio image digests
+        uses: actions/download-artifact@v4
+        with:
+          pattern: digest-aio-*
+          path: ${{ runner.temp }}/digests/aio
+          merge-multiple: true
+
       - name: Create dev image tags
         id: image_manifest
         shell: bash
@@ -190,9 +197,9 @@ jobs:
           SHORT_SHA: ${{ needs.meta.outputs.short_sha }}
         run: |
           set -euo pipefail
-          for component in frontend backend; do
+          for component in frontend backend aio; do
             image="${IMAGE_NAME}"
-            [ "$component" = frontend ] || image="${IMAGE_NAME}-backend"
+            [ "$component" = frontend ] || image="${IMAGE_NAME}-${component}"
             mapfile -t digest_files < <(find "${RUNNER_TEMP}/digests/${component}" -type f | sort)
             [ "${#digest_files[@]}" -eq 2 ] || { echo "Expected two ${component} architecture digests" >&2; exit 1; }
             sources=()

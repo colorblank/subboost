@@ -73,17 +73,52 @@ Browser use requires no account or administrator setup. Each guest has a separat
 
 A sequential timer inside the Rust server refreshes subscriptions without accumulating missed ticks. Failed refreshes preserve the previous node snapshot. Deployment values and budgets come from configuration files.
 
-### Deployment, backups and migration
+### Deployment, Private NAS & Migration
 
-Build containers from source:
+#### 1. Private NAS All-in-One Deployment (Synology / FnOS / UGREEN / ZSpace / Unraid / 1Panel / Portainer)
+
+For private NAS environments, SubBoost provides an **All-in-One (`aio`) single-container image** requiring only **1 container + 1 port (`3001`) + 1 host directory (`./data`)**:
+- **Single-directory persistence**: Automatically initializes an editable `subboost.toml` and `subboost.sqlite3` inside `/data` on first start, eliminating Docker single-file bind-mount directory errors.
+- **Zero-config multi-entry `APP_URL`**: Automatically adapts CSRF checks and generated subscription links/QR codes to the current browser origin (LAN IP `192.168.x.x`, Tailscale `100.x.x.x`, `.local`, or HTTPS reverse proxy) without hardcoding `APP_URL`.
+- **NAS permissions & timezone**: Supports `PUID`, `PGID`, and `TZ` environment variables.
+
+One-line `docker run`:
 
 ```bash
-APP_URL=http://127.0.0.1:3001 docker compose -f local/docker-compose.yml up -d --build
+docker run -d \
+  --name subboost \
+  --restart unless-stopped \
+  -p 3001:3000 \
+  -e TZ=Asia/Shanghai \
+  -e PUID=1000 \
+  -e PGID=1000 \
+  -v ./data:/data \
+  ghcr.io/subboost/subboost-aio:latest
 ```
 
-Only the frontend port is published. API, SQLite and refresh run in one backend container. Release Compose requires matching frontend/backend images and the `subboost.toml` asset from the updated release workflow; do not mix older images.
+Or use `local/docker-compose.nas.yml` (or the root `docker-compose.yml`):
 
-Back up SQLite with its adjacent `.key` file: losing that key makes data unrecoverable. Include WAL files when copying an open database; stopping the backend is safer. The deployment manager's `backup` pauses writers, checks SQLite and saves database/WAL/key files, environment and runtime configuration. Native `subboost backup export` produces plaintext JSON containing node credentials; store it privately.
+```bash
+# Start with pre-built All-in-One NAS image
+docker compose -f local/docker-compose.nas.yml up -d
+
+# Or build All-in-One container from source
+docker compose up -d --build
+```
+
+#### 2. Two-Container Deployment
+
+To run separate frontend and backend containers from source:
+
+```bash
+docker compose -f local/docker-compose.yml up -d --build
+```
+
+Only the frontend port is published. API, SQLite and refresh run in one backend container. Release Compose (`local/docker-compose.image.yml`) requires matching frontend/backend images and the `subboost.toml` asset from the updated release workflow; do not mix older images.
+
+#### 3. Backups & Legacy Migration
+
+Back up the mounted `./data` directory (including `subboost.sqlite3`, its adjacent `.key` file, and `subboost.toml`): losing the `.key` file makes data unrecoverable. Include WAL files when copying an open database; stopping the container is safer. The deployment manager's `backup` pauses writers, checks SQLite and saves database/WAL/key files, environment and runtime configuration. Native `subboost backup export` produces plaintext JSON containing node credentials; store it privately.
 
 Do not overwrite an existing PostgreSQL deployment. Back up its volumes and stop the old application and cron first, then export from an environment that can reach the old database:
 

@@ -7,6 +7,18 @@ import { readJsonResponse } from "@subboost/ui/product/client-response";
 import type { RefreshSubscriptionResponse, Subscription, SubscriptionLink } from "@subboost/ui/dashboard/dashboard-types";
 import { useRuntimeConfig } from "@local/lib/runtime-config";
 
+function normalizeLoopbackSubscriptionUrl(rawUrl: string): string {
+  if (typeof window === "undefined" || !rawUrl) return rawUrl;
+  try {
+    const url = new URL(rawUrl, window.location.href);
+    const isLoopback = url.hostname === "127.0.0.1" || url.hostname === "localhost" || url.hostname === "::1";
+    if (isLoopback && url.pathname.includes("/api/subscriptions/")) {
+      return `${window.location.origin}${url.pathname}${url.search}`;
+    }
+  } catch {}
+  return rawUrl;
+}
+
 function resolveLocalDashboardDownloadUrl(subscription: Subscription): string {
   try {
     const url = new URL(subscription.subscriptionUrl, window.location.href);
@@ -26,7 +38,12 @@ const localDashboardAdapter: DashboardSurfaceAdapter = {
   fetchSubscriptions: async () => {
     const response = await fetch("/api/subscriptions");
     const data = await readJsonResponse<{ subscriptions?: Subscription[]; error?: string }>(response, "获取订阅失败");
-    return Array.isArray(data.subscriptions) ? data.subscriptions : [];
+    return Array.isArray(data.subscriptions)
+      ? data.subscriptions.map((sub) => ({
+          ...sub,
+          subscriptionUrl: normalizeLoopbackSubscriptionUrl(sub.subscriptionUrl),
+        }))
+      : [];
   },
   deleteSubscription: async (id) => {
     const response = await fetch(`/api/subscriptions/${encodeURIComponent(id)}`, { method: "DELETE" });
@@ -54,7 +71,10 @@ const localDashboardAdapter: DashboardSurfaceAdapter = {
       headers: { "If-Match": `"${token}"` },
     });
     const data = await readJsonResponse<{ subscription: SubscriptionLink }>(response, "重置订阅链接失败");
-    return data.subscription;
+    return {
+      ...data.subscription,
+      subscriptionUrl: normalizeLoopbackSubscriptionUrl(data.subscription.subscriptionUrl),
+    };
   },
   resolveDownloadUrl: resolveLocalDashboardDownloadUrl,
 };

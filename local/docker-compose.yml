@@ -4,31 +4,50 @@ services:
       context: ..
       dockerfile: local/Dockerfile
       target: backend
+    container_name: subboost-backend
     restart: unless-stopped
     environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
       APP_URL: ${APP_URL:-http://127.0.0.1:3001}
       LOCAL_SETUP_TOKEN: ${LOCAL_SETUP_TOKEN:-}
     volumes:
-      - subboost-data:/data
-      - ${SUBBOOST_CONFIG_FILE:-../config/subboost.toml}:/etc/subboost/subboost.toml:ro
+      - ${SUBBOOST_DATA_DIR:-./data}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:3002/api/health/ready >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   app:
     build:
       context: ..
       dockerfile: local/Dockerfile
       target: frontend
-      args:
-        APP_RELEASE_VERSION: ${APP_RELEASE_VERSION:-}
-        APP_BUILD_SHA: ${APP_BUILD_SHA:-}
-        APP_VERSION: ${APP_VERSION:-}
-        APP_VERSION_TOKEN: ${APP_VERSION_TOKEN:-}
+    container_name: subboost
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
-      - "${SUBBOOST_BIND_ADDRESS:-127.0.0.1}:${SUBBOOST_PORT:-3001}:3000"
+      - "${SUBBOOST_BIND_ADDRESS:-0.0.0.0}:${SUBBOOST_PORT:-3001}:3000"
     environment:
-      SUBBOOST_BACKEND_URL: http://backend:3002
-
-volumes:
-  subboost-data:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      TZ: ${TZ:-Asia/Shanghai}
+      SUBBOOST_BACKEND_URL: ${SUBBOOST_BACKEND_URL:-http://backend:3002}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/api/health/live').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

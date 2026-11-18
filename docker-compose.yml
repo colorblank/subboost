@@ -1,0 +1,40 @@
+# SubBoost All-in-One (单容器) Docker Compose 配置
+# 专为群晖 (Synology) / 飞牛 (FnOS) / 绿联 (UGREEN) / 极空间 / Unraid / 1Panel / Portainer 等私有 NAS 优化：
+# - 仅 1 个容器 + 1 个端口 (3001) + 1 个数据目录 (./data)
+# - 首次启动自动在 ./data 生成可编辑的 subboost.toml 与 subboost.sqlite3，避免单文件挂载变成目录报错
+# - 免配 APP_URL：自动适配局域网 IP (192.168.x.x / 10.x.x.x)、Tailscale (100.x.x.x)、.local 及反向代理生成订阅链接
+
+services:
+  subboost:
+    image: ${SUBBOOST_AIO_IMAGE:-ghcr.io/subboost/subboost-aio:latest}
+    build:
+      context: .
+      dockerfile: local/Dockerfile
+      target: aio
+    container_name: subboost
+    restart: unless-stopped
+    ports:
+      - "${SUBBOOST_BIND_ADDRESS:-0.0.0.0}:${SUBBOOST_PORT:-3001}:3000"
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      # 留空或保持默认即可自动跟随浏览器当前访问地址（局域网 IP / Tailscale / 反向代理域名）生成订阅链接；
+      # 如需强制固定为单一公网域名，可设置为 https://sub.example.com
+      APP_URL: ${APP_URL:-http://127.0.0.1:3001}
+      # 可选：首次创建管理员账号的一次性令牌（游客模式无需配置即可直接使用）
+      LOCAL_SETUP_TOKEN: ${LOCAL_SETUP_TOKEN:-}
+    volumes:
+      - ${SUBBOOST_DATA_DIR:-./data}:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/api/health/ready').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

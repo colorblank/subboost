@@ -12,6 +12,8 @@ use rusqlite::{OptionalExtension, params};
 
 use crate::service::{Service, token};
 
+use super::csrf::is_https_request;
+
 /// 请求发送者的认证身份上下文。
 #[derive(Clone)]
 pub(super) struct Identity {
@@ -46,10 +48,16 @@ pub(super) fn cookie_value<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a
 }
 
 /// 构造包含标准安全选项（HttpOnly, SameSite=Lax, Secure）的 Cookie 字符串。
-pub(super) fn cookie(service: &Service, name: &str, value: &str, seconds: i64) -> String {
+pub(super) fn cookie(
+    service: &Service,
+    headers: &HeaderMap,
+    name: &str,
+    value: &str,
+    seconds: i64,
+) -> String {
     format!(
         "{name}={value}; Path=/; HttpOnly; SameSite=Lax; Max-Age={seconds}{}",
-        if service.config.application.app_url.starts_with("https:") {
+        if is_https_request(service, headers) {
             "; Secure"
         } else {
             ""
@@ -112,6 +120,7 @@ pub(super) async fn identity(service: &Service, headers: &HeaderMap) -> Result<I
         guest: true,
         cookie: Some(cookie(
             service,
+            headers,
             &authentication.guest_cookie,
             &value,
             session_seconds,

@@ -111,6 +111,26 @@ pub struct Generation {
 
 impl Config {
     pub fn load(path: &Path) -> Result<Self> {
+        if path.is_dir() {
+            eprintln!(
+                "warning: settings path {} is a directory (likely created by a Docker file mount when the host file was missing); falling back to built-in default configuration",
+                path.display()
+            );
+            return Ok(Self::default());
+        }
+        if !path.exists()
+            && path.file_name().and_then(|name| name.to_str()) == Some("subboost.toml")
+            && path.parent().is_some_and(Path::is_dir)
+        {
+            let defaults = crate::include_config_str!("subboost.toml");
+            if let Err(error) = std::fs::write(path, defaults) {
+                eprintln!(
+                    "warning: could not initialize default settings at {}: {error}; using built-in defaults",
+                    path.display()
+                );
+            }
+            return Self::parse(defaults).with_context(|| format!("Settings {}", path.display()));
+        }
         let text = std::fs::read_to_string(path)
             .with_context(|| format!("Reading settings {}", path.display()))?;
         Self::parse(&text).with_context(|| format!("Settings {}", path.display()))
@@ -274,9 +294,7 @@ impl Config {
         let explicit = std::env::var_os("SUBBOOST_CONFIG");
         if let Some(explicit_path) = explicit {
             let path = PathBuf::from(explicit_path);
-            let text = std::fs::read_to_string(&path)
-                .with_context(|| format!("Reading runtime policy {}", path.display()))?;
-            return Self::parse(&text);
+            return Self::load(&path);
         }
 
         if let Some(path) = resolve_asset_path("subboost.toml") {
@@ -332,7 +350,10 @@ pub(crate) fn resolve_asset_path(subpath: &str) -> Option<PathBuf> {
         PathBuf::from("backend").join("config").join(subpath),
         // 2. 从 backend 子目录运行（cargo test, cargo run）
         PathBuf::from("config").join(subpath),
-        // 3. 根目录兼容软链接或绝对子路径
+        // 3. 容器标准数据卷与系统配置目录（NAS 单目录挂载 / Docker 默认路径）
+        PathBuf::from("/data").join(subpath),
+        PathBuf::from("/etc/subboost").join(subpath),
+        // 4. 根目录兼容软链接或绝对子路径
         PathBuf::from(subpath),
     ];
 
@@ -415,5 +436,14 @@ mod tests {
             "default_content",
         );
         assert_eq!(content, "default_content");
+
+        let dir = tempfile::tempdir().expect("tempdir");
+        let bootstrapped = dir.path().join("subboost.toml");
+        assert!(Config::load(&bootstrapped).is_ok());
+        assert!(bootstrapped.is_file());
+
+        let dir_trap = dir.path().join("dir-mount").join("subboost.toml");
+        std::fs::create_dir_all(&dir_trap).expect("create dir trap");
+        assert!(Config::load(&dir_trap).is_ok());
     }
 }
