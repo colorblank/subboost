@@ -257,7 +257,7 @@ export function ProxyGroupsCategories() {
             <p className={PROXY_GROUP_SECTION_LABEL_CLASS}>规则集 URL</p>
           </div>
           <div
-            className="min-w-0 rounded-md border border-ink/10 bg-ink/5 px-3 py-2 font-mono text-xs text-fg-65"
+            className="flex h-9 min-w-0 items-center rounded-lg border border-ink/10 bg-ink/5 px-3 font-mono text-xs text-fg-65"
             title={ruleProviderBaseUrl}
           >
             <span className="block truncate">{ruleProviderBaseUrl}</span>
@@ -267,8 +267,8 @@ export function ProxyGroupsCategories() {
           <div className={PROXY_GROUP_SECTION_LABEL_ROW_CLASS}>
             <p className="text-xs text-amber-300">高级模式</p>
           </div>
-          <div className="flex h-9 w-full items-center justify-center gap-1 rounded-md border border-ink/10 bg-ink/5 px-2">
-            <span className="text-[10px] text-fg-65">
+          <div className="flex h-9 w-full items-center justify-center gap-1 rounded-lg border border-ink/10 bg-ink/5 px-1.5">
+            <span className="text-xs text-fg-65">
               {proxyGroupAdvancedModeEnabled ? "已开启" : "未开启"}
             </span>
             <Switch checked={proxyGroupAdvancedModeEnabled} onCheckedChange={setProxyGroupAdvancedModeEnabled} aria-label="高级模式" />
@@ -276,7 +276,7 @@ export function ProxyGroupsCategories() {
         </div>
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <div className={PROXY_GROUP_SECTION_LABEL_ROW_CLASS}>
           <p className={PROXY_GROUP_SECTION_LABEL_CLASS}>分流规则组</p>
           {hiddenModules.length > 0 && (
@@ -286,7 +286,7 @@ export function ProxyGroupsCategories() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="ml-auto h-6 gap-1 rounded-md px-2 text-[10px] text-fg-60 hover:bg-ink/10 hover:text-fg-85"
+                  className="ml-auto h-7 gap-1 rounded-lg px-2.5 text-xs text-fg-60 hover:bg-ink/10 hover:text-fg-85"
                   title="恢复隐藏分组"
                 >
                   <RotateCcw className="h-3 w-3" />
@@ -333,17 +333,17 @@ export function ProxyGroupsCategories() {
                 >
                   <button
                     onClick={() => toggleCategory(categoryId)}
-                    className="w-full flex items-center gap-2 px-2 py-1.5 bg-ink/5 hover:bg-ink/10 transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 bg-ink/5 hover:bg-ink/10 transition-colors"
                   >
                     {expandedCategories.has(categoryId) ? (
-                      <ChevronDown className="h-3.5 w-3.5 text-fg-50" />
+                      <ChevronDown className="h-4 w-4 text-fg-50" />
                     ) : (
-                      <ChevronRight className="h-3.5 w-3.5 text-fg-50" />
+                      <ChevronRight className="h-4 w-4 text-fg-50" />
                     )}
-                    <span className="text-xs text-fg font-medium">
+                    <span className="text-sm text-fg font-medium">
                       {categoryInfo.name}
                     </span>
-                    <Badge variant="secondary" className="ml-auto text-[10px]">
+                    <Badge variant="secondary" className="ml-auto text-xs tabular-nums">
                       {getCategoryStats(categoryId)}
                     </Badge>
                   </button>

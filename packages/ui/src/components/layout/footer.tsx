@@ -155,10 +155,10 @@ export function Footer({
 
   return (
     <footer className="hidden md:block border-t border-ink/10 bg-dark-50/80 backdrop-blur-sm">
-      <div className="container mx-auto px-4 py-8">
+      <div className="page-container py-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5">
               <Image
                 src="/logo.png"
                 alt="SubBoost"
@@ -166,11 +166,11 @@ export function Footer({
                 height={32}
                 className="rounded-xl shadow-lg shadow-blue-500/25"
               />
-              <span className="font-semibold text-fg">SubBoost</span>
+              <span className="text-base font-semibold tracking-tight text-fg">SubBoost</span>
             </div>
             <p className="text-sm leading-relaxed text-fg-50">{SUBBOOST_FOOTER_DESCRIPTION}</p>
             {brandLinks.length > 0 && (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 pt-1">
                 {brandLinks.map((link) => (
                   <a
                     key={link.href}
@@ -189,7 +189,7 @@ export function Footer({
           </div>
 
           <div>
-            <h3 className="mb-4 font-medium text-fg">功能</h3>
+            <h3 className="mb-3 text-sm font-semibold text-fg">功能</h3>
             <ul className="space-y-2">
               {visibleFeatureLinks.map((link) => (
                 <li key={link.href}>
@@ -200,7 +200,7 @@ export function Footer({
           </div>
 
           <div>
-            <h3 className="mb-4 font-medium text-fg">帮助</h3>
+            <h3 className="mb-3 text-sm font-semibold text-fg">帮助</h3>
             <ul className="space-y-2">
               {visibleHelpLinks.map((link) => (
                 <li key={`${link.label}-${link.href}`}>
@@ -211,7 +211,7 @@ export function Footer({
           </div>
 
           <div>
-            <h3 className="mb-4 font-medium text-fg">相关资源</h3>
+            <h3 className="mb-3 text-sm font-semibold text-fg">相关资源</h3>
             <ul className="space-y-2">
               {visibleResourceLinks.map((link) => (
                 <li key={link.href}>

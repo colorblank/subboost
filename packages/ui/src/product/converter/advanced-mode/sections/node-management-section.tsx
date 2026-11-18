@@ -489,16 +489,16 @@ export function NodeManagementSection({
       />
 
       {isExpanded && (
-        <div className="mt-2 pl-6">
-          <div className="flex flex-col gap-2 pb-2 pr-2 sm:flex-row sm:items-center">
+        <div className="mt-2.5 space-y-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="relative w-full sm:min-w-0 sm:flex-1">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-fg-30" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-fg-40" />
               <Input
                 value={nodeSearchKeyword}
                 onChange={(e) => setNodeSearchKeyword(e.target.value)}
                 placeholder="搜索节点..."
                 disabled={effectiveNodes.length === 0 && deletedMarkedNodes.length === 0}
-                className="pl-7 text-xs h-7 bg-ink/5 border-ink/10"
+                className="h-8 rounded-lg bg-ink/5 pl-8 text-xs border-ink/10"
               />
             </div>
             <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
@@ -516,7 +516,7 @@ export function NodeManagementSection({
                 size="sm"
                 onClick={() => setNameRulesOpen(true)}
                 disabled={effectiveNodes.length === 0}
-                className="h-7 shrink-0 px-2 text-xs"
+                className="h-8 shrink-0 px-2.5 text-xs"
               >
                 批量编辑
               </Button>
@@ -524,13 +524,13 @@ export function NodeManagementSection({
                 variant="secondary"
                 size="sm"
                 onClick={() => setAutoProcessingOpen(true)}
-                className="h-7 shrink-0 gap-1.5 px-2 text-xs"
+                className="h-8 shrink-0 gap-1.5 px-2.5 text-xs"
               >
                 自动处理
                 {activeFilterCount > 0 ? (
                   <Badge
                     variant="outline"
-                    className="h-4 min-w-4 border-indigo-400/40 bg-indigo-400/10 px-1 text-[10px] leading-none text-indigo-200"
+                    className="h-5 min-w-5 justify-center border-indigo-400/40 bg-indigo-400/10 px-1.5 text-xs leading-none text-indigo-200"
                   >
                     {activeFilterCount}
                   </Badge>

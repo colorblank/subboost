@@ -183,7 +183,7 @@ export function normalizeRuleListLines(lines: Iterable<string>): string[] {
 }
 
 function buildSignature(lines: string[]): string {
-  return [...lines].sort((a, b) => a.localeCompare(b)).join("\n");
+  return lines.toSorted((a, b) => a.localeCompare(b)).join("\n");
 }
 
 function isCoveredByGeolocationCn(lines: string[], geolocationCnLineSet: Set<string>): boolean {
@@ -239,7 +239,7 @@ export function buildCnRuleCandidatesFromSources(
   }
 
   for (const group of duplicateGroups.values()) {
-    const [canonical] = [...group].sort((a, b) => {
+    const [canonical] = group.toSorted((a, b) => {
       const byPriority = VARIANT_PRIORITY[a.candidate.variantKind] - VARIANT_PRIORITY[b.candidate.variantKind];
       if (byPriority !== 0) return byPriority;
       return a.candidate.id.localeCompare(b.candidate.id);

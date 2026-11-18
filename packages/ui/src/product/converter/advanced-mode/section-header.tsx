@@ -21,7 +21,7 @@ export function SectionHeader({
       type="button"
       aria-expanded={isExpanded}
       onClick={onToggle}
-      className="flex min-h-11 w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left transition-colors hover:border-ink/10 hover:bg-ink/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+      className="flex min-h-11 w-full items-center gap-2.5 rounded-xl border border-ink/10 bg-ink/[0.03] px-3.5 py-2.5 text-left transition-colors hover:border-ink/20 hover:bg-ink/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
     >
       {isExpanded ? (
         <ChevronDown className="h-4 w-4 text-fg-50" />

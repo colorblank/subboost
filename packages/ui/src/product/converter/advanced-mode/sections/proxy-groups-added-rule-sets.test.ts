@@ -239,7 +239,7 @@ function findEditingDeleteButton() {
   return mocks.captures.buttons.find(
     (props: any) =>
       props.title === "删除规则集" &&
-      String(props.className).includes("h-7 w-7"),
+      String(props.className).includes("h-8 w-7"),
   );
 }
 

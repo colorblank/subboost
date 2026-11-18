@@ -62,7 +62,7 @@ function isNavItemActive(pathname: string, href: string): boolean {
 
 function BrandBadge({ badge, tone = "default" }: { badge: HeaderBrandBadge; tone?: "default" | "new" }) {
   const className = cn(
-    "inline-flex w-fit items-center rounded-full border px-1.5 py-[2px] text-[0.68rem] font-medium leading-none backdrop-blur-sm",
+    "inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-xs font-medium leading-none backdrop-blur-sm",
     tone === "new"
       ? "border-emerald-300/30 bg-emerald-400/12 text-badge-new-fg shadow-[0_0_12px_rgba(52,211,153,0.16)]"
       : "border-sky-300/25 bg-sky-400/10 text-badge-mode-fg shadow-[0_0_12px_rgba(56,189,248,0.16)]"
@@ -131,11 +131,11 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-header border-b border-ink/5">
-      <div className="w-full max-w-[clamp(1200px,95vw,2400px)] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="flex items-center justify-between h-16">
+      <div className="page-container">
+        <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <Link href="/" className="group flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
+            <Link href="/" className="group flex items-center gap-2.5">
               <Image
                 src="/logo.png"
                 alt="SubBoost"
@@ -143,11 +143,11 @@ export function Header({
                 height={36}
                 className="rounded-xl shadow-lg shadow-blue-500/25 transition-shadow group-hover:shadow-blue-500/40"
               />
-              <span className="hidden text-xl font-bold leading-none bg-gradient-to-r from-heading-from to-heading-to bg-clip-text text-transparent sm:inline-flex">
+              <span className="hidden text-lg font-bold tracking-tight leading-none bg-gradient-to-r from-heading-from to-heading-to bg-clip-text text-transparent sm:inline-flex">
                 SubBoost
               </span>
             </Link>
-            <span className="hidden flex-col items-start justify-center gap-1 leading-none sm:flex">
+            <span className="hidden items-center gap-1.5 leading-none sm:flex">
               {extraBrandBadge && <BrandBadge badge={extraBrandBadge} tone="new" />}
               <BrandBadge badge={modeBadge} />
             </span>

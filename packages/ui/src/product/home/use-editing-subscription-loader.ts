@@ -272,8 +272,8 @@ export function useEditingSubscriptionLoader({
             if (ids.length !== normalized.length) return null;
             const allNumeric = ids.every((id) => /^\d+$/.test(id));
             return allNumeric
-              ? [...ids].sort((a, b) => Number(a) - Number(b))
-              : [...ids].sort((a, b) => a.localeCompare(b));
+              ? ids.toSorted((a, b) => Number(a) - Number(b))
+              : ids.toSorted((a, b) => a.localeCompare(b));
           })();
 
           const now = Date.now();

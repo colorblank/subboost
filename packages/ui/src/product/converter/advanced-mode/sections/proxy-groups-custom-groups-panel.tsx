@@ -499,7 +499,7 @@ export function ProxyGroupsCustomGroupsPanel({
                 }
                 rulesContentOverride={
                   totalRules === 0 ? (
-                    <p className="px-2 py-3 text-center text-[11px] text-fg-40">
+                    <p className="px-2 py-3 text-center text-xs text-fg-45">
                       还没有规则集。可在“搜索规则库”中选择规则后添加到该分组。
                     </p>
                   ) : (

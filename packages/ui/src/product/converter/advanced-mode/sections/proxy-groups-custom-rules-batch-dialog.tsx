@@ -188,8 +188,8 @@ export function ProxyGroupsCustomRulesBatchDialog({
         <DialogBody className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
-              <div className="text-xs text-fg-60">规则行</div>
-              <div className="text-[10px] text-fg-40">
+              <div className="text-xs font-medium text-fg-70">规则行</div>
+              <div className="text-xs tabular-nums text-fg-45">
                 可导入 {hasInput ? importPlan.readyCount : 0}
                 {hasInput && importPlan.errorCount > 0
                   ? ` · 错误 ${importPlan.errorCount}`
@@ -214,7 +214,7 @@ export function ProxyGroupsCustomRulesBatchDialog({
               ].join("\n")}
               className="min-h-[180px] resize-y font-mono text-xs"
             />
-            <div className="text-[10px] leading-4 text-fg-40">
+            <div className="text-xs leading-relaxed text-fg-45">
               每行一条；缺少目标时使用当前目标，纯值行使用当前类型、目标和 no-resolve 设置。
               正则与逻辑规则有目标时放在最后一列；no-resolve 仅对目标 IP 规则及规则集生效。
               {'正则含歧义的字面逗号时，类型和值分别用双引号包裹，如："DOMAIN-REGEX","^local,subboost$"；只写这两列会使用当前目标。'}
@@ -228,16 +228,16 @@ export function ProxyGroupsCustomRulesBatchDialog({
             </div>
           )}
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <div className="text-xs text-fg-60">预览</div>
-              <div className="text-[10px] text-fg-40">
+              <div className="text-xs font-medium text-fg-70">预览</div>
+              <div className="text-xs tabular-nums text-fg-45">
                 {hasInput ? `${visibleItems.length} 行` : "等待输入"}
               </div>
             </div>
 
             {visibleItems.length === 0 ? (
-              <div className="rounded-lg border border-ink/10 bg-ink/[0.03] px-3 py-3 text-[10px] text-fg-40">
+              <div className="rounded-lg border border-ink/10 bg-ink/[0.03] px-3 py-3 text-xs text-fg-45">
                 {hasInput ? "暂无可预览的规则行" : "粘贴规则后会在这里预览。"}
               </div>
             ) : (
@@ -245,7 +245,7 @@ export function ProxyGroupsCustomRulesBatchDialog({
                 {visibleItems.map((item) => (
                   <div
                     key={`${item.lineNumber}:${item.raw}`}
-                    className={`rounded-md border px-2 py-1.5 text-[11px] ${getStatusClass(item)}`}
+                    className={`rounded-lg border px-2.5 py-1.5 text-xs ${getStatusClass(item)}`}
                   >
                     <div className="mb-1 flex items-center justify-between gap-3">
                       <span className="text-fg-40">第 {item.lineNumber} 行</span>

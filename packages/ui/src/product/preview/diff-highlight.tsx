@@ -81,7 +81,7 @@ export function YamlHighlight({ content, className }: { content: string; classNa
   return (
     <div className={cn("overflow-auto", className)}>
       {renderStats.shouldUsePlain && (
-        <div className="mb-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-200">
+        <div className="m-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
           <div className="flex items-center justify-between gap-2">
             <span>
               YAML 内容较大，已切换纯文本模式以避免卡顿
@@ -94,7 +94,7 @@ export function YamlHighlight({ content, className }: { content: string; classNa
                 variant="outline"
                 size="sm"
                 onClick={() => setForceHighlight(false)}
-                className="h-auto rounded border-amber-300/40 px-2 py-0.5 text-[10px] text-amber-100 hover:bg-amber-300/10"
+                className="h-7 shrink-0 rounded-md border-amber-300/40 px-2.5 text-xs text-amber-100 hover:bg-amber-300/10"
               >
                 恢复纯文本
               </Button>
@@ -104,7 +104,7 @@ export function YamlHighlight({ content, className }: { content: string; classNa
                 variant="outline"
                 size="sm"
                 onClick={() => setForceHighlight(true)}
-                className="h-auto rounded border-amber-300/40 px-2 py-0.5 text-[10px] text-amber-100 hover:bg-amber-300/10"
+                className="h-7 shrink-0 rounded-md border-amber-300/40 px-2.5 text-xs text-amber-100 hover:bg-amber-300/10"
               >
                 强制语法高亮
               </Button>

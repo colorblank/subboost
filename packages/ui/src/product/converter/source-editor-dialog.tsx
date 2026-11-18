@@ -259,7 +259,7 @@ export function SourceEditorDialog({
         </FormField>
       </div>
 
-      <p className="text-[11px] text-fg-40">
+      <p className="text-xs text-fg-45">
         可用占位符：{"{tag}"}、{"{name}"}；留空则默认：{DEFAULT_NODE_NAME_TEMPLATE}
       </p>
     </>
@@ -325,7 +325,7 @@ export function SourceEditorDialog({
                               <li>节点命名模板与 tag 在该模式下不生效</li>
                             </ul>
                           </div>
-                          <p className="border-t border-ink/10 pt-2 text-[10px] text-fg-40">
+                          <p className="border-t border-ink/10 pt-2 text-xs text-fg-45">
                             若导入 url 报“未解析到有效节点/获取失败”等，可尝试开启此模式。
                           </p>
                         </div>
@@ -356,7 +356,7 @@ export function SourceEditorDialog({
                       />
                     </FormField>
                   </div>
-                  <p className="text-[11px] text-fg-40">
+                  <p className="text-xs leading-relaxed text-fg-45">
                     有些订阅源不会直接返回 <span className="font-mono">subscription-userinfo</span>，但会提供独立的流量接口。
                     设置后，SubBoost 会在导入/刷新时额外抓取该接口，用来更新这个源自己的流量与到期快照。
                   </p>

@@ -135,7 +135,7 @@ export function HomeLayout({
     : null;
 
   return (
-    <div className="w-full max-w-[clamp(1200px,95vw,2400px)] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-3 lg:py-5 [@media(max-height:1000px)]:py-3 min-h-[calc(100vh-64px)] flex flex-col">
+    <div className="page-container py-4 lg:py-6 min-h-[calc(100vh-64px)] flex flex-col">
       {renderAnnouncement?.({
         placement: configTab === "advanced" ? "advanced" : "home",
         authChecked,
@@ -143,13 +143,13 @@ export function HomeLayout({
       })}
 
       {/* Hero */}
-      <div className="text-center mb-2 lg:mb-3 [@media(max-height:1000px)]:mb-1.5">
-        <h1 className="font-bold leading-[1.08] mb-1 text-[clamp(1.25rem,2vw,2rem)] [@media(max-height:1000px)]:text-[clamp(1.25rem,1.7vw,1.75rem)]">
+      <div className="mb-4 text-center lg:mb-5">
+        <h1 className="text-2xl font-bold tracking-tight leading-tight sm:text-3xl">
           <span className="bg-gradient-to-r from-heading-from via-heading-from to-heading-to bg-clip-text text-transparent">
             SubBoost
           </span>
         </h1>
-        <p className="text-fg-50 max-w-2xl mx-auto leading-snug text-[clamp(0.75rem,1vw,0.95rem)] [@media(max-height:1000px)]:text-[0.875rem]">
+        <p className="mx-auto mt-1.5 max-w-2xl text-sm leading-relaxed text-fg-50">
           导入订阅或节点，选择分流配置，再导出 Clash YAML 或保存订阅链接
         </p>
       </div>
@@ -171,20 +171,20 @@ export function HomeLayout({
             onValueChange={handleConfigTabChange}
             className={`flex flex-col lg:flex-1 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}
           >
-            <Card className={`w-full flex flex-col overflow-visible lg:flex-1 lg:overflow-hidden ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
-              <CardHeader className="pb-3 flex-shrink-0">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <CardTitle className="text-base lg:text-lg flex flex-wrap items-center gap-2 min-w-0">
-                    <Settings2 className="h-5 w-5 text-indigo-400" />
+            <Card className={`w-full flex flex-col overflow-visible lg:flex-1 lg:overflow-hidden p-4 sm:p-5 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
+              <CardHeader className="pb-3.5 flex-shrink-0 space-y-0">
+                <div className="flex flex-col gap-3 sm:min-h-10 sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="text-base sm:text-lg flex flex-wrap items-center gap-2 min-w-0">
+                    <Settings2 className="h-5 w-5 shrink-0 text-indigo-400" />
                     <span className="shrink-0">导入与配置</span>
                     {isLoadingEditingSubscription && editSubscriptionId && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[10px] text-indigo-100/90">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-0.5 text-xs font-medium text-indigo-100/90">
                         <Loader2 className="h-3 w-3 animate-spin" />
                         加载订阅中...
                       </span>
                     )}
                     {editingSubscription && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[10px] text-indigo-100/90 min-w-0">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-0.5 text-xs font-medium text-indigo-100/90 min-w-0">
                         <span className="shrink-0">编辑中</span>
                         <span className="max-w-[10rem] sm:max-w-[16rem] truncate">
                           {editingSubscription.name}
@@ -192,12 +192,12 @@ export function HomeLayout({
                       </span>
                     )}
                   </CardTitle>
-                  <TabsList className={cn(artisticTabsListClassName, "self-start max-w-full")}>
-                    <TabsTrigger value="quick" className={cn(artisticTabsTriggerClassName, "min-w-0 sm:min-w-[7rem]")}>
+                  <TabsList className={cn(artisticTabsListClassName, "self-start sm:self-center max-w-full")}>
+                    <TabsTrigger value="quick" className={cn(artisticTabsTriggerClassName, "min-w-0 sm:min-w-[6.5rem]")}>
                       <Zap className={artisticTabsIconClassName} />
                       快捷模式
                     </TabsTrigger>
-                    <TabsTrigger value="advanced" className={cn(artisticTabsTriggerClassName, "min-w-0 sm:min-w-[7rem]")}>
+                    <TabsTrigger value="advanced" className={cn(artisticTabsTriggerClassName, "min-w-0 sm:min-w-[6.5rem]")}>
                       <Settings2 className={artisticTabsIconClassName} />
                       高级模式
                     </TabsTrigger>
@@ -218,16 +218,16 @@ export function HomeLayout({
                   <AdvancedMode />
                 </TabsContent>
               </CardContent>
-              <CardFooter className="justify-center gap-2 flex-shrink-0 pt-3 flex-row flex-wrap [&>button]:flex-1 sm:[&>button]:flex-none">
-                <Button className="h-11 sm:h-10" onClick={() => handleGenerate(configTab)} disabled={configLoading || !hasValidSources}>
+              <CardFooter className="mt-3 justify-center gap-2.5 flex-shrink-0 border-t border-ink/10 pt-4 flex-row flex-wrap [&>button]:flex-1 sm:[&>button]:flex-none">
+                <Button className="h-10" onClick={() => handleGenerate(configTab)} disabled={configLoading || !hasValidSources}>
                   {configLoading ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       处理中...
                     </>
                   ) : (
                     <>
-                      <Zap className="h-4 w-4 mr-2" />
+                      <Zap className="h-4 w-4" />
                       生成配置
                     </>
                   )}
@@ -235,9 +235,9 @@ export function HomeLayout({
                 {templateUpload && (
                   <Button
                     asChild
-                      variant="outline"
-                      className="h-10 gap-2"
-                      onClick={templateUpload.onOpen}
+                    variant="outline"
+                    className="h-10"
+                    onClick={templateUpload.onOpen}
                   >
                     <Link href={templateUpload.href}>
                       <Upload className="h-4 w-4" />
@@ -258,18 +258,18 @@ export function HomeLayout({
           } flex flex-col gap-3 min-h-0 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}
         >
           <Tabs defaultValue="visual" className={`w-full flex flex-col lg:flex-1 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
-            <Card className={`w-full flex flex-col lg:flex-1 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
-              <CardHeader className="pb-3 flex-shrink-0">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <CardTitle className="text-base lg:text-lg flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-indigo-400" />
-                    3 · 预览与导出
+            <Card className={`w-full flex flex-col lg:flex-1 p-4 sm:p-5 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
+              <CardHeader className="pb-3.5 flex-shrink-0 space-y-0">
+                <div className="flex flex-col gap-3 sm:min-h-10 sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Eye className="h-5 w-5 shrink-0 text-indigo-400" />
+                    <span>预览与导出</span>
                   </CardTitle>
-                  <TabsList className="h-8">
-                    <TabsTrigger value="yaml" className="text-xs px-3 h-6">
+                  <TabsList className={cn(artisticTabsListClassName, "self-start sm:self-center max-w-full")}>
+                    <TabsTrigger value="yaml" className={cn(artisticTabsTriggerClassName, "min-w-0 sm:min-w-[5.5rem]")}>
                       YAML
                     </TabsTrigger>
-                    <TabsTrigger value="visual" className="text-xs px-3 h-6">
+                    <TabsTrigger value="visual" className={cn(artisticTabsTriggerClassName, "min-w-0 sm:min-w-[5.5rem]")}>
                       可视化
                     </TabsTrigger>
                   </TabsList>
@@ -310,23 +310,23 @@ export function HomeLayout({
                   </div>
                 </TabsContent>
               </CardContent>
-              <CardFooter className="justify-center gap-2 flex-shrink-0 pt-3 flex-row flex-wrap [&>button]:flex-1 sm:[&>button]:flex-none">
+              <CardFooter className="mt-3 justify-center gap-2.5 flex-shrink-0 border-t border-ink/10 pt-4 flex-row flex-wrap [&>button]:flex-1 sm:[&>button]:flex-none">
                 <Button
-                  className="h-11 sm:h-10"
+                  className="h-10"
                   disabled={!generatedYaml || Boolean(generatedYamlError)}
                   onClick={() => handleDownload(configTab)}
                 >
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   下载配置
                 </Button>
                 <Button
-                  className="h-11 sm:h-10"
+                  className="h-10"
                   variant="outline"
                   disabled={!generatedYaml || Boolean(generatedYamlError) || !authChecked}
                   onClick={() => subscription.handleGenerateSubscription(configTab)}
                 >
                   {user && subscription.isEditingExistingSubscription ? "保存订阅" : "生成订阅链接"}
-                  <ExternalLink className="ml-2 h-4 w-4" />
+                  <ExternalLink className="h-4 w-4" />
                 </Button>
                 {subscription.isEditingExistingSubscription && (
                   <Button
@@ -348,9 +348,11 @@ export function HomeLayout({
         {/* Right Column - AI (施工中占位) */}
         {showAiColumn && (
           <div id="ai" className={`lg:col-span-4 xl:col-span-4 flex flex-col gap-3 min-h-0 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
-            <Card className={`w-full flex-1 flex flex-col overflow-hidden min-h-0 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
-              <CardHeader className="pb-3 flex-shrink-0">
-                <CardTitle className="text-base lg:text-lg text-fg">AI 助手</CardTitle>
+            <Card className={`w-full flex-1 flex flex-col overflow-hidden min-h-0 p-4 sm:p-5 ${DESKTOP_PANEL_MIN_HEIGHT_CLASS}`}>
+              <CardHeader className="pb-3.5 flex-shrink-0 space-y-0">
+                <div className="flex sm:min-h-10 items-center">
+                  <CardTitle className="text-base sm:text-lg text-fg">AI 助手</CardTitle>
+                </div>
               </CardHeader>
               <CardContent className={`flex-1 min-h-0 flex items-center justify-center ${DESKTOP_PANEL_CONTENT_MIN_HEIGHT_CLASS}`}>
                 <p className="text-sm text-fg-60">AI 助手施工中</p>

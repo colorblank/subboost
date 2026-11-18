@@ -96,11 +96,11 @@ export function SubscriptionLinkDialog({
               />
             </FormField>
 
-            <div className="rounded-lg border border-ink/10 bg-ink/5 p-3">
+            <div className="rounded-xl border border-ink/10 bg-ink/5 p-3.5 space-y-3">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-fg-80">更新时智能匹配节点</p>
+                    <p className="text-sm font-medium text-fg-80">更新时智能匹配节点</p>
                     <SmartNodeMatchingHelp enabled={smartNodeMatchingEnabled} />
                   </div>
                 </div>
@@ -111,11 +111,12 @@ export function SubscriptionLinkDialog({
                 />
               </div>
 
-              <div className="my-3 border-t border-ink/10" />
+              <div className="border-t border-ink/10" />
 
               <SwitchField
                 label="启用自动更新"
                 description="开启后服务器会按设定间隔刷新缓存"
+                appearance="plain"
                 checked={autoUpdateEnabled}
                 onCheckedChange={setAutoUpdateEnabled}
               />
@@ -124,7 +125,7 @@ export function SubscriptionLinkDialog({
                 <FormField
                   label="自动更新间隔（小时）"
                   description={`最小 ${minAutoUpdateLabel}，按创建时间计时`}
-                  className="mt-4"
+                  className="pt-1"
                 >
                   <Input
                     type="number"
@@ -198,9 +199,9 @@ export function SubscriptionLinkDialog({
                 disabled={!subscriptionName.trim() || isCreatingSubscription}
               >
                 {isCreatingSubscription ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <LinkIcon className="h-4 w-4 mr-2" />
+                  <LinkIcon className="h-4 w-4" />
                 )}
                 {isEditingExistingSubscription ? "保存更新" : "生成链接"}
               </Button>

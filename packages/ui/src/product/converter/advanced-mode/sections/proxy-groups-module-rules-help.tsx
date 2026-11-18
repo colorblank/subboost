@@ -49,7 +49,7 @@ export function CnIpNoResolveHelpButton() {
               <div>开启：不会发生DNS泄露，但部分国内站点无法正确分流</div>
               <div>关闭：大多数国内站点可以正确分流，但会发生DNS泄露</div>
             </div>
-            <div className="pt-2 border-t border-ink/10 text-[10px] text-fg-40">
+            <div className="pt-2 border-t border-ink/10 text-xs text-fg-45">
               该开关仅影响“国内服务”的 GeoIP（cn-ip）规则，不影响其它代理组。
             </div>
           </div>

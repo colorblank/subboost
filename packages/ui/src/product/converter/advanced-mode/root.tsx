@@ -25,7 +25,7 @@ export function AdvancedMode() {
   };
 
   return (
-    <div className="flex flex-col gap-2 pb-2">
+    <div className="flex flex-col gap-2.5 pb-2">
       <InputSection isExpanded={expandedSections.has("input")} onToggle={() => toggleSection("input")} />
       <NodeManagementSection
         isExpanded={expandedSections.has("filter")}

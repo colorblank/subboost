@@ -490,39 +490,39 @@ export function VisualGraph() {
   }
 
   return (
-    <div ref={containerRef} className="h-full overflow-auto p-4 space-y-3">
+    <div ref={containerRef} className="h-full overflow-auto p-4 space-y-4 custom-scrollbar">
       {/* 图例 */}
-      <div className="flex flex-wrap gap-2 pb-3 border-b border-ink/10">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pb-3 border-b border-ink/10">
         {legendItems.map((item) => (
           <div
             key={item.id}
-            className="flex items-center gap-1.5 text-[10px] text-fg-60"
+            className="flex items-center gap-1.5 text-xs text-fg-60"
           >
-            <div className={cn("w-2.5 h-2.5 rounded", item.dotClass)} />
+            <div className={cn("w-2.5 h-2.5 shrink-0 rounded-sm", item.dotClass)} />
             <span>{item.label}</span>
           </div>
         ))}
       </div>
 
       {/* 统计信息 */}
-      <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-lg bg-ink/5 p-2">
-          <div className="text-lg font-bold text-preview-node-count-fg">
+      <div className="grid grid-cols-3 gap-2.5 text-center">
+        <div className="rounded-xl border border-ink/10 bg-ink/5 px-3 py-2.5">
+          <div className="text-lg font-bold tabular-nums text-preview-node-count-fg">
             {effectiveNodes.length}
           </div>
-          <div className="text-[10px] text-fg-50">节点</div>
+          <div className="mt-0.5 text-xs text-fg-50">节点</div>
         </div>
-        <div className="rounded-lg bg-ink/5 p-2">
-          <div className="text-lg font-bold text-preview-group-count-fg">
+        <div className="rounded-xl border border-ink/10 bg-ink/5 px-3 py-2.5">
+          <div className="text-lg font-bold tabular-nums text-preview-group-count-fg">
             {displayGroups.length}
           </div>
-          <div className="text-[10px] text-fg-50">代理组</div>
+          <div className="mt-0.5 text-xs text-fg-50">代理组</div>
         </div>
-        <div className="rounded-lg bg-ink/5 p-2">
-          <div className="text-lg font-bold text-purple-500">
+        <div className="rounded-xl border border-ink/10 bg-ink/5 px-3 py-2.5">
+          <div className="text-lg font-bold tabular-nums text-purple-500">
             {displayGroups.reduce((acc, g) => acc + g.rules.length, 0) + ungroupedBuiltinRuleSets.length + ungroupedCustomRuleSetCount}
           </div>
-          <div className="text-[10px] text-fg-50">规则集</div>
+          <div className="mt-0.5 text-xs text-fg-50">规则集</div>
         </div>
       </div>
 
@@ -542,20 +542,20 @@ export function VisualGraph() {
       {/* 节点列表预览 */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs font-medium text-fg-60">
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5">
             <Server className="h-3.5 w-3.5" />
             节点列表
           </span>
-          <span className="text-[10px] text-fg-50">
+          <span className="text-xs tabular-nums text-fg-50">
             共 {effectiveNodes.length} 个
           </span>
         </div>
 
-        <div className="max-h-48 overflow-y-auto space-y-1 rounded-lg bg-ink/5 p-2">
+        <div className="max-h-52 overflow-y-auto space-y-1 rounded-xl border border-ink/10 bg-ink/5 p-2 custom-scrollbar">
           {effectiveNodes.slice(0, 50).map((node, idx) => (
             <div
               key={node.name + idx}
-              className="flex items-center gap-2 rounded-md px-2 py-1 text-[10px] hover:bg-ink/5"
+              className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs hover:bg-ink/5"
             >
               <div
                 className={cn(
@@ -587,7 +587,7 @@ export function VisualGraph() {
             </div>
           ))}
           {effectiveNodes.length > 50 && (
-            <div className="text-center text-[10px] text-fg-50 py-1">
+            <div className="text-center text-xs text-fg-50 py-1.5">
               ... 还有 {effectiveNodes.length - 50} 个节点
             </div>
           )}

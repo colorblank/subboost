@@ -60,7 +60,7 @@ export function InputSection({
       />
 
       {isExpanded && (
-        <div className="mt-3 space-y-3">
+        <div className="mt-2.5 space-y-3">
           {sources.map((source, index) => {
             const typeInfo = sourceTypeInfo[source.type];
             const sourceDisplayLabel = buildSourceDisplayLabel({

@@ -86,30 +86,30 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="page-container py-6 sm:py-8">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold mb-1">账户设置</h1>
-          <p className="text-fg-50">浏览器独立空间、订阅源安全和运行端点</p>
+          <h1 className="text-xl font-bold tracking-tight text-fg sm:text-2xl">账户设置</h1>
+          <p className="mt-1 text-sm text-fg-50">浏览器独立空间、订阅源安全和运行端点</p>
         </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-            <div className="rounded-lg bg-indigo-500/20 p-2 text-indigo-300">
+        <Card className="p-5 sm:p-6">
+          <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
               <ShieldCheck className="h-5 w-5" />
             </div>
-            <CardTitle className="text-base">{user?.isGuest ? "游客工作空间" : "本地管理员"}</CardTitle>
+            <CardTitle className="text-base sm:text-lg">{user?.isGuest ? "游客工作空间" : "本地管理员"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <p className="text-xs text-fg-40">用户名</p>
-              <p className="mt-1 font-medium">{user?.username || "正在连接工作空间…"}</p>
+              <p className="text-xs text-fg-45">用户名</p>
+              <p className="mt-1 text-sm font-medium text-fg">{user?.username || "正在连接工作空间…"}</p>
             </div>
             <div>
-              <p className="text-xs text-fg-40">已保存订阅</p>
-              <p className="mt-1 font-medium">{user ? `${user.subscriptionCount} / ${user.quota.maxSubscriptions}` : "-"}</p>
+              <p className="text-xs text-fg-45">已保存订阅</p>
+              <p className="mt-1 text-sm font-medium tabular-nums text-fg">{user ? `${user.subscriptionCount} / ${user.quota.maxSubscriptions}` : "-"}</p>
             </div>
             {user?.isGuest ? (
               <div className="space-y-3">
@@ -117,7 +117,7 @@ export default function SettingsPage() {
                 <Button asChild variant="outline"><Link href="/login">管理员登录（可选）</Link></Button>
               </div>
             ) : (
-              <Button variant="destructive" className="gap-2" onClick={() => void handleLogout()} disabled={!user}>
+              <Button variant="destructive" onClick={() => void handleLogout()} disabled={!user}>
                 <LogOut className="h-4 w-4" />
                 退出登录
               </Button>
@@ -125,12 +125,12 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-            <div className="rounded-lg bg-emerald-500/20 p-2 text-emerald-300">
+        <Card className="p-5 sm:p-6">
+          <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300">
               <Network className="h-5 w-5" />
             </div>
-            <CardTitle className="text-base">订阅源安全</CardTitle>
+            <CardTitle className="text-base sm:text-lg">订阅源安全</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <SwitchField
@@ -144,21 +144,21 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-            <div className="rounded-lg bg-sky-500/20 p-2 text-sky-300">
+        <Card className="p-5 sm:p-6">
+          <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500/20 text-sky-300">
               <ServerCog className="h-5 w-5" />
             </div>
-            <CardTitle className="text-base">运行端点</CardTitle>
+            <CardTitle className="text-base sm:text-lg">运行端点</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-fg-60">
             <div>
-              <p className="text-xs text-fg-40">存活检查</p>
-              <code className="mt-1 block rounded-md bg-ink/5 px-3 py-2 text-fg-70">/api/health/live</code>
+              <p className="text-xs text-fg-45">存活检查</p>
+              <code className="mt-1 block rounded-lg border border-ink/10 bg-ink/5 px-3 py-2 font-mono text-xs text-fg-70">/api/health/live</code>
             </div>
             <div>
-              <p className="text-xs text-fg-40">就绪检查</p>
-              <code className="mt-1 block rounded-md bg-ink/5 px-3 py-2 text-fg-70">/api/health/ready</code>
+              <p className="text-xs text-fg-45">就绪检查</p>
+              <code className="mt-1 block rounded-lg border border-ink/10 bg-ink/5 px-3 py-2 font-mono text-xs text-fg-70">/api/health/ready</code>
             </div>
           </CardContent>
         </Card>

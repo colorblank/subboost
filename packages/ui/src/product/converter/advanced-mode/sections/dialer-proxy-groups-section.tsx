@@ -217,7 +217,7 @@ export function DialerProxyGroupsSection({
       />
 
       {isExpanded && (
-        <div className="mt-2 space-y-3 pl-6">
+        <div className="mt-2.5 space-y-3">
           {/* 已有的中转组 */}
           {dialerProxyGroups.map((group) => {
             const isEnabled = group.enabled !== false;
@@ -299,6 +299,7 @@ export function DialerProxyGroupsSection({
                     onChange={setEditingDialerGroupDraft}
                     namePlaceholder="中转组名称"
                     onKeyDown={(e) => {
+                      if (e.nativeEvent?.isComposing) return;
                       if (e.key === "Enter") commitRename();
                       if (e.key === "Escape") cancelRename();
                     }}
@@ -462,10 +463,10 @@ export function DialerProxyGroupsSection({
                 <div className="px-3 pb-3 space-y-3 border-t border-ink/10">
                   {/* 中转节点选择 */}
                   <div className="mt-3">
-                    <div className="mb-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-xs text-fg-50">中转节点（流量入口）</p>
+                    <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs font-medium text-fg-60">中转节点（流量入口）</p>
                       <div className="relative w-full sm:max-w-[220px]">
-                        <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fg-30" />
+                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fg-40" />
                         <Input
                           value={relaySearchByGroupId[group.id] ?? ""}
                           onChange={(e) =>
@@ -473,7 +474,7 @@ export function DialerProxyGroupsSection({
                           }
                           placeholder="搜索中转节点..."
                           disabled={availableRelayNodes.length === 0}
-                          className="h-7 bg-ink/5 pl-7 text-xs border-ink/10"
+                          className="h-8 rounded-lg bg-ink/5 pl-8 text-xs border-ink/10"
                           onClick={(e) => e.stopPropagation()}
                         />
                       </div>
@@ -488,7 +489,7 @@ export function DialerProxyGroupsSection({
                             aria-pressed={isSelected}
                             key={node.name}
                             className={cn(
-                              "flex items-center gap-2 px-2 py-1 rounded text-xs cursor-pointer transition-colors",
+                              "flex items-center gap-2 px-2 py-1.5 rounded-md text-xs cursor-pointer transition-colors",
                               isSelected
                                 ? "bg-indigo-500/20 text-indigo-400"
                                 : "hover:bg-ink/5 text-fg-70"
@@ -503,13 +504,13 @@ export function DialerProxyGroupsSection({
                           >
                             <div
                               className={cn(
-                                "h-3 w-3 rounded border flex items-center justify-center",
+                                "h-3.5 w-3.5 shrink-0 rounded border flex items-center justify-center",
                                 isSelected ? "bg-indigo-500 border-indigo-500" : "border-ink/30"
                               )}
                             >
-                              {isSelected && <Check className="h-2 w-2 text-white" />}
+                              {isSelected && <Check className="h-2.5 w-2.5 text-white" />}
                             </div>
-                            <Badge variant="outline" className="text-[10px] px-1 py-0">
+                            <Badge variant="outline" className="text-xs px-1.5 py-0">
                               {node.type}
                             </Badge>
                             <span className="truncate">{displayName}</span>
@@ -517,19 +518,19 @@ export function DialerProxyGroupsSection({
                         );
                       })}
                       {availableRelayNodes.length === 0 ? (
-                        <p className="text-xs text-fg-30 text-center py-2">无可用节点</p>
+                        <p className="text-xs text-fg-40 text-center py-2">无可用节点</p>
                       ) : relaySearchKeyword && visibleRelayNodes.length === 0 ? (
-                        <p className="text-xs text-fg-30 text-center py-2">未找到匹配节点</p>
+                        <p className="text-xs text-fg-40 text-center py-2">未找到匹配节点</p>
                       ) : null}
                     </div>
                   </div>
 
                   {/* 目标节点选择 */}
                   <div>
-                    <div className="mb-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-xs text-fg-50">落地节点（流量出口）</p>
+                    <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs font-medium text-fg-60">落地节点（流量出口）</p>
                       <div className="relative w-full sm:max-w-[220px]">
-                        <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fg-30" />
+                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fg-40" />
                         <Input
                           value={targetSearchByGroupId[group.id] ?? ""}
                           onChange={(e) =>
@@ -537,7 +538,7 @@ export function DialerProxyGroupsSection({
                           }
                           placeholder="搜索落地节点..."
                           disabled={availableTargetNodes.length === 0}
-                          className="h-7 bg-ink/5 pl-7 text-xs border-ink/10"
+                          className="h-8 rounded-lg bg-ink/5 pl-8 text-xs border-ink/10"
                           onClick={(e) => e.stopPropagation()}
                         />
                       </div>
@@ -556,7 +557,7 @@ export function DialerProxyGroupsSection({
                               key={node.name}
                               disabled={usedByOther}
                               className={cn(
-                                "flex items-center gap-2 px-2 py-1 rounded text-xs transition-colors",
+                                "flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors",
                                 usedByOther ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
                                 isSelected
                                   ? "bg-green-500/20 text-green-400"
@@ -575,26 +576,26 @@ export function DialerProxyGroupsSection({
                             >
                               <div
                                 className={cn(
-                                  "h-3 w-3 rounded border flex items-center justify-center",
+                                  "h-3.5 w-3.5 shrink-0 rounded border flex items-center justify-center",
                                   isSelected ? "bg-green-500 border-green-500" : "border-ink/30"
                                 )}
                               >
-                                {isSelected && <Check className="h-2 w-2 text-white" />}
+                                {isSelected && <Check className="h-2.5 w-2.5 text-white" />}
                               </div>
-                              <Badge variant="outline" className="text-[10px] px-1 py-0">
+                              <Badge variant="outline" className="text-xs px-1.5 py-0">
                                 {node.type}
                               </Badge>
                               <span className="truncate">{node.name}</span>
                               {usedByOther && (
-                                <span className="text-[10px] text-fg-30 ml-auto">已被其他组使用</span>
+                                <span className="text-xs text-fg-40 ml-auto shrink-0">已被其他组使用</span>
                               )}
                             </button>
                           );
                         })}
                       {availableTargetNodes.length === 0 ? (
-                        <p className="text-xs text-fg-30 text-center py-2">请先选择中转节点</p>
+                        <p className="text-xs text-fg-40 text-center py-2">请先选择中转节点</p>
                       ) : targetSearchKeyword && visibleTargetNodes.length === 0 ? (
-                        <p className="text-xs text-fg-30 text-center py-2">未找到匹配节点</p>
+                        <p className="text-xs text-fg-40 text-center py-2">未找到匹配节点</p>
                       ) : null}
                     </div>
                   </div>
@@ -605,7 +606,7 @@ export function DialerProxyGroupsSection({
           })}
 
           {effectiveNodes.length === 0 && dialerProxyGroups.length === 0 && (
-            <p className="text-xs text-fg-30 text-center py-2">请先导入节点后配置中转代理组</p>
+            <p className="text-xs text-fg-45 text-center py-2">请先导入节点后配置中转代理组</p>
           )}
 
           {/* 添加中转组按钮 */}
@@ -614,7 +615,7 @@ export function DialerProxyGroupsSection({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 w-full border-dashed border-ink/20 text-xs text-fg-50 hover:border-ink/30 hover:text-fg-70"
+                className="h-10 w-full rounded-xl border-dashed border-ink/15 text-sm text-fg-60 hover:border-indigo-500/40 hover:bg-indigo-500/5 hover:text-fg"
               >
                 <Plus className="h-3.5 w-3.5" />
                 添加中转组
@@ -638,6 +639,7 @@ export function DialerProxyGroupsSection({
                       onChange={setCustomDialerDraft}
                       namePlaceholder="自定义名称"
                       onKeyDown={(e) => {
+                        if (e.nativeEvent?.isComposing) return;
                         const nextName = buildProxyGroupName(customDialerDraft);
                         if (e.key === "Enter" && nextName) {
                           handleAddDialerGroup(nextName);

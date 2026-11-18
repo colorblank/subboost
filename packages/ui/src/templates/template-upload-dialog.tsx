@@ -186,9 +186,9 @@ export function TemplateUploadDialog({
             disabled={!name.trim() || isUploading || (mode === "yaml" && !yamlContent.trim())}
           >
             {isUploading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload className="h-4 w-4" />
             )}
             上传
           </Button>

@@ -81,7 +81,7 @@ export function SubscriptionSettingsDialog({
         </DialogHeader>
 
         <DialogBody className="space-y-4 py-2">
-          <FormField label="订阅名称" className="grid-cols-[9rem_minmax(0,1fr)] items-center">
+          <FormField label="订阅名称">
             <Input
               value={settingsName}
               onChange={(e) => setSettingsName(e.target.value)}
@@ -91,31 +91,48 @@ export function SubscriptionSettingsDialog({
             />
           </FormField>
 
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-fg-70">更新时智能匹配节点</p>
-                <SmartNodeMatchingHelp enabled={smartNodeMatchingEnabled} />
+          <div className="rounded-xl border border-ink/10 bg-ink/5 p-3.5 space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-fg-80">更新时智能匹配节点</p>
+                  <SmartNodeMatchingHelp enabled={smartNodeMatchingEnabled} />
+                </div>
               </div>
+              <Switch
+                checked={smartNodeMatchingEnabled}
+                onCheckedChange={setSmartNodeMatchingEnabled}
+                aria-label="更新时智能匹配节点"
+                disabled={busy}
+              />
             </div>
-            <Switch
-              checked={smartNodeMatchingEnabled}
-              onCheckedChange={setSmartNodeMatchingEnabled}
-              aria-label="更新时智能匹配节点"
+
+            <div className="border-t border-ink/10" />
+
+            <SwitchField
+              label="启用自动更新"
+              appearance="plain"
+              checked={autoUpdateEnabled}
+              onCheckedChange={setAutoUpdateEnabled}
               disabled={busy}
             />
+
+            {autoUpdateEnabled && (
+              <FormField label="自动更新间隔（小时）" className="pt-1">
+                <Input
+                  type="number"
+                  min={policy.minHours}
+                  step={policy.stepHours}
+                  value={autoUpdateHours}
+                  onChange={(e) => setAutoUpdateHours(Number(e.target.value))}
+                  disabled={busy}
+                />
+              </FormField>
+            )}
           </div>
 
-          <SwitchField
-            label="启用自动更新"
-            appearance="plain"
-            checked={autoUpdateEnabled}
-            onCheckedChange={setAutoUpdateEnabled}
-            disabled={busy}
-          />
-
           {!autoUpdateEnabled && subscription?.autoUpdateState.disabledAt && subscription.autoUpdateState.disabledReason && (
-            <div className="rounded-md border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-100">
+            <div className="rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-xs leading-relaxed text-amber-100">
               {quotaDisabled
                 ? `自动更新已关闭：${buildQuotaDisabledRecoveryText(subscription.autoUpdateState)}`
                 : `自动更新已关闭：${subscription.autoUpdateState.disabledReason}。当前可用配置仍会保留；检查订阅 URL 后可重新开启自动更新。`}
@@ -123,22 +140,9 @@ export function SubscriptionSettingsDialog({
           )}
 
           {autoUpdateEnabled && quotaWarning && (
-            <div className="rounded-md border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-100">
+            <div className="rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-xs leading-relaxed text-amber-100">
               {quotaWarning}。当前可用配置仍会保留；恢复到额度内后，下一次成功更新会自动清除这条警告。
             </div>
-          )}
-
-          {autoUpdateEnabled && (
-            <FormField label="自动更新间隔（小时）" className="grid-cols-[9rem_minmax(0,1fr)] items-center">
-              <Input
-                type="number"
-                min={policy.minHours}
-                step={policy.stepHours}
-                value={autoUpdateHours}
-                onChange={(e) => setAutoUpdateHours(Number(e.target.value))}
-                disabled={busy}
-              />
-            </FormField>
           )}
         </DialogBody>
 

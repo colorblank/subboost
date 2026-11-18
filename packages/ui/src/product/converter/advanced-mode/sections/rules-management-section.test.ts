@@ -263,7 +263,7 @@ describe("RulesManagementSection", () => {
       defaultTree,
       (element) =>
         typeof element.props.className === "string" &&
-        element.props.className.includes("border-ink/10 bg-ink/5 px-3 py-1.5"),
+        element.props.className.includes("border-ink/10 bg-ink/5 px-3 py-2"),
     )[0];
     const row = collectElements(
       defaultTree,

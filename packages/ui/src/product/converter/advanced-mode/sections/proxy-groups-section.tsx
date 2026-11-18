@@ -35,7 +35,7 @@ export function ProxyGroupsSection({
       />
 
       {isExpanded && (
-        <div className="mt-2 space-y-2 pl-6">
+        <div className="mt-2.5 space-y-2.5">
           <ProxyGroupsCategories />
         </div>
       )}

@@ -101,29 +101,28 @@ export function LocalLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <Link href="/" className="inline-flex items-center gap-2">
-            <Image src="/logo.png" alt="SubBoost" width={64} height={64} className="rounded-2xl shadow-lg shadow-blue-500/25" />
+            <Image src="/logo.png" alt="SubBoost" width={56} height={56} className="rounded-2xl shadow-lg shadow-blue-500/25" />
           </Link>
-          <h1 className="text-2xl font-bold mt-4 text-fg">欢迎使用 SubBoost</h1>
-          <p className="text-fg-50 mt-2">{setupRequired ? "初始化本地管理员账号" : "管理员登录（可选）"}</p>
-          <Link href="/" className="mt-3 inline-block text-sm text-indigo-400 underline underline-offset-4">
+          <h1 className="text-xl font-bold tracking-tight mt-4 text-fg sm:text-2xl">欢迎使用 SubBoost</h1>
+          <p className="text-sm text-fg-50 mt-1.5">{setupRequired ? "初始化本地管理员账号" : "管理员登录（可选）"}</p>
+          <Link href="/" className="mt-2.5 inline-block text-sm text-indigo-400 underline underline-offset-4 hover:text-indigo-300 transition-colors">
             以游客身份继续，无需登录即可保存订阅和模板
           </Link>
         </div>
 
-        <div className="bg-ink/5 backdrop-blur-sm border border-ink/10 rounded-2xl p-6 space-y-4">
+        <div className="glass-card p-6 space-y-4">
           {auth ? (
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <FormField label="管理员账号">
                 <Input
-                autoComplete="username"
-                placeholder="管理员账号"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="h-12"
+                  autoComplete="username"
+                  placeholder="管理员账号"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </FormField>
               <PasswordField
@@ -133,7 +132,6 @@ export function LocalLogin() {
                 placeholder="密码"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-12"
               />
               {setupRequired && !setupToken ? (
                 <p className="text-amber-300/80 text-xs">
@@ -147,7 +145,6 @@ export function LocalLogin() {
                   placeholder="确认密码"
                   value={passwordConfirm}
                   onChange={(e) => setPasswordConfirm(e.target.value)}
-                  className="h-12"
                 />
               ) : null}
 
@@ -160,7 +157,7 @@ export function LocalLogin() {
               <Button
                 type="submit"
                 disabled={loading || !username || !password || (setupRequired && !passwordConfirm)}
-                className="h-12 w-full"
+                className="w-full"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 {setupRequired ? "创建管理员" : "登录"}

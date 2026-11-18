@@ -30,7 +30,7 @@ export function DnsSection({
         }
       />
       {isExpanded && (
-        <div className="mt-3">
+        <div className="mt-2.5">
           <Textarea
             value={dnsYaml}
             onChange={(e) => setDnsYaml(e.target.value)}

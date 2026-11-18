@@ -32,9 +32,9 @@ export function ProxyGroupMemberSectionHeader({
     : "text-fg-40 hover:bg-emerald-500/10 hover:text-emerald-200";
 
   return (
-    <div className="proxy-group-member-toolbar mb-2 flex min-h-6 min-w-0 flex-nowrap items-center gap-1 whitespace-nowrap">
+    <div className="proxy-group-member-toolbar mb-2 flex min-h-7 min-w-0 flex-nowrap items-center gap-1 whitespace-nowrap">
       <div
-        className="proxy-group-member-heading shrink-0 text-[11px] font-medium text-fg-50"
+        className="proxy-group-member-heading shrink-0 text-xs font-medium text-fg-55"
         title={included ? "已启用成员" : "未启用成员"}
       >
         <span className="proxy-group-member-heading-full">
@@ -50,7 +50,7 @@ export function ProxyGroupMemberSectionHeader({
             type="button"
             variant="ghost"
             size="sm"
-            className="proxy-group-member-action-button h-6 min-w-6 shrink-0 gap-0.5 px-1.5 text-[10px] text-fg-40 hover:bg-indigo-500/10 hover:text-indigo-200 disabled:pointer-events-none disabled:opacity-30"
+            className="proxy-group-member-action-button h-6 min-w-6 shrink-0 gap-0.5 px-1.5 text-xs text-fg-45 hover:bg-indigo-500/10 hover:text-indigo-200 disabled:pointer-events-none disabled:opacity-30"
             title="恢复默认成员"
             aria-label="恢复默认成员"
             disabled={restoreDisabled}
@@ -66,7 +66,7 @@ export function ProxyGroupMemberSectionHeader({
           variant="ghost"
           size="sm"
           className={cn(
-            "proxy-group-member-action-button h-6 min-w-6 shrink-0 gap-0.5 px-1.5 text-[10px] disabled:pointer-events-none disabled:opacity-30",
+            "proxy-group-member-action-button h-6 min-w-6 shrink-0 gap-0.5 px-1.5 text-xs disabled:pointer-events-none disabled:opacity-30",
             actionTone,
           )}
           title={`${verb}全部节点`}
@@ -84,7 +84,7 @@ export function ProxyGroupMemberSectionHeader({
           variant="ghost"
           size="sm"
           className={cn(
-            "proxy-group-member-action-button h-6 min-w-6 shrink-0 gap-0.5 px-1.5 text-[10px] disabled:pointer-events-none disabled:opacity-30",
+            "proxy-group-member-action-button h-6 min-w-6 shrink-0 gap-0.5 px-1.5 text-xs disabled:pointer-events-none disabled:opacity-30",
             actionTone,
           )}
           title={`${verb}全部代理组`}
@@ -100,14 +100,14 @@ export function ProxyGroupMemberSectionHeader({
         <Badge
           variant="outline"
           title={`${included ? "已启用" : "未启用"}节点：${nodeCount} 个`}
-          className="proxy-group-member-count h-5 shrink-0 whitespace-nowrap border-ink/10 bg-ink/5 px-1.5 text-[9px] leading-none text-fg-45"
+          className="proxy-group-member-count h-5 shrink-0 whitespace-nowrap border-ink/10 bg-ink/5 px-1.5 text-xs leading-none text-fg-45"
         >
           {nodeCount} 节点
         </Badge>
         <Badge
           variant="outline"
           title={`${included ? "已启用" : "未启用"}代理组：${proxyGroupCount} 个，不含 DIRECT 和 REJECT`}
-          className="proxy-group-member-count h-5 shrink-0 whitespace-nowrap border-ink/10 bg-ink/5 px-1.5 text-[9px] leading-none text-fg-45"
+          className="proxy-group-member-count h-5 shrink-0 whitespace-nowrap border-ink/10 bg-ink/5 px-1.5 text-xs leading-none text-fg-45"
         >
           {proxyGroupCount} 代理组
         </Badge>

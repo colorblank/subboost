@@ -91,13 +91,13 @@ export function ProxyGroupRuleRow({
 
         <div
           className={cn(
-            "min-w-0 break-all font-mono text-[10px]",
+            "min-w-0 break-all font-mono text-xs",
             isInactive
               ? cn(
                   "text-fg-30 line-through",
                   isMoved ? "decoration-orange-300/50" : "decoration-red-300/50",
                 )
-              : "text-fg-35",
+              : "text-fg-40",
           )}
           title={detailTitle || detail}
         >
@@ -237,7 +237,7 @@ export function ProxyGroupRuleMoveMenu({
           return (
             <React.Fragment key={kind}>
               {index > 0 && <DropdownMenuSeparator className="bg-ink/10" />}
-              <DropdownMenuLabel className="px-2 py-1 text-[10px] font-medium text-fg-45">
+              <DropdownMenuLabel className="px-2 py-1 text-xs font-medium text-fg-45">
                 {targetKindLabels[kind]}
               </DropdownMenuLabel>
               {groupTargets.length === 0 ? (
@@ -272,7 +272,7 @@ function RuleStateBadge({ state }: { state: Exclude<ProxyGroupRuleRowState, "act
     <Badge
       variant="outline"
       className={cn(
-        "px-1.5 py-0 text-[9px]",
+        "px-1.5 py-0 text-xs leading-4",
         isMoved
           ? "border-orange-500/50 bg-orange-500/10 text-orange-300"
           : "border-red-500/50 bg-red-500/10 text-red-300",
@@ -298,7 +298,7 @@ function RuleSourceBadge({ source }: { source: RuleSource }) {
   }[source];
 
   return (
-    <Badge variant="outline" className={cn("px-1.5 py-0 text-[9px]", className)}>
+    <Badge variant="outline" className={cn("px-1.5 py-0 text-xs leading-4", className)}>
       {label}
     </Badge>
   );
@@ -310,7 +310,7 @@ function RuleBehaviorBadge({ behavior }: { behavior: "domain" | "ipcidr" | "clas
 
 function RuleTextBadge({ children }: { children: React.ReactNode }) {
   return (
-    <Badge variant="outline" className="border-ink/10 bg-ink/5 px-1.5 py-0 text-[9px] text-fg-55">
+    <Badge variant="outline" className="border-ink/10 bg-ink/5 px-1.5 py-0 text-xs leading-4 text-fg-55">
       {children}
     </Badge>
   );
@@ -318,7 +318,7 @@ function RuleTextBadge({ children }: { children: React.ReactNode }) {
 
 function NoResolveBadge() {
   return (
-    <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 px-1.5 py-0 text-[9px] text-amber-200">
+    <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 px-1.5 py-0 text-xs leading-4 text-amber-200">
       no-resolve
     </Badge>
   );

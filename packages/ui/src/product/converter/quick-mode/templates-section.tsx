@@ -42,23 +42,23 @@ function TemplatePickerEntry({
   onOpen: () => void;
 }) {
   return (
-    <Card className="p-2.5 transition-all border-2 border-dashed border-ink/15 hover:border-ink/25 bg-ink/5">
+    <Card className="rounded-xl border border-dashed border-ink/15 bg-ink/[0.03] p-3.5 transition-colors hover:border-indigo-500/40 hover:bg-ink/5">
       <button
         type="button"
         aria-label={`打开${name}`}
         className="flex w-full items-center justify-between gap-3 text-left"
         onClick={onOpen}
       >
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-4 h-4 rounded-full border-2 border-ink/30 flex items-center justify-center flex-shrink-0">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10">
             {icon}
           </div>
           <div className="min-w-0">
-            <span className="text-sm font-medium text-fg">{name}</span>
-            <p className="text-xs text-fg-40 mt-0.5">{description}</p>
+            <span className="block text-sm font-medium text-fg">{name}</span>
+            <p className="mt-0.5 text-xs leading-relaxed text-fg-50">{description}</p>
           </div>
         </div>
-        <div className="text-right text-xs text-fg-40 flex-shrink-0">
+        <div className="shrink-0 text-right text-xs font-medium text-indigo-400">
           <div>{action}</div>
         </div>
       </button>
@@ -323,12 +323,12 @@ export function TemplatesSection({ templateUpload }: Props) {
     <>
       {/* Template Selection */}
       <div className="space-y-3">
-        <div className="grid gap-2">
+        <div className="grid gap-2.5">
           {templates.map((template) => (
             <Card
               key={template.id}
               className={cn(
-                "rounded-xl border p-3 transition-colors",
+                "rounded-xl border p-3.5 transition-colors",
                 selectedTemplate === template.id ? "border-indigo-500/50 bg-indigo-500/10" : "border-ink/10 hover:border-ink/20 hover:bg-ink/5"
               )}
             >
@@ -347,22 +347,22 @@ export function TemplatesSection({ templateUpload }: Props) {
                   }}
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                  <div
-                    className={cn(
-                      "w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                      selectedTemplate === template.id ? "border-indigo-500" : "border-ink/30"
-                    )}
-                  >
-                    {selectedTemplate === template.id && <div className="w-2 h-2 rounded-full bg-indigo-500" />}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-fg">{template.name}</span>
+                    <div
+                      className={cn(
+                        "h-4 w-4 shrink-0 rounded-full border-2 flex items-center justify-center",
+                        selectedTemplate === template.id ? "border-indigo-500" : "border-ink/30"
+                      )}
+                    >
+                      {selectedTemplate === template.id && <div className="h-2 w-2 rounded-full bg-indigo-500" />}
                     </div>
-                    <p className="mt-1 text-xs leading-5 text-fg-60">{template.description}</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-fg">{template.name}</span>
+                      </div>
+                      <p className="mt-0.5 text-xs leading-relaxed text-fg-60">{template.description}</p>
+                    </div>
                   </div>
-                  </div>
-                  <div className="space-y-1 text-right text-xs tabular-nums text-fg-50">
+                  <div className="shrink-0 space-y-0.5 text-right text-xs tabular-nums text-fg-50">
                     <div>{template.groups} 代理组</div>
                     <div>{template.rules} 规则集</div>
                   </div>
@@ -375,13 +375,13 @@ export function TemplatesSection({ templateUpload }: Props) {
                     onClick={() => void toggleBuiltinEngagement(template.id)}
                     disabled={!user}
                     className={cn(
-                      "h-auto gap-0.5 p-0 text-xs transition-colors hover:bg-transparent",
+                      "h-8 shrink-0 gap-1 px-2 text-xs tabular-nums transition-colors hover:bg-ink/5",
                       builtinEngagement[template.id]?.isEngaged ? "text-red-400" : "text-fg-40 hover:text-red-400",
                       !user && "cursor-not-allowed opacity-50"
                     )}
                     title={user ? engagementAction : engagementLoginRequired}
                   >
-                    <Heart className={cn("h-3 w-3", builtinEngagement[template.id]?.isEngaged && "fill-current")} />
+                    <Heart className={cn("h-3.5 w-3.5", builtinEngagement[template.id]?.isEngaged && "fill-current")} />
                     <span>{builtinEngagement[template.id]?.engagementCount ?? 0}</span>
                   </Button>
                 )}
@@ -391,7 +391,7 @@ export function TemplatesSection({ templateUpload }: Props) {
 
           {catalogEnabled && (
             <TemplatePickerEntry
-              icon={<Globe className="h-3 w-3 text-indigo-400" />}
+              icon={<Globe className="h-4 w-4 text-indigo-400" />}
               name={catalogName}
               description={catalogDescription}
               action={catalogSelectAction}
@@ -401,7 +401,7 @@ export function TemplatesSection({ templateUpload }: Props) {
 
           {myTemplatesEnabled && (
             <TemplatePickerEntry
-              icon={<FileCode className="h-3 w-3 text-indigo-400" />}
+              icon={<FileCode className="h-4 w-4 text-indigo-400" />}
               name={MY_TEMPLATES_NAME}
               description="选择并应用您上传的配置模板"
               action="从我的模板选择"

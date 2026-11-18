@@ -176,7 +176,7 @@ export function GroupAdvancedSettingsDialog({
                   density="compact"
                 />
                 {allowLan && (
-                  <div className="rounded-md border border-amber-500/30 bg-amber-500/10 p-2 text-[10px] leading-relaxed text-amber-200">
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs leading-relaxed text-amber-200">
                     开启后监听 0.0.0.0，如果你的端口能从公网访问，任何人都可以使用你的节点。
                   </div>
                 )}

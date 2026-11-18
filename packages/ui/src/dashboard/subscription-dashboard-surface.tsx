@@ -343,17 +343,17 @@ export function SubscriptionDashboardSurface({ adapter }: Props) {
   const editSubscriptionHref = adapter.editSubscriptionHref ?? ((sub: Subscription) => `/?editSubscriptionId=${sub.id}`);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="page-container py-6 sm:py-8">
       {adapter.renderAnnouncement?.({ user })}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold mb-1">我的订阅</h1>
-          <p className="text-fg-50">管理您的订阅链接</p>
+          <h1 className="text-xl font-bold tracking-tight text-fg sm:text-2xl">我的订阅</h1>
+          <p className="mt-1 text-sm text-fg-50">管理您的订阅链接</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {adapter.renderHeaderActions?.({ user })}
-          <Button asChild className="gap-2">
+          <Button asChild>
             <Link href={newSubscriptionHref}>
               <Plus className="h-4 w-4" />
               新建订阅
@@ -366,31 +366,31 @@ export function SubscriptionDashboardSurface({ adapter }: Props) {
 
       <DashboardStatsCards subscriptionCount={subscriptions.length} user={user} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>订阅列表</CardTitle>
+      <Card className="p-5 sm:p-6">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base sm:text-lg">订阅列表</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[1, 2].map((i) => (
-                <div key={i} className="h-24 bg-ink/10 rounded-lg animate-pulse" />
+                <div key={i} className="h-20 bg-ink/10 rounded-xl animate-pulse" />
               ))}
             </div>
           ) : subscriptions.length === 0 ? (
             <div className="text-center py-12">
-              <FileCode className="h-12 w-12 mx-auto text-fg-40 mb-4" />
-              <h3 className="text-lg font-medium mb-2">暂无订阅</h3>
-              <p className="text-fg-50 mb-4">创建您的第一个订阅配置</p>
+              <FileCode className="h-10 w-10 mx-auto text-fg-40 mb-3" />
+              <h3 className="text-base font-semibold text-fg mb-1">暂无订阅</h3>
+              <p className="text-sm text-fg-50 mb-4">创建您的第一个订阅配置</p>
               <Button asChild>
                 <Link href={newSubscriptionHref}>
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="h-4 w-4" />
                   新建订阅
                 </Link>
               </Button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {subscriptions.map((sub) => (
                 <SubscriptionRow
                   key={sub.id}
@@ -459,12 +459,12 @@ export function SubscriptionDashboardSurface({ adapter }: Props) {
 
 function DashboardSkeleton() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="page-container py-6 sm:py-8">
       <div className="animate-pulse space-y-6">
-        <div className="h-8 w-48 bg-ink/10 rounded" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 bg-ink/10 rounded-xl" />
+        <div className="h-8 w-48 bg-ink/10 rounded-lg" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24 bg-ink/10 rounded-2xl" />
           ))}
         </div>
       </div>
@@ -474,12 +474,12 @@ function DashboardSkeleton() {
 
 function LoginPrompt({ loginHref }: { loginHref: string }) {
   return (
-    <div className="container mx-auto px-4 py-16 text-center">
+    <div className="page-container py-16 text-center">
       <div className="max-w-md mx-auto space-y-4">
-        <Shield className="h-16 w-16 mx-auto text-fg-50" />
-        <h1 className="text-2xl font-bold">请先登录</h1>
-        <p className="text-fg-50">登录后可以管理您的订阅和模板</p>
-        <Button asChild size="lg">
+        <Shield className="h-14 w-14 mx-auto text-fg-50" />
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">请先登录</h1>
+        <p className="text-sm text-fg-50">登录后可以管理您的订阅和模板</p>
+        <Button asChild>
           <Link href={loginHref}>登录</Link>
         </Button>
       </div>
@@ -511,16 +511,16 @@ function SubscriptionRow({
   const quotaWarning = buildNodeQuotaWarning(sub.autoUpdateState);
   const quotaDisabled = isNodeQuotaAutoUpdateDisabled(sub.autoUpdateState);
   return (
-    <div className="flex flex-col gap-3 p-4 rounded-lg bg-ink/5 border border-ink/10 hover:border-ink/20 transition-colors sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-      <div className="flex min-w-0 flex-1 items-start gap-4 sm:items-center">
-        <div className="p-2 rounded-lg bg-ink/10">
+    <div className="flex flex-col gap-3 rounded-xl border border-ink/10 bg-ink/5 p-4 hover:border-ink/20 transition-colors lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+      <div className="flex min-w-0 flex-1 items-start gap-3.5 sm:items-center">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink/10">
           <FileCode className="h-5 w-5 text-primary-500" />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="min-w-0 flex-1 truncate font-medium">{sub.name}</h3>
+            <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-fg sm:text-base">{sub.name}</h3>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fg-50">
+          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-fg-50">
             <span className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
               创建于 {formatDashboardDate(sub.createdAt)}
@@ -551,8 +551,8 @@ function SubscriptionRow({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
-        <Button asChild variant="ghost" size="sm" className="gap-0 sm:gap-2" title="回到首页编辑该订阅（更新后链接不变）">
+      <div className="flex flex-wrap items-center gap-1.5 lg:shrink-0 lg:justify-end">
+        <Button asChild variant="ghost" size="sm" className="gap-0 px-2.5 sm:gap-1.5" title="回到首页编辑该订阅（更新后链接不变）">
           <Link href={editHref}>
             <Pencil className="h-4 w-4" />
             <span className="hidden sm:inline">编辑</span>
@@ -562,7 +562,7 @@ function SubscriptionRow({
           variant="ghost"
           size="sm"
           onClick={() => onSettings(sub)}
-          className="gap-0 sm:gap-2"
+          className="gap-0 px-2.5 sm:gap-1.5"
           title="订阅设置（改名 / 自动更新）"
         >
           <Settings className="h-4 w-4" />
@@ -573,7 +573,7 @@ function SubscriptionRow({
           size="sm"
           onClick={() => void onRefresh(sub.id)}
           disabled={refreshingId === sub.id}
-          className="gap-0 sm:gap-2"
+          className="gap-0 px-2.5 sm:gap-1.5"
           title="重新生成配置并刷新缓存"
         >
           <RefreshCw className={`h-4 w-4 ${refreshingId === sub.id ? "animate-spin" : ""}`} />
@@ -583,7 +583,7 @@ function SubscriptionRow({
           variant="ghost"
           size="sm"
           onClick={() => void onCopy(sub.subscriptionUrl, sub.id)}
-          className="gap-0 sm:gap-2"
+          className="gap-0 px-2.5 sm:gap-1.5"
           title="复制订阅链接"
         >
           {copiedId === sub.id ? (
@@ -603,7 +603,7 @@ function SubscriptionRow({
           variant="ghost"
           size="sm"
           onClick={() => void onDownload(sub)}
-          className="gap-0 sm:gap-2"
+          className="gap-0 px-2.5 sm:gap-1.5"
           title="下载订阅配置"
         >
           <Download className="h-4 w-4" />
@@ -613,7 +613,7 @@ function SubscriptionRow({
           variant="ghost"
           size="sm"
           onClick={() => void onDelete(sub.id)}
-          className="gap-0 text-red-400 hover:text-red-300 hover:bg-red-500/10 sm:gap-2"
+          className="gap-0 px-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 sm:gap-1.5"
           title="删除订阅"
         >
           <Trash2 className="h-4 w-4" />
@@ -638,16 +638,16 @@ function QuickActionCard({
   description: string;
 }) {
   return (
-    <Link href={href}>
-      <Card className="cursor-pointer hover:border-ink/20 transition-colors">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className={`p-3 rounded-lg ${iconClassName}`}>{icon}</div>
-            <div>
-              <h3 className="font-medium">{title}</h3>
-              <p className="text-sm text-fg-50">{description}</p>
+    <Link href={href} className="block">
+      <Card className="cursor-pointer p-5 hover:border-ink/20 transition-colors">
+        <CardContent className="p-0">
+          <div className="flex items-center gap-3.5">
+            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}>{icon}</div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-semibold text-fg">{title}</h3>
+              <p className="mt-0.5 text-xs text-fg-50 sm:text-sm">{description}</p>
             </div>
-            <ExternalLink className="ml-auto h-5 w-5 text-fg-40" />
+            <ExternalLink className="ml-auto h-4 w-4 shrink-0 text-fg-40" />
           </div>
         </CardContent>
       </Card>

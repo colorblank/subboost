@@ -285,12 +285,12 @@ export function ProxyGroupsAddedRuleSets({
   }
 
   return (
-    <div className="space-y-1 border-t border-ink/10 pt-2">
+    <div className="space-y-1.5 border-t border-ink/10 pt-2">
       <div className="flex min-h-5 items-center gap-2">
-        <span className="text-[11px] font-medium text-fg-65">
+        <span className="text-xs font-medium text-fg-65">
           已添加规则集
         </span>
-        <span className="ml-auto text-[10px] text-fg-40">
+        <span className="ml-auto text-xs tabular-nums text-fg-45">
           已添加 {visibleAddedRuleSets.length}
         </span>
       </div>
@@ -305,11 +305,11 @@ export function ProxyGroupsAddedRuleSets({
             return (
               <div
                 key={item.key}
-                className="rounded-md border border-indigo-400/20 bg-indigo-500/[0.08] p-1.5"
+                className="rounded-lg border border-indigo-400/20 bg-indigo-500/[0.08] p-1.5"
               >
                 <div className={RULE_EDIT_ROW_CLASS}>
                   <div
-                    className={`flex h-7 ${RULE_EDIT_PRIMARY_FIELD_CLASS} items-center truncate rounded-md border border-ink/10 bg-ink/5 px-2 font-mono text-xs text-fg-75`}
+                    className={`flex h-8 ${RULE_EDIT_PRIMARY_FIELD_CLASS} items-center truncate rounded-md border border-ink/10 bg-ink/5 px-2.5 font-mono text-xs text-fg-75`}
                     title={displayPath}
                   >
                     {displayPath}
@@ -341,7 +341,7 @@ export function ProxyGroupsAddedRuleSets({
                         ))}
                       </SelectContent>
                     </Select>
-                    <div className="flex h-7 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-ink/5 px-2">
+                    <div className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-ink/10 bg-ink/5 px-2">
                       <Switch
                         aria-label={`设置 ${item.name} no-resolve`}
                         checked={draft.noResolve}
@@ -351,7 +351,7 @@ export function ProxyGroupsAddedRuleSets({
                           )
                         }
                       />
-                      <span className="proxy-group-rule-no-resolve-label text-[10px] text-fg-50">
+                      <span className="proxy-group-rule-no-resolve-label text-xs text-fg-55">
                         no-resolve
                       </span>
                     </div>
@@ -362,7 +362,7 @@ export function ProxyGroupsAddedRuleSets({
                         size="sm"
                         onClick={() => saveEditing(item)}
                         disabled={!draft.targetValue}
-                        className="h-7 w-7 shrink-0 p-0 text-emerald-300 hover:text-emerald-200"
+                        className="h-8 w-7 shrink-0 p-0 text-emerald-300 hover:text-emerald-200"
                         title="保存规则集"
                       >
                         <Check className="h-3.5 w-3.5" />
@@ -372,7 +372,7 @@ export function ProxyGroupsAddedRuleSets({
                         variant="ghost"
                         size="sm"
                         onClick={cancelEditing}
-                        className="h-7 w-7 shrink-0 p-0"
+                        className="h-8 w-7 shrink-0 p-0"
                         title="取消编辑"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -382,7 +382,7 @@ export function ProxyGroupsAddedRuleSets({
                         variant="ghost"
                         size="sm"
                         onClick={() => removeRuleSet(item)}
-                        className="h-7 w-7 shrink-0 p-0 text-fg-40 hover:text-red-300"
+                        className="h-8 w-7 shrink-0 p-0 text-fg-40 hover:text-red-300"
                         title="删除规则集"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -399,7 +399,7 @@ export function ProxyGroupsAddedRuleSets({
           return (
             <div
               key={item.key}
-              className="flex min-w-0 flex-wrap items-center gap-1 rounded-md border border-ink/10 bg-ink/[0.04] px-2 py-1 text-[10px]"
+              className="flex min-w-0 flex-wrap items-center gap-1.5 rounded-lg border border-ink/10 bg-ink/[0.04] px-2.5 py-1.5 text-xs"
             >
               <span className={RULE_TYPE_BADGE_CLASS}>
                 RULE-SET

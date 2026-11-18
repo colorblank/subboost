@@ -33,7 +33,7 @@ export function SourceTypeChoices({
   compact?: boolean;
 }) {
   return (
-    <ChoiceGroup label="导入源类型" className={cn("grid w-full grid-cols-3 gap-1 rounded-lg bg-ink/5", compact ? "p-0.5" : "p-1")}>
+    <ChoiceGroup label="导入源类型" className={cn("grid w-full grid-cols-3 gap-1 rounded-xl bg-ink/5", compact ? "p-1" : "p-1")}>
       {sourceTypes.map((type) => {
         const info = sourceTypeInfo[type];
         const Icon = info.icon;
@@ -50,7 +50,7 @@ export function SourceTypeChoices({
               </>
             }
             className={cn(
-              "min-h-9 min-w-0 gap-1 rounded-md border-0 px-1 py-1.5 text-xs shadow-none",
+              "min-h-9 min-w-0 gap-1.5 rounded-lg border-0 px-2 py-1.5 text-xs font-medium shadow-none",
               value === type
                 ? "bg-surface-raised text-indigo-300 shadow-sm"
                 : "bg-transparent text-fg-60 hover:bg-ink/5 hover:text-fg"
@@ -143,10 +143,10 @@ export function AddSourceMenu({
               onSelect={() => onAdd(type)}
               className={cn("gap-3 focus:bg-ink/5 focus:text-fg", compact ? "py-2" : "py-2.5")}
             >
-              <Icon className="h-4 w-4 text-indigo-400" aria-hidden="true" />
+              <Icon className="h-4 w-4 shrink-0 text-indigo-400" aria-hidden="true" />
               <span>
-                <span className="block text-xs font-medium text-fg">{info.label}</span>
-                {!compact ? <span className="block text-[10px] text-fg-40">{info.description}</span> : null}
+                <span className="block text-sm font-medium text-fg">{info.label}</span>
+                {!compact ? <span className="block text-xs text-fg-45">{info.description}</span> : null}
               </span>
             </DropdownMenuItem>
           );

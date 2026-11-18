@@ -35,7 +35,7 @@ export function ProtocolBadge({ type, className, ...props }: ProtocolBadgeProps)
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded border px-1.5 py-0.5 text-[10px] text-center uppercase whitespace-nowrap",
+        "inline-flex items-center justify-center rounded border px-1.5 py-0.5 text-xs font-medium leading-4 text-center uppercase whitespace-nowrap",
         getProtocolBadgeClass(type),
         className
       )}

@@ -81,7 +81,7 @@ function RuleValueInput({ type, value, onChange }: {
 }) {
   return (
     <FormField label="规则值" className="min-w-0 flex-[1_1_4.5rem] gap-0 [&>label]:sr-only">
-      <Input value={value} onChange={onChange} placeholder={getRuleValuePlaceholder(type)} className="h-7 min-w-0 text-xs" />
+      <Input value={value} onChange={onChange} placeholder={getRuleValuePlaceholder(type)} className="h-8 min-w-0 rounded-lg px-2.5 text-xs" />
     </FormField>
   );
 }
@@ -89,7 +89,7 @@ function RuleValueInput({ type, value, onChange }: {
 function RuleTypeHint({ type }: { type: CustomRule["type"] | "RULE-SET" }) {
   if (type === "RULE-SET") return null;
   const hint = getCustomRuleDefinition(type).hint;
-  return hint ? <p className="mt-1 text-[10px] text-fg-50">{hint}</p> : null;
+  return hint ? <p className="mt-1.5 text-xs text-fg-50">{hint}</p> : null;
 }
 
 function getTargetOptions(enabledGroupNames: string[], selected?: string) {
@@ -342,7 +342,7 @@ export function ProxyGroupsCustomRules() {
               value={newRuleType}
               onValueChange={handleNewRuleTypeChange}
             >
-              <SelectTrigger className="h-7 w-[112px] max-w-full shrink-0 text-xs">
+              <SelectTrigger className="h-8 w-[112px] max-w-full shrink-0 rounded-lg px-2.5 text-xs">
                 <span className="whitespace-normal text-left leading-tight">
                   {newRuleType === "RULE-SET" ? "规则集" : getRuleTypeLabel(newRuleType)}
                 </span>
@@ -379,14 +379,14 @@ export function ProxyGroupsCustomRules() {
                 ))}
               </SelectContent>
             </Select>
-            <div className="flex h-7 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-ink/5 px-2">
+            <div className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-ink/10 bg-ink/5 px-2">
               <Switch
                 aria-label="新规则不解析域名"
                 checked={newRuleNoResolve && supportsNoResolve(newRuleType)}
                 disabled={!supportsNoResolve(newRuleType)}
                 onCheckedChange={setNewRuleNoResolve}
               />
-              <span className="proxy-group-rule-no-resolve-label text-[10px] text-fg-50">no-resolve</span>
+              <span className="proxy-group-rule-no-resolve-label text-xs text-fg-55">no-resolve</span>
             </div>
             <Button
               type="button"
@@ -404,12 +404,12 @@ export function ProxyGroupsCustomRules() {
       </div>
 
       {customRules.length > 0 && (
-        <div className="space-y-1 border-t border-ink/10 pt-2">
+        <div className="space-y-1.5 border-t border-ink/10 pt-2">
           <div className="flex min-h-5 items-center gap-2">
-            <span className="text-[11px] font-medium text-fg-65">
+            <span className="text-xs font-medium text-fg-65">
               已添加规则
             </span>
-            <span className="ml-auto text-[10px] text-fg-40">
+            <span className="ml-auto text-xs tabular-nums text-fg-45">
               已添加 {customRules.length}
             </span>
           </div>
@@ -425,7 +425,7 @@ export function ProxyGroupsCustomRules() {
               return (
                 <div
                   key={rule.id}
-                  className="rounded-md border border-indigo-400/20 bg-indigo-500/[0.08] p-1.5"
+                  className="rounded-lg border border-indigo-400/20 bg-indigo-500/[0.08] p-1.5"
                 >
                   <div className={RULE_EDIT_ROW_CLASS}>
                     <div className={RULE_EDIT_PRIMARY_GROUP_CLASS}>
@@ -439,7 +439,7 @@ export function ProxyGroupsCustomRules() {
                           )
                         }
                       >
-                        <SelectTrigger className="h-7 w-[112px] max-w-full shrink-0 text-xs">
+                        <SelectTrigger className="h-8 w-[112px] max-w-full shrink-0 rounded-lg px-2.5 text-xs">
                           <span className="whitespace-normal text-left leading-tight">
                             {
                               getRuleTypeLabel(editingRuleDraft.type)
@@ -494,7 +494,7 @@ export function ProxyGroupsCustomRules() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <div className="flex h-7 shrink-0 items-center gap-1 rounded-lg border border-ink/10 bg-ink/5 px-2">
+                      <div className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-ink/10 bg-ink/5 px-2">
                         <Switch
                           aria-label="编辑规则时不解析域名"
                           checked={Boolean(editingRuleDraft.noResolve) && supportsNoResolve(editingRuleDraft.type)}
@@ -505,7 +505,7 @@ export function ProxyGroupsCustomRules() {
                             )
                           }
                         />
-                        <span className="proxy-group-rule-no-resolve-label text-[10px] text-fg-50">
+                        <span className="proxy-group-rule-no-resolve-label text-xs text-fg-55">
                           no-resolve
                         </span>
                       </div>
@@ -516,7 +516,7 @@ export function ProxyGroupsCustomRules() {
                           size="sm"
                           onClick={saveEditingRule}
                           disabled={!editingRuleDraft.value.trim()}
-                          className="h-7 w-7 shrink-0 p-0 text-emerald-300 hover:text-emerald-200"
+                          className="h-8 w-7 shrink-0 p-0 text-emerald-300 hover:text-emerald-200"
                           title="保存规则"
                         >
                           <Check className="h-3.5 w-3.5" />
@@ -526,7 +526,7 @@ export function ProxyGroupsCustomRules() {
                           variant="ghost"
                           size="sm"
                           onClick={cancelEditingRule}
-                          className="h-7 w-7 shrink-0 p-0"
+                          className="h-8 w-7 shrink-0 p-0"
                           title="取消编辑"
                         >
                           <X className="h-3.5 w-3.5" />
@@ -539,7 +539,7 @@ export function ProxyGroupsCustomRules() {
                             removeCustomRule(index);
                             cancelEditingRule();
                           }}
-                          className="h-7 w-7 shrink-0 p-0 text-fg-40 hover:text-red-300"
+                          className="h-8 w-7 shrink-0 p-0 text-fg-40 hover:text-red-300"
                           title="删除规则"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -557,7 +557,7 @@ export function ProxyGroupsCustomRules() {
             return (
               <div
                 key={rule.id}
-                className="flex min-w-0 flex-wrap items-center gap-1 rounded-md border border-ink/10 bg-ink/[0.04] px-2 py-1 text-[10px]"
+                className="flex min-w-0 flex-wrap items-center gap-1.5 rounded-lg border border-ink/10 bg-ink/[0.04] px-2.5 py-1.5 text-xs"
               >
                 <span className={RULE_TYPE_BADGE_CLASS}>
                   {rule.type}

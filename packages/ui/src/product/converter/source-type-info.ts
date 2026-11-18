@@ -24,7 +24,7 @@ export const sourceTypeInfo: Record<SourceType, SourceTypeInfo> = {
   nodes: {
     label: "节点链接",
     icon: Server,
-    placeholder: "每行粘贴一个节点链接，例如：\nss://...、vmess://...、vless://... 或 trojan://...",
+    placeholder: "每行粘贴一个节点链接，例如：\nss://...、vmess://...、vless://...、trojan://... 或 hysteria2://...",
     description: "每行一个节点链接，支持 ss/ssr/vmess/vless/trojan/anytls/hy2/tuic",
   },
 };

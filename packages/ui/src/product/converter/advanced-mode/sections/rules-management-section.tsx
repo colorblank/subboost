@@ -187,16 +187,16 @@ export function RulesManagementSection({
       />
 
       {isExpanded && (
-        <div className="mt-2 pl-6 space-y-2">
-          <div className="rounded-lg border border-ink/10 bg-ink/5 px-3 py-2">
+        <div className="mt-2.5 space-y-2.5">
+          <div className="rounded-xl border border-ink/10 bg-ink/5 px-3.5 py-2.5">
             <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
-              <div className="min-w-0 flex-[1_1_13rem] text-[11px] leading-5 text-fg-60">
+              <div className="min-w-0 flex-[1_1_13rem] text-xs leading-5 text-fg-60">
                 {allRulesMode
                   ? "已开启全规则排序：可移动任意规则，但 MATCH 固定最后。"
                   : "默认只能调整自定义规则顺序。"}
               </div>
               <div className="ml-auto flex shrink-0 items-center gap-2">
-                <span className="text-[11px] whitespace-nowrap text-fg-55">调整所有规则顺序</span>
+                <span className="text-xs whitespace-nowrap text-fg-60">调整所有规则顺序</span>
                 <Switch
                   aria-label="调整所有规则顺序"
                   checked={allRulesMode}
@@ -207,7 +207,7 @@ export function RulesManagementSection({
             </div>
           </div>
 
-          <div className="max-h-[460px] overflow-y-auto overflow-x-hidden rounded-lg border border-ink/10 bg-shade/10 pr-1 custom-scrollbar">
+          <div className="max-h-[460px] overflow-y-auto overflow-x-hidden rounded-xl border border-ink/10 bg-shade/10 pr-1 custom-scrollbar">
             {entries.map((entry, index) => {
               const movableIndex = movableKeys.indexOf(entry.key);
               const canEditOrder = entry.key !== "special:match" && (allRulesMode || entry.editable);
@@ -223,11 +223,11 @@ export function RulesManagementSection({
               return (
                 <div
                   key={entry.key}
-                  className="border-b border-ink/10 bg-ink/5 px-3 py-1.5 last:border-b-0"
+                  className="border-b border-ink/10 bg-ink/5 px-3 py-2 last:border-b-0"
                 >
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                    <div className="flex min-w-0 items-start gap-1.5">
-                      <div className="w-4 shrink-0 pt-1 text-right text-[10px] tabular-nums text-fg-35">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2.5">
+                    <div className="flex min-w-0 items-start gap-2">
+                      <div className="w-5 shrink-0 pt-0.5 text-right text-xs tabular-nums text-fg-40">
                         {absoluteOrder}
                       </div>
 
@@ -249,14 +249,14 @@ export function RulesManagementSection({
                           )}
                         </div>
 
-                        <div className="rule-management-entry-detail font-mono text-[11px] break-all text-fg-45" title={entry.text}>
+                        <div className="rule-management-entry-detail font-mono text-xs break-all text-fg-45" title={entry.text}>
                           {displayDetail}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex min-h-10 min-w-[8.75rem] shrink-0 items-center justify-end gap-1.5">
-                      <span className="text-[11px] whitespace-nowrap text-fg-45">顺序:</span>
+                    <div className="flex min-h-9 min-w-[8.75rem] shrink-0 items-center justify-end gap-1.5">
+                      <span className="text-xs whitespace-nowrap text-fg-50">顺序:</span>
                       <Input
                         value={
                           Object.prototype.hasOwnProperty.call(orderDrafts, entry.key)
@@ -279,6 +279,7 @@ export function RulesManagementSection({
                           });
                         }}
                         onKeyDown={(e) => {
+                          if (e.nativeEvent?.isComposing) return;
                           if (e.key === "Escape") {
                             setOrderDrafts((prev) => {
                               const { [entry.key]: _removed, ...rest } = prev;

@@ -173,7 +173,7 @@ export function SubscriptionImportErrorBadge({
         variant="ghost"
         size="sm"
         className={cn(
-          "h-auto rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none",
+          "h-7 gap-1 rounded-lg px-2 py-0.5 text-xs font-medium leading-none",
           "bg-red-500/15 text-red-300 border border-red-500/20",
           "hover:bg-red-500/25 hover:text-red-200 transition-colors cursor-pointer",
           "focus:outline-none focus:ring-2 focus:ring-red-500/40",
@@ -182,7 +182,7 @@ export function SubscriptionImportErrorBadge({
         aria-label="查看错误详情"
       >
         <span>{badgeText}</span>
-        <Menu className="ml-1 h-3 w-3 text-red-200/70" aria-hidden="true" />
+        <Menu className="h-3 w-3 text-red-200/70" aria-hidden="true" />
       </Button>
     </ErrorDetailDialog>
   );

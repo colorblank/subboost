@@ -286,6 +286,7 @@ export function ProxyGroupsModuleCard({
                   allowEmptyEmoji={false}
                   autoFocus
                   onKeyDown={(e) => {
+                    if (e.nativeEvent?.isComposing) return;
                     if (e.key === "Enter") onCommitEditing();
                     if (e.key === "Escape") onCancelEditing();
                   }}
@@ -297,6 +298,7 @@ export function ProxyGroupsModuleCard({
                     className="h-7 min-w-0 border-ink/10 bg-ink/5 text-xs"
                     onChange={(event) => onChangeEditingDescription(event.target.value)}
                     onKeyDown={(e) => {
+                      if (e.nativeEvent?.isComposing) return;
                       if (e.key === "Enter") onCommitEditing();
                       if (e.key === "Escape") onCancelEditing();
                     }}

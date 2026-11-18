@@ -290,7 +290,7 @@ export function ProxyGroupsModuleRulesPanel({
   return (
     <div className="space-y-1">
       {rules.length === 0 && manualRules.length === 0 ? (
-        <div className="px-3 py-4 text-center text-[11px] text-fg-40">
+        <div className="px-3 py-4 text-center text-xs text-fg-45">
           当前没有生效的规则集。
         </div>
       ) : (
@@ -348,7 +348,7 @@ export function ProxyGroupsModuleRulesPanel({
                     {isCnIpRule && (
                       <div className="flex h-7 shrink-0 items-center gap-1">
                         <CnIpNoResolveHelpButton />
-                        <span className="proxy-group-rule-no-resolve-label text-[10px] text-fg-50">no-resolve</span>
+                        <span className="proxy-group-rule-no-resolve-label text-xs text-fg-55">no-resolve</span>
                         <Switch
                           checked={cnIpNoResolve}
                           onCheckedChange={onChangeCnIpNoResolve}
@@ -422,23 +422,23 @@ export function ProxyGroupsModuleRulesPanel({
                   {EXPERIMENTAL_CN_RULE.name}
                 </span>
                 {!experimentalCnUseCnRuleSet && (
-                  <Badge variant="outline" className="border-red-500/50 bg-red-500/10 px-1.5 py-0 text-[9px] text-red-300">
+                  <Badge variant="outline" className="border-red-500/50 bg-red-500/10 px-1.5 py-0 text-xs leading-4 text-red-300">
                     已移除
                   </Badge>
                 )}
-                <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 px-1.5 py-0 text-[9px] text-amber-200">
+                <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 px-1.5 py-0 text-xs leading-4 text-amber-200">
                   实验性
                 </Badge>
-                <Badge variant="outline" className="border-ink/10 bg-ink/5 px-1.5 py-0 text-[9px] text-fg-55">
+                <Badge variant="outline" className="border-ink/10 bg-ink/5 px-1.5 py-0 text-xs leading-4 text-fg-55">
                   域名
                 </Badge>
               </div>
 
               <div
                 className={cn(
-                  "min-w-0 break-all font-mono text-[10px]",
+                  "min-w-0 break-all font-mono text-xs",
                   experimentalCnUseCnRuleSet
-                    ? "text-fg-35"
+                    ? "text-fg-40"
                     : "text-fg-30 line-through decoration-red-300/50"
                 )}
                 title={`${EXPERIMENTAL_CN_RULE.id} · ${EXPERIMENTAL_CN_RULE.path}`}
@@ -526,16 +526,16 @@ export function ProxyGroupsModuleRulesPanel({
                     <span className="min-w-0 break-words text-xs font-medium leading-5 text-fg" title={rule.name}>
                       {rule.name}
                     </span>
-                    <Badge variant="outline" className="border-ink/10 bg-ink/5 px-1.5 py-0 text-[9px] text-fg-55">
+                    <Badge variant="outline" className="border-ink/10 bg-ink/5 px-1.5 py-0 text-xs leading-4 text-fg-55">
                       域名
                     </Badge>
                     {rule.parentRuleId && (
-                      <Badge variant="outline" className="border-ink/10 bg-ink/5 px-1.5 py-0 text-[9px] text-fg-45">
+                      <Badge variant="outline" className="border-ink/10 bg-ink/5 px-1.5 py-0 text-xs leading-4 text-fg-45">
                         {rule.parentRuleId}
                       </Badge>
                     )}
                   </div>
-                  <div className="min-w-0 break-all font-mono text-[10px] text-fg-35" title={`${rule.id} · ${rule.path}`}>
+                  <div className="min-w-0 break-all font-mono text-xs text-fg-40" title={`${rule.id} · ${rule.path}`}>
                     {rule.path}
                   </div>
                 </div>

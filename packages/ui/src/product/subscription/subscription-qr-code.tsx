@@ -20,7 +20,7 @@ export function SubscriptionQrButton({ url }: { url: string }) {
   const [open, setOpen] = React.useState(false);
   return (
     <>
-      <Button variant="ghost" size="sm" className="gap-0 sm:gap-2" title="显示订阅二维码"
+      <Button variant="ghost" size="sm" className="gap-0 px-2.5 sm:gap-1.5" title="显示订阅二维码"
         aria-label="显示订阅二维码" disabled={!url} onClick={() => setOpen(true)}>
         <QrCode className="h-4 w-4" /><span className="hidden sm:inline">二维码</span>
       </Button>

@@ -50,12 +50,12 @@ export function TemplateCard({
   const groupCount = typeof template.proxyGroupCount === "number" ? template.proxyGroupCount : null;
   const ruleCount = typeof template.ruleCount === "number" ? template.ruleCount : null;
   return (
-    <Card className="border-ink/10 bg-ink/5 hover:border-ink/20 transition-colors">
-      <CardContent className="p-4">
+    <Card className="flex h-full flex-col justify-between p-5 border-ink/10 bg-surface hover:border-ink/20 transition-colors">
+      <CardContent className="flex flex-1 flex-col justify-between gap-4 p-0">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h4 className="font-medium truncate">{template.name}</h4>
-            <p className="text-sm text-fg-50 mt-1 line-clamp-2">{template.description}</p>
+            <h4 className="text-base font-semibold leading-snug text-fg truncate">{template.name}</h4>
+            <p className="text-sm leading-relaxed text-fg-50 mt-1 line-clamp-2">{template.description}</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {showDelete && onDelete && (
@@ -63,19 +63,19 @@ export function TemplateCard({
                 label="删除模板"
                 variant="outline"
                 onClick={onDelete}
-                className="h-8 w-8 border-ink/10 hover:border-red-500/40 hover:text-red-400"
+                className="h-8 w-8 rounded-lg border-ink/10 hover:border-red-500/40 hover:text-red-400"
               >
                 <Trash2 className="h-4 w-4" />
               </IconButton>
             )}
-            <Button size="sm" onClick={onApply} disabled={isApplying} className="gap-1">
-              {isApplying ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+            <Button size="sm" onClick={onApply} disabled={isApplying} className="gap-1.5">
+              {isApplying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />}
               {isApplying ? "应用中" : "使用"}
             </Button>
           </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-fg-40">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-ink/10 pt-3 text-xs tabular-nums text-fg-45">
           <span className="inline-flex items-center gap-1">
             <Layers className="h-3.5 w-3.5" />
             {groupCount ?? "—"} 代理组
@@ -98,8 +98,8 @@ export function TemplateCard({
               onClick={onEngage}
               disabled={!isLoggedIn}
               className={cn(
-                "h-auto gap-1 p-0 transition-colors hover:bg-transparent",
-                template.isEngaged ? "text-red-400" : "hover:text-red-400",
+                "h-auto gap-1 p-0 text-xs transition-colors hover:bg-transparent",
+                template.isEngaged ? "text-red-400" : "text-fg-45 hover:text-red-400",
                 !isLoggedIn && "cursor-not-allowed opacity-50"
               )}
               title={!isLoggedIn ? engagementLoginRequiredLabel : engagementActionLabel}
@@ -115,7 +115,7 @@ export function TemplateCard({
           </span>
 
           {showVisibility && (
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 ml-auto">
               {template.isPublic ? (
                 <>
                   <Globe className="h-3.5 w-3.5 text-green-400" />

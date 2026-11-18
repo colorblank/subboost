@@ -202,7 +202,7 @@ export function NodeManagementAutoProcessingDialog({
                             {node.name}
                           </p>
                           {originName !== node.name ? (
-                            <p className="mt-0.5 break-words text-[11px] leading-relaxed text-fg-40 [overflow-wrap:anywhere]">
+                            <p className="mt-0.5 break-words text-xs leading-relaxed text-fg-45 [overflow-wrap:anywhere]">
                               原名：{originName}
                             </p>
                           ) : null}

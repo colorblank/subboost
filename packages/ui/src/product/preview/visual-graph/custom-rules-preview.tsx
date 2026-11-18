@@ -63,18 +63,18 @@ export function CustomRulesPreview({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 text-xs font-medium text-fg-60">
+      <div className="flex items-center gap-1.5 text-xs font-medium text-fg-60">
         <Shield className="h-3.5 w-3.5" />
         <span>{heading}</span>
-        <span className="text-[10px] text-fg-50">
+        <span className="text-xs tabular-nums text-fg-50">
           ({items.length})
         </span>
       </div>
-      <div className="space-y-1 rounded-lg border border-ink/10 bg-ink/[0.04] p-2">
+      <div className="space-y-1 rounded-xl border border-ink/10 bg-ink/[0.04] p-2">
         {items.slice(0, 10).map((rule, idx) => (
           <div
             key={rule.key}
-            className="flex min-w-0 flex-wrap items-center gap-1 rounded-md bg-ink/[0.04] px-2 py-1 text-[10px]"
+            className="flex min-w-0 flex-wrap items-center gap-1.5 rounded-lg bg-ink/[0.04] px-2.5 py-1.5 text-xs"
           >
             <span className="w-5 shrink-0 tabular-nums text-fg-40">
               {idx + 1}.
@@ -103,7 +103,7 @@ export function CustomRulesPreview({
           </div>
         ))}
         {items.length > 10 && (
-          <div className="py-1 text-center text-[10px] text-fg-50">
+          <div className="py-1.5 text-center text-xs text-fg-50">
             ... 还有 {items.length - 10} 条规则
           </div>
         )}
