@@ -79,7 +79,7 @@ vi.mock("@subboost/ui/store/user-store", () => ({
   useUserStore: () => harness.userState,
 }));
 
-import SettingsPage from "../../../local/app/dashboard/settings/page";
+import SettingsPage from "../../../local/src/app/dashboard/settings/page";
 
 function response(body: unknown, ok = true) {
   return {

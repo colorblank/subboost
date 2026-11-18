@@ -11,7 +11,7 @@
     "clean": "node scripts/clean-next.cjs",
     "dev": "node ../scripts/frontend.cjs dev",
     "prelint": "node scripts/ensure-root-node-modules.cjs",
-    "lint": "eslint app src --max-warnings=0",
+    "lint": "eslint src --max-warnings=0",
     "pretypecheck": "node scripts/ensure-root-node-modules.cjs && npm run clean",
     "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
     "prebuild": "node scripts/ensure-root-node-modules.cjs && npm run clean",

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-vi.mock("@local/lib/runtime-config", () => import("../../test/runtime-config-fixture"));
+vi.mock("@local/lib/runtime-config", () => import("../../../test/runtime-config-fixture"));
 
 const mocks = vi.hoisted(() => ({
   buttons: [] as any[],
