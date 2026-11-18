@@ -21,7 +21,7 @@ const nextConfig = {
   output: "standalone",
   agentRules: false,
   outputFileTracingRoot: path.resolve(process.cwd(), ".."),
-  transpilePackages: ["@subboost/core", "@subboost/server-core", "@subboost/ui", "@subboost/config"],
+  transpilePackages: ["@subboost/core", "@subboost/ui", "@subboost/config"],
   webpack(config) {
     config.resolve.alias["@"] = path.resolve(process.cwd(), "src");
     config.resolve.alias["@local"] = path.resolve(process.cwd(), "src");

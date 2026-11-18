@@ -6,6 +6,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./app-version": "./src/app-version.ts",
     "./api/*": "./src/api/*.ts",
     "./config/*": "./src/config/*.ts",
     "./generator": "./src/generator/index.ts",

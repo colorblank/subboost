@@ -28,7 +28,6 @@ export default defineConfig({
     setupFiles: ["./test/setup-runtime.ts"],
     include: [
       "packages/core/src/**/*.test.ts",
-      "packages/server-core/src/**/*.test.ts",
       "packages/ui/src/**/*.test.ts",
       "local/**/*.test.ts",
       "test/regression/tooling/**/*.test.ts",
@@ -40,7 +39,6 @@ export default defineConfig({
       "@": path.resolve(__dirname, "local/src"),
       "@local": path.resolve(__dirname, "local/src"),
       "@subboost/core": path.resolve(__dirname, "packages/core/src"),
-      "@subboost/server-core": path.resolve(__dirname, "packages/server-core/src"),
       "@subboost/ui": path.resolve(__dirname, "packages/ui/src"),
       "@subboost/config": path.resolve(__dirname, "packages/config"),
     },

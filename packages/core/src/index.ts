@@ -1,3 +1,4 @@
+export * from "./app-version";
 export * from "./generator";
 export * from "./config/defaults";
 export * from "./json";

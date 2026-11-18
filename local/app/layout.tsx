@@ -7,7 +7,7 @@ import { ConfirmDialogHost } from "@subboost/ui/components/ui/confirm-dialog";
 import { Toaster } from "@subboost/ui/components/ui/toaster";
 import { THEME_INIT_SCRIPT } from "@subboost/ui/theme/theme-init-script";
 import { LocalHeader } from "@local/components/local-header";
-import { resolveAppVersionInfo } from "@subboost/server-core/app-version";
+import { resolveAppVersionInfo } from "@subboost/core/app-version";
 import {
   SUBBOOST_FAVICON_PATH,
   SUBBOOST_ICON_PATH,
