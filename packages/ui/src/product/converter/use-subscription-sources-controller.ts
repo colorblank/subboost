@@ -10,6 +10,7 @@ import { toast } from "@subboost/ui/components/ui/toaster";
 import { useProductInteractionAdapter, type ProductInteractionResult } from "@subboost/ui/product/interactions";
 import { markSourceAsPendingImport } from "@subboost/ui/product/subscription/source-import-state";
 import { moveSubscriptionSource } from "@subboost/ui/product/subscription/source-order";
+import { detectSourceTypeFromContent } from "@subboost/ui/product/converter/detect-source-type";
 
 export type SubscriptionSourcesMode = "quick" | "advanced";
 
@@ -215,11 +216,27 @@ export function useSubscriptionSourcesController({ mode }: Options) {
         sources.map((source) => {
           if (source.id !== id) return source;
           if (source.content === content) return source;
+
+          const detectedType = !source.content.trim() ? detectSourceTypeFromContent(content) : null;
+          if (detectedType && detectedType !== source.type) {
+            const used = sources.filter((item) => item.type === detectedType).length;
+            if (used < maxSourcesPerType) {
+              return markSourceAsPendingImport({
+                ...source,
+                type: detectedType,
+                content,
+                useProxyProviders: detectedType === "url" ? Boolean(source.useProxyProviders) : undefined,
+                userinfoUrl: detectedType === "url" ? source.userinfoUrl : undefined,
+                userinfoUserAgent: detectedType === "url" ? source.userinfoUserAgent : undefined,
+              });
+            }
+          }
+
           return markSourceAsPendingImport({ ...source, content });
         })
       );
     },
-    [setSources, sources]
+    [maxSourcesPerType, setSources, sources]
   );
 
   const updateSourceMeta = React.useCallback(
