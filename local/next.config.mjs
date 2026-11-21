@@ -15,10 +15,12 @@ function loadFrontendConfig() {
 }
 
 const frontend = loadFrontendConfig();
+const isStaticExport = process.env.SUBBOOST_STATIC_EXPORT === "1";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  output: isStaticExport ? "export" : "standalone",
+  ...(isStaticExport ? { images: { unoptimized: true } } : {}),
   agentRules: false,
   outputFileTracingRoot: path.resolve(process.cwd(), ".."),
   transpilePackages: ["@subboost/core", "@subboost/ui", "@subboost/config"],
@@ -31,22 +33,26 @@ const nextConfig = {
     ];
     return config;
   },
-  async rewrites() {
-    const backend = (process.env.SUBBOOST_BACKEND_URL || frontend.backendUrl || "http://127.0.0.1:3002").replace(/\/+$/, "");
-    return [{ source: "/api/:path*", destination: `${backend}/api/:path*` }];
-  },
-  async headers() {
-    const headers = [
-      { key: "X-Content-Type-Options", value: "nosniff" },
-      { key: "X-Frame-Options", value: "DENY" },
-      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-      { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-      { key: "Cache-Control", value: "no-store, no-cache, max-age=0, must-revalidate" },
-    ];
-    return [
-      { source: "/:path*", headers },
-    ];
-  },
+  ...(isStaticExport
+    ? {}
+    : {
+        async rewrites() {
+          const backend = (process.env.SUBBOOST_BACKEND_URL || frontend.backendUrl || "http://127.0.0.1:3002").replace(/\/+$/, "");
+          return [{ source: "/api/:path*", destination: `${backend}/api/:path*` }];
+        },
+        async headers() {
+          const headers = [
+            { key: "X-Content-Type-Options", value: "nosniff" },
+            { key: "X-Frame-Options", value: "DENY" },
+            { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+            { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+            { key: "Cache-Control", value: "no-store, no-cache, max-age=0, must-revalidate" },
+          ];
+          return [
+            { source: "/:path*", headers },
+          ];
+        },
+      }),
 };
 
 export default nextConfig;

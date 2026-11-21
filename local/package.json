@@ -16,6 +16,8 @@
     "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
     "prebuild": "node scripts/ensure-root-node-modules.cjs && npm run clean",
     "build": "next build --webpack",
+    "prebuild:static": "node scripts/ensure-root-node-modules.cjs && npm run clean",
+    "build:static": "node scripts/build-static.cjs",
     "start": "node scripts/start-standalone.cjs",
     "check": "npm run lint && npm run typecheck && npm run build"
   },

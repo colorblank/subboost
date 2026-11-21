@@ -1,7 +1,6 @@
 import { createSubBoostFaviconRedirect } from "@subboost/ui/brand-favicon";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export function GET() {
   return createSubBoostFaviconRedirect();
