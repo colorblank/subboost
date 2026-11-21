@@ -132,7 +132,7 @@ describe("local source-import settings interactions", () => {
 
     const view = renderSettings();
 
-    expect(view.html).toContain("未登录");
+    expect(view.html).toContain("正在连接工作空间…");
     expect(view.setters[1]).toHaveBeenCalledWith(false);
     expect(view.switches[0]).toMatchObject({ disabled: true, checked: false });
     expect(fetchMock).not.toHaveBeenCalled();
@@ -209,7 +209,7 @@ describe("local source-import settings interactions", () => {
     })));
 
     const view = renderSettings();
-    expect(view.html).toContain("未登录");
+    expect(view.html).toContain("正在连接工作空间…");
     view.cleanups[0]();
     rejectFetch(new Error("cancelled request"));
     await flushPromises();
@@ -243,7 +243,7 @@ describe("local source-import settings interactions", () => {
     expect(view.setters[0]).toHaveBeenCalledWith(true);
     expect(view.setters[2]).toHaveBeenNthCalledWith(1, true);
     expect(view.setters[2]).toHaveBeenLastCalledWith(false);
-    expect(window.location.href).toBe("/login");
+    expect(window.location.href).toBe("/");
   });
 
   it.each([

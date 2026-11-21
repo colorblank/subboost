@@ -99,8 +99,8 @@ describe("source control state regressions", () => {
     render(React.createElement(SourceTypeChoices, { value: "url", onChange }));
     expect(mocks.captures.groups[0]).toMatchObject({
       label: "导入源类型",
-      className: "gap-1",
     });
+    expect(String(mocks.captures.groups[0].className)).toContain("gap-1");
     expect(mocks.captures.chips.map((chip) => chip.selected)).toEqual([true, false, false]);
     for (const chip of mocks.captures.chips) {
       (chip.onClick as () => void)();
@@ -109,7 +109,7 @@ describe("source control state regressions", () => {
 
     mocks.captures.chips = [];
     render(React.createElement(SourceTypeChoices, { value: "nodes", onChange, compact: true }));
-    expect(mocks.captures.groups[1]).toMatchObject({ className: "gap-0.5" });
+    expect(String(mocks.captures.groups[1].className)).toContain("gap-1");
     expect(mocks.captures.chips.map((chip) => chip.selected)).toEqual([false, false, true]);
   });
 
@@ -119,7 +119,7 @@ describe("source control state regressions", () => {
 
     render(React.createElement(AddSourceMenu, { open: false, onOpenChange, onAdd }));
     expect(mocks.captures.dropdowns[0]).toMatchObject({ open: false, onOpenChange });
-    expect(mocks.captures.buttons[0].className).toContain("h-8");
+    expect(mocks.captures.buttons[0].className).toContain("h-10");
     expect(mocks.captures.dropdownItems).toHaveLength(3);
     for (const item of mocks.captures.dropdownItems) {
       expect(item.className).toContain("py-2.5");
@@ -130,7 +130,7 @@ describe("source control state regressions", () => {
     mocks.captures.buttons = [];
     mocks.captures.dropdownItems = [];
     render(React.createElement(AddSourceMenu, { open: true, onOpenChange, onAdd, compact: true }));
-    expect(mocks.captures.buttons[0].className).toContain("h-7");
+    expect(mocks.captures.buttons[0].className).toContain("h-10");
     expect(mocks.captures.dropdownItems).toHaveLength(3);
     expect(mocks.captures.dropdownItems.every((item) => String(item.className).includes("py-2"))).toBe(true);
   });

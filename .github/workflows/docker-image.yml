@@ -7,18 +7,6 @@ on:
       - main
     tags:
       - "v*"
-    paths:
-      - ".github/workflows/docker-image.yml"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "backend/**"
-      - "config/**"
-      - "local/**"
-      - "package.json"
-      - "package-lock.json"
-      - "packages/**"
-      - "scripts/**"
-      - "tsconfig.json"
 
 permissions:
   contents: read
@@ -184,7 +172,6 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Mirror multi-platform image to Docker Hub (optional)
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         shell: bash
         env:
           IMAGE_NAME: ${{ needs.meta.outputs.image_name }}
@@ -197,6 +184,10 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          if [ -z "${DOCKERHUB_USERNAME}" ] || [ -z "${DOCKERHUB_TOKEN}" ]; then
+            echo "DOCKERHUB_USERNAME / DOCKERHUB_TOKEN not configured; skipping Docker Hub mirror."
+            exit 0
+          fi
           sudo apt-get update -qq
           sudo apt-get install -y -qq skopeo
           dh_image="docker.io/${DOCKERHUB_USERNAME}/subboost-aio"

@@ -177,11 +177,15 @@ vi.mock("@subboost/ui/components/ui/textarea", () => ({
   },
 }));
 vi.mock("@subboost/ui/components/ui/toaster", () => ({ toast: mocks.toast }));
+vi.mock("@subboost/core/config/defaults", () => ({
+  DEFAULT_SUBBOOST_CONFIG: { testUrl: "https://www.gstatic.com/generate_204" },
+}));
 vi.mock("@subboost/core/generator/proxy-groups", () => ({
   PROXY_GROUP_MODULES: [
     { id: "auto", name: "Auto", rules: [] },
     { id: "fallback", name: "Fallback", rules: [] },
   ],
+  getModulesForTemplate: () => ["auto", "fallback"],
 }));
 vi.mock("@subboost/core/generator/module-rules", () => ({
   getEffectiveModuleRules: (module: { id: string }) => mocks.effectiveRulesByModule[module.id] || [],
