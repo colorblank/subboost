@@ -10,11 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@subboost/ui/components/ui/dialog";
-import { Input } from "@subboost/ui/components/ui/input";
-import { FormField } from "@subboost/ui/components/ui/form-field";
-import { Switch } from "@subboost/ui/components/ui/switch";
-import { SwitchField } from "@subboost/ui/components/ui/switch-field";
-import { SmartNodeMatchingHelp } from "@subboost/ui/components/subscription/smart-node-matching-help";
+import { SubscriptionSettingsFields } from "@subboost/ui/components/subscription/subscription-settings-fields";
 import {
   getAutoUpdateIntervalPolicyMinLabel,
   resolveAutoUpdateIntervalPolicy,
@@ -81,55 +77,18 @@ export function SubscriptionSettingsDialog({
         </DialogHeader>
 
         <DialogBody className="space-y-4 py-2">
-          <FormField label="订阅名称">
-            <Input
-              value={settingsName}
-              onChange={(e) => setSettingsName(e.target.value)}
-              maxLength={100}
-              placeholder="例如：我的配置"
-              disabled={busy}
-            />
-          </FormField>
-
-          <div className="rounded-xl border border-ink/10 bg-ink/5 p-3.5 space-y-3">
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium text-fg-80">更新时智能匹配节点</p>
-                  <SmartNodeMatchingHelp enabled={smartNodeMatchingEnabled} />
-                </div>
-              </div>
-              <Switch
-                checked={smartNodeMatchingEnabled}
-                onCheckedChange={setSmartNodeMatchingEnabled}
-                aria-label="更新时智能匹配节点"
-                disabled={busy}
-              />
-            </div>
-
-            <div className="border-t border-ink/10" />
-
-            <SwitchField
-              label="启用自动更新"
-              appearance="plain"
-              checked={autoUpdateEnabled}
-              onCheckedChange={setAutoUpdateEnabled}
-              disabled={busy}
-            />
-
-            {autoUpdateEnabled && (
-              <FormField label="自动更新间隔（小时）" className="pt-1">
-                <Input
-                  type="number"
-                  min={policy.minHours}
-                  step={policy.stepHours}
-                  value={autoUpdateHours}
-                  onChange={(e) => setAutoUpdateHours(Number(e.target.value))}
-                  disabled={busy}
-                />
-              </FormField>
-            )}
-          </div>
+          <SubscriptionSettingsFields
+            name={settingsName}
+            onNameChange={setSettingsName}
+            smartNodeMatchingEnabled={smartNodeMatchingEnabled}
+            onSmartNodeMatchingChange={setSmartNodeMatchingEnabled}
+            autoUpdateEnabled={autoUpdateEnabled}
+            onAutoUpdateEnabledChange={setAutoUpdateEnabled}
+            autoUpdateHours={autoUpdateHours}
+            onAutoUpdateHoursChange={setAutoUpdateHours}
+            autoUpdatePolicy={policy}
+            disabled={busy}
+          />
 
           {!autoUpdateEnabled && subscription?.autoUpdateState.disabledAt && subscription.autoUpdateState.disabledReason && (
             <div className="rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-xs leading-relaxed text-amber-100">

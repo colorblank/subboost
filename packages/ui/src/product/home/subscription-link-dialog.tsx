@@ -3,12 +3,9 @@
 import type * as React from "react";
 import { Check, Copy, Link as LinkIcon, Loader2 } from "lucide-react";
 import { Button } from "@subboost/ui/components/ui/button";
-import { FormField } from "@subboost/ui/components/ui/form-field";
 import { IconButton } from "@subboost/ui/components/ui/icon-button";
 import { Input } from "@subboost/ui/components/ui/input";
-import { Switch } from "@subboost/ui/components/ui/switch";
-import { SwitchField } from "@subboost/ui/components/ui/switch-field";
-import { SmartNodeMatchingHelp } from "@subboost/ui/components/subscription/smart-node-matching-help";
+import { SubscriptionSettingsFields } from "@subboost/ui/components/subscription/subscription-settings-fields";
 import { SubscriptionQrCode } from "@subboost/ui/product/subscription/subscription-qr-code";
 import {
   Dialog,
@@ -87,56 +84,19 @@ export function SubscriptionLinkDialog({
 
         {!subscriptionUrl ? (
           <DialogBody className="space-y-4 py-4">
-            <FormField label="订阅名称">
-              <Input
-                placeholder="例如：我的配置"
-                value={subscriptionName}
-                onChange={(e) => setSubscriptionName(e.target.value)}
-                maxLength={100}
-              />
-            </FormField>
-
-            <div className="rounded-xl border border-ink/10 bg-ink/5 p-3.5 space-y-3">
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-fg-80">更新时智能匹配节点</p>
-                    <SmartNodeMatchingHelp enabled={smartNodeMatchingEnabled} />
-                  </div>
-                </div>
-                <Switch
-                  checked={smartNodeMatchingEnabled}
-                  onCheckedChange={setSmartNodeMatchingEnabled}
-                  aria-label="更新时智能匹配节点"
-                />
-              </div>
-
-              <div className="border-t border-ink/10" />
-
-              <SwitchField
-                label="启用自动更新"
-                description="开启后服务器会按设定间隔刷新缓存"
-                appearance="plain"
-                checked={autoUpdateEnabled}
-                onCheckedChange={setAutoUpdateEnabled}
-              />
-
-              {autoUpdateEnabled && (
-                <FormField
-                  label="自动更新间隔（小时）"
-                  description={`最小 ${minAutoUpdateLabel}，按创建时间计时`}
-                  className="pt-1"
-                >
-                  <Input
-                    type="number"
-                    min={autoUpdatePolicy.minHours}
-                    step={autoUpdatePolicy.stepHours}
-                    value={autoUpdateHours}
-                    onChange={(e) => setAutoUpdateHours(Number(e.target.value))}
-                  />
-                </FormField>
-              )}
-            </div>
+            <SubscriptionSettingsFields
+              name={subscriptionName}
+              onNameChange={setSubscriptionName}
+              smartNodeMatchingEnabled={smartNodeMatchingEnabled}
+              onSmartNodeMatchingChange={setSmartNodeMatchingEnabled}
+              autoUpdateEnabled={autoUpdateEnabled}
+              onAutoUpdateEnabledChange={setAutoUpdateEnabled}
+              autoUpdateHours={autoUpdateHours}
+              onAutoUpdateHoursChange={setAutoUpdateHours}
+              autoUpdatePolicy={autoUpdatePolicy}
+              autoUpdateDescription="开启后服务器会按设定间隔刷新缓存"
+              autoUpdateHoursDescription={`最小 ${minAutoUpdateLabel}，按创建时间计时`}
+            />
 
             <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-sm text-amber-200">
               <p className="font-medium mb-1">注意事项</p>
