@@ -4,14 +4,6 @@ set -eu
 PUID="${PUID:-1000}"
 PGID="${PGID:-1000}"
 
-run_as_user() {
-  if [ "$(id -u)" = "0" ] && command -v setpriv >/dev/null 2>&1; then
-    setpriv --reuid="$PUID" --regid="$PGID" --clear-groups "$@"
-  else
-    "$@"
-  fi
-}
-
 exec_as_user() {
   if [ "$(id -u)" = "0" ] && command -v setpriv >/dev/null 2>&1; then
     exec setpriv --reuid="$PUID" --regid="$PGID" --clear-groups "$@"
@@ -87,34 +79,15 @@ resolve_settings_path() {
 
 if [ "${1:-}" = "aio" ] || [ "${SUBBOOST_MODE:-}" = "aio" ]; then
   prepare_data_dir
-  export SUBBOOST_BACKEND_URL="${SUBBOOST_BACKEND_URL:-http://127.0.0.1:3002}"
-  patch_frontend_backend_url
   SETTINGS_PATH="$(resolve_settings_path)"
   DB_PATH="${SUBBOOST_DATABASE:-/data/subboost.sqlite3}"
-  BACKEND_LISTEN="${SUBBOOST_BACKEND_LISTEN:-127.0.0.1:3002}"
+  LISTEN_ADDR="${SUBBOOST_LISTEN:-0.0.0.0:${PORT:-3000}}"
 
-  run_as_user /usr/local/bin/subboost \
+  exec_as_user /usr/local/bin/subboost \
     --settings "$SETTINGS_PATH" \
     --database "$DB_PATH" \
     serve \
-    --listen "$BACKEND_LISTEN" &
-  BACKEND_PID=$!
-
-  cd /app/local
-  run_as_user node /app/local/server.js &
-  FRONTEND_PID=$!
-
-  cleanup() {
-    kill -TERM "$FRONTEND_PID" "$BACKEND_PID" 2>/dev/null || true
-    wait "$FRONTEND_PID" "$BACKEND_PID" 2>/dev/null || true
-  }
-  trap cleanup INT TERM
-
-  while kill -0 "$BACKEND_PID" 2>/dev/null && kill -0 "$FRONTEND_PID" 2>/dev/null; do
-    sleep 1
-  done
-  cleanup
-  exit 1
+    --listen "$LISTEN_ADDR"
 fi
 
 if [ "${1#-}" != "${1:-}" ]; then
