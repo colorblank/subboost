@@ -311,7 +311,13 @@ pub(super) async fn dispatch_inner(
         let mut response = json_response(json!({"success":true}), 200);
         append_cookie(
             &mut response,
-            &cookie(service, &headers, &authentication.administrator_cookie, "", 0),
+            &cookie(
+                service,
+                &headers,
+                &authentication.administrator_cookie,
+                "",
+                0,
+            ),
         )?;
         return Ok(response);
     }

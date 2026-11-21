@@ -237,9 +237,8 @@ async fn nas_multi_entry_allows_lan_tailscale_and_rewrites_subscription_urls() -
         .next()
         .context("cookie")?
         .to_owned();
-    let created: Value = serde_json::from_slice(
-        &create_response.into_body().collect().await?.to_bytes(),
-    )?;
+    let created: Value =
+        serde_json::from_slice(&create_response.into_body().collect().await?.to_bytes())?;
     assert!(
         created["subscription"]["subscriptionUrl"]
             .as_str()
@@ -259,9 +258,8 @@ async fn nas_multi_entry_allows_lan_tailscale_and_rewrites_subscription_urls() -
         )
         .await?;
     assert_eq!(list_response.status(), StatusCode::OK);
-    let listed: Value = serde_json::from_slice(
-        &list_response.into_body().collect().await?.to_bytes(),
-    )?;
+    let listed: Value =
+        serde_json::from_slice(&list_response.into_body().collect().await?.to_bytes())?;
     assert!(
         listed["subscriptions"][0]["subscriptionUrl"]
             .as_str()
