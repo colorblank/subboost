@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { sourceTypeInfo } from "./constants";
+import { sourceTypeInfo } from "./source-type-info";
 
-describe("advanced mode sourceTypeInfo", () => {
+describe("sourceTypeInfo", () => {
   it("describes all source types with labels, placeholders, and icons", () => {
     expect(Object.keys(sourceTypeInfo).sort()).toEqual(["nodes", "url", "yaml"]);
     expect(sourceTypeInfo.url).toMatchObject({

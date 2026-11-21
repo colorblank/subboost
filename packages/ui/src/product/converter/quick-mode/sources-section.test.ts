@@ -190,7 +190,7 @@ vi.mock("@subboost/ui/product/converter/source-editor-dialog", () => ({
   },
 }));
 vi.mock("@subboost/ui/product/interactions", () => ({ useProductInteractionAdapter: () => mocks.interactions }));
-vi.mock("./constants", () => ({
+vi.mock("@subboost/ui/product/converter/source-type-info", () => ({
   sourceTypeInfo: {
     url: {
       label: "URL",
