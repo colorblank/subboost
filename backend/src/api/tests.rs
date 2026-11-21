@@ -282,3 +282,48 @@ async fn nas_multi_entry_allows_lan_tailscale_and_rewrites_subscription_urls() -
     );
     Ok(())
 }
+
+#[tokio::test]
+async fn sessions_are_stored_as_sha256_hashes_not_plaintext() -> Result<()> {
+    let dir = tempfile::tempdir()?;
+    let service = Service::open({
+        let mut configuration = crate::config::Config::default();
+        configuration.application.database = dir.path().join("test.db");
+        configuration
+    })
+    .await?;
+    let app = router(service.clone());
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method("GET")
+                .uri("/api/auth/me")
+                .body(Body::empty())?,
+        )
+        .await?;
+    assert_eq!(response.status(), StatusCode::OK);
+    let raw_token = response.headers()[header::SET_COOKIE]
+        .to_str()?
+        .split(';')
+        .next()
+        .and_then(|pair| pair.split_once('='))
+        .map(|(_, val)| val.to_owned())
+        .context("session cookie value")?;
+    let stored_tokens: Vec<String> = service
+        .store
+        .run(|db| {
+            let mut stmt = db.prepare("SELECT token FROM sessions")?;
+            let rows = stmt
+                .query_map([], |r| r.get::<_, String>(0))?
+                .collect::<std::result::Result<Vec<_>, _>>()?;
+            Ok(rows)
+        })
+        .await?;
+    assert_eq!(stored_tokens.len(), 1);
+    assert_ne!(stored_tokens[0], raw_token);
+    assert_eq!(
+        stored_tokens[0],
+        super::auth::hash_session_token(&raw_token)
+    );
+    Ok(())
+}

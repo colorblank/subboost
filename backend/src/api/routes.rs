@@ -17,7 +17,7 @@ use crate::service::{Fault, fault, now, required, token};
 
 use super::{
     ApiState,
-    auth::{append_cookie, cookie, cookie_value, identity},
+    auth::{append_cookie, cookie, cookie_value, hash_session_token, identity},
     csrf::{check_origin, rewrite_subscription_urls, secure_equal},
     rate_limit::rate,
 };
@@ -287,13 +287,17 @@ pub(super) async fn dispatch_inner(
             (owner, username)
         };
         let value = token();
-        let stored = value.clone();
+        let stored = hash_session_token(&value);
         let stored_owner = owner.clone();
         let stored_username = username.clone();
         let session_seconds = authentication.administrator_session_seconds;
         service
             .store
             .run(move |db| {
+                db.execute(
+                    "DELETE FROM sessions WHERE expires<=?1",
+                    [Utc::now().timestamp()],
+                )?;
                 db.execute(
                     "INSERT INTO sessions(token,owner,username,guest,expires) VALUES(?1,?2,?3,0,?4)",
                     params![
@@ -324,11 +328,11 @@ pub(super) async fn dispatch_inner(
     }
     if path == "auth/logout" && method == Method::POST {
         if let Some(value) = cookie_value(&headers, &authentication.administrator_cookie) {
-            let value = value.to_owned();
+            let hashed = hash_session_token(value);
             service
                 .store
                 .run(move |db| {
-                    db.execute("DELETE FROM sessions WHERE token=?1 AND guest=0", [value])?;
+                    db.execute("DELETE FROM sessions WHERE token=?1 AND guest=0", [hashed])?;
                     Ok(())
                 })
                 .await?;

@@ -2,6 +2,8 @@
 //!
 //! 负责从 HTTP Cookie 中提取会话令牌、校验管理员身份，或自动签发受限访客（guest）临时身份。
 
+use std::fmt::Write as _;
+
 use anyhow::Result;
 use axum::{
     http::{HeaderMap, HeaderValue, header},
@@ -9,10 +11,22 @@ use axum::{
 };
 use chrono::Utc;
 use rusqlite::{OptionalExtension, params};
+use sha2::{Digest, Sha256};
 
 use crate::service::{Service, token};
 
 use super::csrf::is_https_request;
+
+/// 对会话令牌做 SHA-256 摘要，避免明文 Cookie 令牌落盘到 SQLite `sessions` 表。
+pub(super) fn hash_session_token(raw: &str) -> String {
+    let digest = Sha256::digest(raw.as_bytes());
+    let mut out = String::with_capacity(7 + digest.len() * 2);
+    out.push_str("sha256:");
+    for byte in digest {
+        let _ = write!(out, "{byte:02x}");
+    }
+    out
+}
 
 /// 请求发送者的认证身份上下文。
 #[derive(Clone)]
@@ -76,13 +90,14 @@ pub(super) async fn identity(service: &Service, headers: &HeaderMap) -> Result<I
         .map(str::to_owned);
     for (value, want_guest) in [(admin, false), (guest, true)] {
         if let Some(value) = value {
+            let hashed = hash_session_token(&value);
             let row = service
                 .store
                 .run(move |db| {
                     Ok(db
                         .query_row(
                             "SELECT owner,username,guest FROM sessions WHERE token=?1 AND expires>?2 AND guest=?3",
-                            params![value, Utc::now().timestamp(), want_guest],
+                            params![hashed, Utc::now().timestamp(), want_guest],
                             |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get::<_, bool>(2)?)),
                         )
                         .optional()?)
@@ -100,7 +115,7 @@ pub(super) async fn identity(service: &Service, headers: &HeaderMap) -> Result<I
     }
     let value = token();
     let owner = format!("guest:{}", token());
-    let stored = value.clone();
+    let stored = hash_session_token(&value);
     let stored_owner = owner.clone();
     let session_seconds = authentication.guest_session_seconds;
     service
