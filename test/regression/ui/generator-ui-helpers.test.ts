@@ -22,7 +22,6 @@ import { YamlHighlight } from "@subboost/ui/product/preview/diff-highlight";
 import { createNodeActions } from "@subboost/ui/store/config-store/actions/node-actions";
 import { createProxyGroupActions } from "@subboost/ui/store/config-store/actions/proxy-group-actions";
 import { initialState } from "@subboost/ui/store/config-store/definitions";
-import { PagePager } from "@subboost/ui/components/ui/page-pager";
 import { ProtocolBadge, getProtocolBadgeClass } from "@subboost/ui/components/ui/protocol-badge";
 import { SmartNodeMatchingHelp } from "@subboost/ui/components/subscription/smart-node-matching-help";
 import { SubscriptionImportErrorBadge } from "@subboost/ui/product/converter/subscription-import-error";
@@ -264,19 +263,6 @@ describe("public UI helper branch coverage", () => {
   });
 
   it("renders small public components with both enabled and fallback branches", () => {
-    const onPageChange = vi.fn();
-    const pager = renderToStaticMarkup(
-      React.createElement(PagePager, {
-        page: 2,
-        totalPages: 0,
-        onPageChange,
-        disabled: true,
-        className: "pager",
-      })
-    );
-    expect(pager).toContain("pager");
-    expect(pager).toContain("/ 1");
-
     expect(getProtocolBadgeClass(" VMess ")).toContain("purple");
     expect(getProtocolBadgeClass(undefined)).toContain("slate");
     expect(

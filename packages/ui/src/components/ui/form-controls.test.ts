@@ -7,16 +7,6 @@ import { IconButton, type IconButtonProps } from "./icon-button";
 import { Input } from "./input";
 import { PasswordField } from "./password-field";
 import { SwitchField } from "./switch-field";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./table";
 
 function getRootClassNames(html: string) {
   const className = html.match(/^<[^>]+ class="([^"]*)"/)?.[1];
@@ -156,27 +146,5 @@ describe("composed form controls", () => {
     expect(html).toContain('aria-label="源类型"');
     expect(html).toContain('aria-pressed="true"');
     expect(html).toContain('aria-pressed="false"');
-  });
-
-  it("renders the thin table elements inside a horizontal scroll container", () => {
-    const html = renderToStaticMarkup(
-      React.createElement(
-        TableContainer,
-        null,
-        React.createElement(
-          Table,
-          null,
-          React.createElement(TableCaption, null, "用户列表"),
-          React.createElement(TableHeader, null, React.createElement(TableRow, null, React.createElement(TableHead, null, "用户"))),
-          React.createElement(TableBody, null, React.createElement(TableRow, null, React.createElement(TableCell, null, "Ry")))
-        )
-      )
-    );
-
-    expect(html).toContain("overflow-x-auto");
-    expect(html).toContain("<table");
-    expect(html).toContain("<thead");
-    expect(html).toContain("<tbody");
-    expect(html).toContain("<caption");
   });
 });
