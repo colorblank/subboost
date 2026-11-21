@@ -1,15 +1,17 @@
-import type { BuiltinRuleEdits, CustomProxyGroup, CustomRule } from "@subboost/core/types/config";
+import type { CustomProxyGroup, CustomRule } from "@subboost/core/types/config";
 import {
   createCustomRuleId,
   ensureCustomRuleId,
 } from "@subboost/core/rules/custom-rule-utils";
-import { buildGeneratedRuleEntries, hasFullRuleOrderKeys, normalizePersistedRuleOrder } from "@subboost/core/generator/rules";
+import { buildGeneratedRuleEntries, hasFullRuleOrderKeys } from "@subboost/core/generator/rules";
 import { normalizeProxyGroupAdvancedConfig } from "@subboost/core/proxy-group-advanced";
 import type { ConfigActions } from "../definitions";
 import type { GetState, SetAndGenerateConfig, SetState } from "../store-types";
 import { getGeneratedPolicyTargetContext } from "../generated-policy-targets";
 import {
   compactBuiltinRuleEdits,
+  normalizeRuleOrderForState,
+  retargetBuiltinRuleEdits,
   ruleTargetMatchesContainer,
 } from "./proxy-group-rule-set-helpers";
 
@@ -24,49 +26,6 @@ type CustomActions = Pick<
   | "removeCustomProxyGroup"
   | "updateCustomProxyGroup"
 >;
-
-type NormalizeRuleOrderState = {
-  enabledProxyGroups: string[];
-  customProxyGroups: Parameters<typeof normalizePersistedRuleOrder>[0]["customProxyGroups"];
-  customRules: Parameters<typeof normalizePersistedRuleOrder>[0]["customRules"];
-  customRuleSets: Parameters<typeof normalizePersistedRuleOrder>[0]["customRuleSets"];
-  builtinRuleEdits: Parameters<typeof normalizePersistedRuleOrder>[0]["builtinRuleEdits"];
-  proxyGroupNameOverrides: Record<string, string>;
-  experimentalCnUseCnRuleSet: boolean;
-  cnIpNoResolve: boolean;
-  ruleOrder: string[];
-  generatedYaml?: string;
-};
-
-function normalizeRuleOrderForState(state: NormalizeRuleOrderState): string[] {
-  return normalizePersistedRuleOrder({
-    enabledModules: state.enabledProxyGroups,
-    customProxyGroups: state.customProxyGroups,
-    customRules: state.customRules,
-    customRuleSets: state.customRuleSets,
-    builtinRuleEdits: state.builtinRuleEdits,
-    proxyGroupNameOverrides: state.proxyGroupNameOverrides,
-    experimentalCnUseCnRuleSet: state.experimentalCnUseCnRuleSet,
-    cnIpNoResolve: state.cnIpNoResolve,
-    ruleOrder: state.ruleOrder,
-    ...getGeneratedPolicyTargetContext(state.generatedYaml),
-  });
-}
-
-function retargetBuiltinRuleEdits(edits: BuiltinRuleEdits, from: string, to: string): BuiltinRuleEdits {
-  if (!from || from === to) return edits;
-  let changed = false;
-  const next: BuiltinRuleEdits = {};
-  for (const [key, edit] of Object.entries(edits || {})) {
-    if (edit?.target === from) {
-      next[key] = { ...edit, target: to };
-      changed = true;
-    } else {
-      next[key] = edit;
-    }
-  }
-  return changed ? next : edits;
-}
 
 export function createCustomActions(
   _set: SetState,
