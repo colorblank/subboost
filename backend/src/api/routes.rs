@@ -1,6 +1,6 @@
 //! HTTP API 路由分发器与处理器实现。
 
-use std::{collections::HashMap, time::Duration};
+use std::{collections::HashMap, sync::OnceLock, time::Duration};
 
 use anyhow::{Result, ensure};
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_hash::SaltString};
@@ -21,6 +21,18 @@ use super::{
     csrf::{check_origin, rewrite_subscription_urls, secure_equal},
     rate_limit::rate,
 };
+
+/// 生成与 `Argon2::default()` 参数一致的哑哈希，用于用户名不存在时拉平校验耗时，防止时序枚举。
+fn dummy_password_hash() -> &'static str {
+    static DUMMY: OnceLock<String> = OnceLock::new();
+    DUMMY.get_or_init(|| {
+        let salt = SaltString::encode_b64(&[0u8; 16]).expect("static salt");
+        Argon2::default()
+            .hash_password(b"subboost-dummy-password", &salt)
+            .expect("dummy argon2 hash")
+            .to_string()
+    })
+}
 
 /// 构造标准的 JSON HTTP 响应。
 pub(super) fn json_response(value: Value, status: u16) -> Response {
@@ -221,6 +233,12 @@ pub(super) async fn dispatch_inner(
                 .await?;
             (owner, username)
         } else {
+            rate(
+                state,
+                format!("login_user:{}", username.to_ascii_lowercase()),
+                rates.logins,
+                Duration::from_secs(rates.login_window_seconds),
+            )?;
             let lookup = username.clone();
             let admin = service
                 .store
@@ -240,11 +258,17 @@ pub(super) async fn dispatch_inner(
                         .optional()?)
                 })
                 .await?;
-            let admin =
-                admin.ok_or_else(|| fault(401, "UNAUTHORIZED", "Invalid username or password"))?;
-            let (owner, username, hash) = admin;
+            let (owner, username, hash, account_exists) = match admin {
+                Some((owner, username, hash)) => (owner, username, hash, true),
+                None => (
+                    String::new(),
+                    String::new(),
+                    dummy_password_hash().to_owned(),
+                    false,
+                ),
+            };
             let valid = tokio::task::spawn_blocking(move || {
-                if hash.starts_with("$2") {
+                let verified = if hash.starts_with("$2") {
                     bcrypt::verify(password.as_bytes(), &hash).unwrap_or(false)
                 } else {
                     PasswordHash::new(&hash).ok().is_some_and(|hash| {
@@ -252,7 +276,8 @@ pub(super) async fn dispatch_inner(
                             .verify_password(password.as_bytes(), &hash)
                             .is_ok()
                     })
-                }
+                };
+                account_exists && verified
             })
             .await?;
             ensure!(
