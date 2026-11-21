@@ -234,7 +234,10 @@ export function HomeLayout({
                   value="quick"
                   className="mt-0 flex flex-col data-[state=inactive]:hidden lg:absolute lg:inset-0 lg:overflow-y-auto custom-scrollbar lg:pr-1"
                 >
-                  <QuickMode templateUpload={templateUpload} />
+                  <QuickMode
+                    templateUpload={templateUpload}
+                    onSwitchToAdvanced={() => handleConfigTabChange("advanced")}
+                  />
                 </TabsContent>
                 <TabsContent
                   value="advanced"

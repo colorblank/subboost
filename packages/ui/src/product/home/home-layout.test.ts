@@ -293,6 +293,8 @@ describe("HomeLayout", () => {
     expect(mocks.interactions.templateUploadOpened).toHaveBeenCalledWith({ entry: "home" });
     expect(mocks.links[0]).toMatchObject({ href: "/templates?upload=1" });
     expect(mocks.quickMode.templateUpload).toMatchObject({ href: "/templates?upload=1" });
+    mocks.quickMode.onSwitchToAdvanced();
+    expect(mocks.interactions.modeChanged).toHaveBeenCalledWith({ mode: "advanced" });
     mocks.quickMode.templateUpload.onOpen();
     expect(onTemplateUploadOpen).toHaveBeenCalledTimes(2);
     expect(mocks.interactions.templateUploadOpened).toHaveBeenCalledTimes(2);
