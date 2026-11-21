@@ -40,8 +40,9 @@ patch_frontend_backend_url() {
   if command -v node >/dev/null 2>&1; then
     node -e '
       const fs = require("node:fs");
+      const placeholder = (process.env.SUBBOOST_BUILD_BACKEND_URL || "http://backend:3002").replace(/\/+$/, "");
       const target = (process.env.SUBBOOST_BACKEND_URL || "").replace(/\/+$/, "");
-      if (!target || target === "http://backend:3002") process.exit(0);
+      if (!target || target === placeholder) process.exit(0);
       for (const file of [
         "/app/local/server.js",
         "/app/local/.next/routes-manifest.json",
@@ -49,8 +50,8 @@ patch_frontend_backend_url() {
       ]) {
         if (!fs.existsSync(file)) continue;
         const raw = fs.readFileSync(file, "utf8");
-        if (raw.includes("http://backend:3002")) {
-          fs.writeFileSync(file, raw.split("http://backend:3002").join(target), "utf8");
+        if (raw.includes(placeholder)) {
+          fs.writeFileSync(file, raw.split(placeholder).join(target), "utf8");
         }
       }
     ' 2>/dev/null || true

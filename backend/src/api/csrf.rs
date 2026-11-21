@@ -10,7 +10,10 @@ use crate::service::{Service, fault};
 
 /// 判断主机名是否属于本地回环、RFC1918 局域网、Tailscale/CGNAT（100.64.0.0/10）或局域网域名。
 pub(super) fn is_private_or_local_host(raw_host: &str) -> bool {
-    let host = raw_host.trim().trim_start_matches('[').trim_end_matches(']');
+    let host = raw_host
+        .trim()
+        .trim_start_matches('[')
+        .trim_end_matches(']');
     if host.is_empty() {
         return false;
     }
@@ -61,16 +64,22 @@ pub(super) fn is_loopback_app_url(app_url: &str) -> bool {
     host == "127.0.0.1" || host.eq_ignore_ascii_case("localhost") || host == "::1"
 }
 
-fn is_internal_backend_authority(authority: &str) -> bool {
-    matches!(
-        authority.trim().to_ascii_lowercase().as_str(),
-        "backend"
-            | "backend:3002"
-            | "127.0.0.1:3002"
-            | "localhost:3002"
-            | "[::1]:3002"
-            | "0.0.0.0:3002"
-    )
+fn is_internal_backend_authority(service: &Service, authority: &str) -> bool {
+    let lower = authority.trim().to_ascii_lowercase();
+    if lower == "backend" {
+        return true;
+    }
+    let Some((host, port_str)) = lower.rsplit_once(':') else {
+        return false;
+    };
+    let Ok(port) = port_str.parse::<u16>() else {
+        return false;
+    };
+    port == service.config.application.listen.port()
+        && matches!(
+            host,
+            "backend" | "127.0.0.1" | "localhost" | "[::1]" | "0.0.0.0"
+        )
 }
 
 fn first_header_token<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
@@ -116,7 +125,7 @@ pub(super) fn resolve_request_origin(service: &Service, headers: &HeaderMap) -> 
     };
 
     if let Some(forwarded_host) = first_header_token(headers, "x-forwarded-host") {
-        if !is_internal_backend_authority(forwarded_host) {
+        if !is_internal_backend_authority(service, forwarded_host) {
             if let Ok(parsed) = url::Url::parse(&format!("{default_scheme}://{forwarded_host}")) {
                 if parsed.host_str().is_some() {
                     return Some(parsed.origin().ascii_serialization());
@@ -133,7 +142,7 @@ pub(super) fn resolve_request_origin(service: &Service, headers: &HeaderMap) -> 
                         Some(port) => format!("{}:{port}", parsed.host_str().unwrap_or_default()),
                         None => parsed.host_str().unwrap_or_default().to_owned(),
                     };
-                    if !is_internal_backend_authority(&authority) {
+                    if !is_internal_backend_authority(service, &authority) {
                         return Some(parsed.origin().ascii_serialization());
                     }
                 }
@@ -142,7 +151,7 @@ pub(super) fn resolve_request_origin(service: &Service, headers: &HeaderMap) -> 
     }
 
     if let Some(host) = first_header_token(headers, header::HOST.as_str()) {
-        if !is_internal_backend_authority(host) {
+        if !is_internal_backend_authority(service, host) {
             if let Ok(parsed) = url::Url::parse(&format!("{default_scheme}://{host}")) {
                 if parsed.host_str().is_some() {
                     return Some(parsed.origin().ascii_serialization());
@@ -155,7 +164,11 @@ pub(super) fn resolve_request_origin(service: &Service, headers: &HeaderMap) -> 
 }
 
 /// 当 `app_url` 处于默认回环地址时，自动将返回 JSON 中的订阅链接前缀重写为客户端当前访问的 Origin（适配 NAS 局域网 IP / Tailscale / 反代多入口）。
-pub(super) fn rewrite_subscription_urls(service: &Service, headers: &HeaderMap, payload: &mut Value) {
+pub(super) fn rewrite_subscription_urls(
+    service: &Service,
+    headers: &HeaderMap,
+    payload: &mut Value,
+) {
     if !is_loopback_app_url(&service.config.application.app_url) {
         return;
     }
@@ -211,27 +224,25 @@ pub(super) fn check_origin(service: &Service, headers: &HeaderMap) -> Result<()>
         if origin == expected {
             return Ok(());
         }
-        let parsed = url::Url::parse(origin)
-            .map_err(|_| fault(403, "FORBIDDEN", "Invalid Origin"))?;
+        let parsed =
+            url::Url::parse(origin).map_err(|_| fault(403, "FORBIDDEN", "Invalid Origin"))?;
         let allowed = matches!(parsed.scheme(), "http" | "https")
             && parsed.host_str().is_some_and(|host| {
                 let authority = match parsed.port() {
                     Some(port) => format!("{host}:{port}"),
                     None => host.to_owned(),
                 };
-                let matches_request_host = [
-                    headers.get("x-forwarded-host"),
-                    headers.get(header::HOST),
-                ]
-                .into_iter()
-                .flatten()
-                .filter_map(|v| v.to_str().ok())
-                .flat_map(|v| v.split(','))
-                .map(str::trim)
-                .any(|candidate| {
-                    candidate.eq_ignore_ascii_case(&authority)
-                        || candidate.eq_ignore_ascii_case(host)
-                });
+                let matches_request_host =
+                    [headers.get("x-forwarded-host"), headers.get(header::HOST)]
+                        .into_iter()
+                        .flatten()
+                        .filter_map(|v| v.to_str().ok())
+                        .flat_map(|v| v.split(','))
+                        .map(str::trim)
+                        .any(|candidate| {
+                            candidate.eq_ignore_ascii_case(&authority)
+                                || candidate.eq_ignore_ascii_case(host)
+                        });
 
                 matches_request_host
                     || is_private_or_local_host(host)

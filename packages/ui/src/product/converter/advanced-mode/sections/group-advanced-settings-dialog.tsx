@@ -14,6 +14,7 @@ import { FormField } from "@subboost/ui/components/ui/form-field";
 import { Input } from "@subboost/ui/components/ui/input";
 import { SwitchField } from "@subboost/ui/components/ui/switch-field";
 import { useConfigStore } from "@subboost/ui/store/config-store";
+import { DEFAULT_SUBBOOST_CONFIG } from "@subboost/core/config/defaults";
 import {
   DEFAULT_LOAD_BALANCE_STRATEGY,
   type GroupListenerBinding,
@@ -140,7 +141,7 @@ export function GroupAdvancedSettingsDialog({
             <div className="space-y-3 rounded-xl border border-ink/10 bg-ink/[0.025] p-3">
               <FormField label="测速地址" description="仅用于当前代理组；留空沿用默认测速地址。" error={testUrlError}>
                 <Input value={draftTestUrl} onChange={(event) => setDraftTestUrl(event.target.value)}
-                  placeholder="https://www.gstatic.com/generate_204" className="h-8 text-xs" />
+                  placeholder={DEFAULT_SUBBOOST_CONFIG.testUrl} className="h-8 text-xs" />
               </FormField>
               <SwitchField label="共享健康检查" checked={draftSharedHealthChecks}
                 onCheckedChange={setDraftSharedHealthChecks} appearance="plain" density="compact" />
