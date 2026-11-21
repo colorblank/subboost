@@ -1,5 +1,6 @@
 import type { ParsedNode } from "@subboost/core/types/node";
 import {
+  extractSubscriptionInfoNodeHints,
   resolveSubscriptionUserInfo,
   type SubscriptionUserInfo,
 } from "@subboost/core/subscription/subscription-userinfo";
@@ -30,7 +31,7 @@ function formatExpireDate(expireSeconds: number): string {
 export function getSubscriptionUserInfoDisplay(
   info?: SubscriptionUserInfo,
   nodes: ParsedNode[] = []
-): { traffic: string | null; expire: string | null } {
+): { traffic: string | null; expire: string | null; remaining?: string } {
   const safeInfo = resolveSubscriptionUserInfo(info, nodes);
   const upload = typeof safeInfo.upload === "number" && Number.isFinite(safeInfo.upload) ? safeInfo.upload : 0;
   const download = typeof safeInfo.download === "number" && Number.isFinite(safeInfo.download) ? safeInfo.download : 0;
@@ -44,11 +45,20 @@ export function getSubscriptionUserInfoDisplay(
     return used > 0 ? formatBytes(used) : null;
   })();
 
+  const remaining = (() => {
+    if (traffic || !nodes.length) return undefined;
+    const hints = extractSubscriptionInfoNodeHints(nodes);
+    if (typeof hints.remainingBytes === "number" && Number.isFinite(hints.remainingBytes) && hints.remainingBytes > 0) {
+      return formatBytes(hints.remainingBytes);
+    }
+    return undefined;
+  })();
+
   const expireFromHeader =
     typeof safeInfo.expire === "number" && Number.isFinite(safeInfo.expire) && safeInfo.expire > 946684800
       ? formatExpireDate(safeInfo.expire)
       : null;
   const expire = expireFromHeader || null;
 
-  return { traffic, expire };
+  return remaining ? { traffic, expire, remaining } : { traffic, expire };
 }

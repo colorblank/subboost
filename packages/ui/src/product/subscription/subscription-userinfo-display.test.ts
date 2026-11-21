@@ -41,6 +41,19 @@ describe("getSubscriptionUserInfoDisplay", () => {
     });
   });
 
+  it("falls back to remaining traffic from info nodes when total traffic is unavailable", () => {
+    expect(
+      getSubscriptionUserInfoDisplay(undefined, [
+        infoNode("剩余流量：996.91 GB"),
+        infoNode("套餐到期：2026-12-15"),
+      ])
+    ).toEqual({
+      traffic: null,
+      remaining: "997 GB",
+      expire: "2026-12-15",
+    });
+  });
+
   it("returns empty labels when no meaningful info is available", () => {
     expect(getSubscriptionUserInfoDisplay()).toEqual({ traffic: null, expire: null });
     expect(getSubscriptionUserInfoDisplay({ upload: Number.NaN, download: -1, expire: 1 })).toEqual({

@@ -170,7 +170,7 @@ function parseHumanReadableBytes(text: string): number | undefined {
   return Math.round(value * 1024 ** exponent);
 }
 
-function extractSubscriptionInfoNodeHints(nodes: ParsedNode[]): SubscriptionInfoNodeHints {
+export function extractSubscriptionInfoNodeHints(nodes: ParsedNode[]): SubscriptionInfoNodeHints {
   const hints: SubscriptionInfoNodeHints = {};
 
   for (const node of nodes) {

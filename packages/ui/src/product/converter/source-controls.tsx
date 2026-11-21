@@ -72,7 +72,7 @@ export function SourceStatusPopover({
   if (!source.parsed || source.nodeCount === undefined) return null;
 
   const userInfo = getSubscriptionUserInfoDisplay(source.subscriptionUserInfo, nodes);
-  const hasUserInfo = Boolean(userInfo && (userInfo.traffic || userInfo.expire));
+  const hasUserInfo = Boolean(userInfo && (userInfo.traffic || userInfo.remaining || userInfo.expire));
 
   return (
     <Popover>
@@ -97,7 +97,11 @@ export function SourceStatusPopover({
           </div>
           {hasUserInfo && userInfo ? (
             <div className="space-y-1 text-fg-60">
-              {userInfo.traffic ? <p>已用流量：{userInfo.traffic}</p> : null}
+              {userInfo.traffic ? (
+                <p>已用流量：{userInfo.traffic}</p>
+              ) : userInfo.remaining ? (
+                <p>剩余流量：{userInfo.remaining}</p>
+              ) : null}
               {userInfo.expire ? <p>到期时间：{userInfo.expire}</p> : null}
             </div>
           ) : (
