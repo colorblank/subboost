@@ -232,21 +232,28 @@ pub(super) fn check_origin(service: &Service, headers: &HeaderMap) -> Result<()>
                     Some(port) => format!("{host}:{port}"),
                     None => host.to_owned(),
                 };
-                let matches_request_host =
+                let request_hosts: Vec<&str> =
                     [headers.get("x-forwarded-host"), headers.get(header::HOST)]
                         .into_iter()
                         .flatten()
                         .filter_map(|v| v.to_str().ok())
                         .flat_map(|v| v.split(','))
                         .map(str::trim)
-                        .any(|candidate| {
-                            candidate.eq_ignore_ascii_case(&authority)
-                                || candidate.eq_ignore_ascii_case(host)
-                        });
+                        .filter(|v| !v.is_empty())
+                        .collect();
+                let matches_request_host = request_hosts.iter().any(|candidate| {
+                    candidate.eq_ignore_ascii_case(&authority)
+                        || candidate.eq_ignore_ascii_case(host)
+                });
+                let only_internal_backend_host = !request_hosts.is_empty()
+                    && request_hosts
+                        .iter()
+                        .all(|candidate| is_internal_backend_authority(service, candidate));
 
                 matches_request_host
-                    || is_private_or_local_host(host)
-                    || sec_fetch_site == Some("same-origin")
+                    || (only_internal_backend_host
+                        && is_private_or_local_host(host)
+                        && sec_fetch_site == Some("same-origin"))
             });
         ensure!(
             allowed,

@@ -183,16 +183,29 @@ async fn csrf_rejects_cross_origin_mutations() -> Result<()> {
         configuration
     })
     .await?;
-    let response = router(service)
+    let response = router(service.clone())
         .oneshot(
             Request::builder()
                 .method("POST")
                 .uri("/api/auth/logout")
+                .header(header::HOST, "192.168.1.50:3001")
                 .header("Origin", "https://attacker.example")
                 .body(Body::empty())?,
         )
         .await?;
     assert_eq!(response.status(), StatusCode::FORBIDDEN);
+
+    let lan_cross_origin = router(service)
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/api/auth/logout")
+                .header(header::HOST, "192.168.1.50:3001")
+                .header("Origin", "http://192.168.1.99:8080")
+                .body(Body::empty())?,
+        )
+        .await?;
+    assert_eq!(lan_cross_origin.status(), StatusCode::FORBIDDEN);
     Ok(())
 }
 
@@ -225,6 +238,7 @@ async fn nas_multi_entry_allows_lan_tailscale_and_rewrites_subscription_urls() -
             Request::builder()
                 .method("POST")
                 .uri("/api/subscriptions")
+                .header(header::HOST, "192.168.1.50:3001")
                 .header("Origin", "http://192.168.1.50:3001")
                 .header(header::CONTENT_TYPE, "application/json")
                 .body(Body::from(input.to_string()))?,
