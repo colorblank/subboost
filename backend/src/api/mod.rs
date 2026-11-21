@@ -23,6 +23,7 @@ use crate::service::Service;
 
 mod auth;
 mod csrf;
+mod frontend;
 mod rate_limit;
 mod routes;
 
@@ -47,14 +48,20 @@ pub fn router(service: Service) -> Router {
     };
     Router::new()
         .route("/api/{*path}", any(dispatch))
+        .fallback(frontend::serve_embedded_asset)
         .with_state(state)
 }
 
 /// 启动 HTTP API 服务并绑定指定监听地址，同时按配置启动订阅后台更新任务。
 pub async fn serve(service: Service, listen: SocketAddr) -> Result<()> {
     let listener = tokio::net::TcpListener::bind(listen).await?;
+    let mode = if frontend::has_embedded_frontend() {
+        "Web UI + API"
+    } else {
+        "API"
+    };
     eprintln!(
-        "SubBoost Rust API listening on http://{}",
+        "SubBoost Rust {mode} listening on http://{}",
         listener.local_addr()?
     );
     let updates = service
