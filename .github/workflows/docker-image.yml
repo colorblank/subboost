@@ -1,0 +1,215 @@
+name: Build & Publish Docker Image (AIO)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+    paths:
+      - ".github/workflows/docker-image.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "backend/**"
+      - "config/**"
+      - "local/**"
+      - "package.json"
+      - "package-lock.json"
+      - "packages/**"
+      - "scripts/**"
+      - "tsconfig.json"
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.meta.outputs.image_name }}
+      release_version: ${{ steps.meta.outputs.release_version }}
+      build_version: ${{ steps.meta.outputs.build_version }}
+      short_sha: ${{ steps.meta.outputs.short_sha }}
+      is_tag: ${{ steps.meta.outputs.is_tag }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Compute image metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo_lower="$(printf '%s' "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          release_version="$(node -p "require('./package.json').version")"
+          short_sha="${GITHUB_SHA::12}"
+          is_tag="false"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            is_tag="true"
+          fi
+          {
+            echo "image_name=ghcr.io/${repo_lower}-aio"
+            echo "release_version=${release_version}"
+            echo "build_version=${release_version}+sha.${short_sha}"
+            echo "short_sha=${short_sha}"
+            echo "is_tag=${is_tag}"
+          } >> "$GITHUB_OUTPUT"
+
+  build:
+    runs-on: ${{ matrix.runner }}
+    needs: meta
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.platform }} digest
+        id: build_image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: local/Dockerfile
+          target: aio
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          build-args: |
+            APP_RELEASE_VERSION=${{ needs.meta.outputs.release_version }}
+            APP_BUILD_SHA=${{ github.sha }}
+            APP_VERSION=${{ needs.meta.outputs.build_version }}
+            APP_VERSION_TOKEN=${{ needs.meta.outputs.build_version }}
+          cache-from: type=gha,scope=aio-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=aio-${{ matrix.arch }}
+          provenance: false
+          tags: ${{ needs.meta.outputs.image_name }}
+
+      - name: Export digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/digests"
+          digest="${{ steps.build_image.outputs.digest }}"
+          touch "${RUNNER_TEMP}/digests/${digest#sha256:}"
+
+      - name: Upload digest artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aio-digest-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    runs-on: ubuntu-latest
+    needs:
+      - meta
+      - build
+    steps:
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download architecture digests
+        uses: actions/download-artifact@v4
+        with:
+          pattern: aio-digest-*
+          path: ${{ runner.temp }}/digests
+          merge-multiple: true
+
+      - name: Assemble multi-platform manifest and publish tags
+        shell: bash
+        env:
+          IMAGE_NAME: ${{ needs.meta.outputs.image_name }}
+          RELEASE_VERSION: ${{ needs.meta.outputs.release_version }}
+          SHORT_SHA: ${{ needs.meta.outputs.short_sha }}
+          IS_TAG: ${{ needs.meta.outputs.is_tag }}
+        run: |
+          set -euo pipefail
+          mapfile -t digest_files < <(find "${RUNNER_TEMP}/digests" -type f | sort)
+          [ "${#digest_files[@]}" -eq 2 ] || { echo "Expected 2 architecture digests, got ${#digest_files[@]}" >&2; exit 1; }
+
+          sources=()
+          for file in "${digest_files[@]}"; do
+            sources+=("${IMAGE_NAME}@sha256:$(basename "$file")")
+          done
+
+          tag_args=(
+            --tag "${IMAGE_NAME}:latest"
+            --tag "${IMAGE_NAME}:sha-${SHORT_SHA}"
+          )
+          if [ "${IS_TAG}" = "true" ]; then
+            tag_args+=(--tag "${IMAGE_NAME}:${GITHUB_REF_NAME}" --tag "${IMAGE_NAME}:${RELEASE_VERSION}")
+          else
+            tag_args+=(--tag "${IMAGE_NAME}:${GITHUB_REF_NAME}")
+          fi
+
+          docker buildx imagetools create "${tag_args[@]}" "${sources[@]}"
+
+          {
+            echo "### Published SubBoost AIO Image (Single Rust Binary)"
+            echo ""
+            echo "- Image: \`${IMAGE_NAME}:latest\`"
+            echo "- SHA Tag: \`${IMAGE_NAME}:sha-${SHORT_SHA}\`"
+            echo "- Platforms: \`linux/amd64\`, \`linux/arm64\`"
+            echo ""
+            echo '```bash'
+            echo "docker run -d --name subboost --restart unless-stopped -p 3001:3000 -v ./data:/data ${IMAGE_NAME}:latest"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Mirror multi-platform image to Docker Hub (optional)
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        shell: bash
+        env:
+          IMAGE_NAME: ${{ needs.meta.outputs.image_name }}
+          RELEASE_VERSION: ${{ needs.meta.outputs.release_version }}
+          SHORT_SHA: ${{ needs.meta.outputs.short_sha }}
+          IS_TAG: ${{ needs.meta.outputs.is_tag }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          GHCR_ACTOR: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq skopeo
+          dh_image="docker.io/${DOCKERHUB_USERNAME}/subboost-aio"
+          tags=("latest" "sha-${SHORT_SHA}")
+          if [ "${IS_TAG}" = "true" ]; then
+            tags+=("${GITHUB_REF_NAME}" "${RELEASE_VERSION}")
+          else
+            tags+=("${GITHUB_REF_NAME}")
+          fi
+          for tag in "${tags[@]}"; do
+            skopeo copy --all \
+              --src-creds "${GHCR_ACTOR}:${GHCR_TOKEN}" \
+              --dest-creds "${DOCKERHUB_USERNAME}:${DOCKERHUB_TOKEN}" \
+              "docker://${IMAGE_NAME}:latest" \
+              "docker://${dh_image}:${tag}"
+          done
