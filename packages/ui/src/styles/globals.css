@@ -5,7 +5,6 @@
   --animate-fade-in: fadeIn 0.3s ease-in-out;
   --animate-slide-up: slideUp 0.3s ease-out;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-pulse-glow: pulseGlow 2s ease-in-out infinite;
 }
 
 :root {
@@ -90,15 +89,6 @@
   100% { transform: translateY(0); opacity: 1; }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
 /* 渐变背景 */
 .bg-gradient-radial {
   background: var(--page-glow);
@@ -115,74 +105,14 @@
     @apply bg-surface backdrop-blur-xl border border-ink/10 rounded-2xl shadow-(--glass-shadow);
   }
 
-  .glass-card-hover {
-    @apply bg-surface backdrop-blur-xl border border-ink/10 rounded-2xl shadow-(--glass-shadow) transition-all duration-300 hover:bg-surface-raised hover:border-indigo-500/30;
-  }
-
-  /* 发光边框 */
-  .glow-border {
-    @apply relative;
-  }
-
-  .glow-border::before {
-    content: "";
-    @apply absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300;
-    background: linear-gradient(
-      135deg,
-      rgba(99, 102, 241, 0.2) 0%,
-      rgba(99, 102, 241, 0) 50%,
-      rgba(99, 102, 241, 0.1) 100%
-    );
-  }
-
-  .glow-border:hover::before {
-    @apply opacity-100;
-  }
-
-  /* 渐变文字 */
-  .text-gradient {
-    @apply bg-gradient-to-r from-heading-from via-heading-from to-heading-to bg-clip-text text-transparent;
-  }
-
   /* 按钮样式 */
   .btn-primary {
     @apply border border-btn-primary-border bg-btn-primary text-btn-primary-fg font-medium px-4 py-2 rounded-xl transition-all duration-200 shadow-(--btn-primary-shadow) hover:bg-btn-primary-hover hover:border-btn-primary-border-hover hover:shadow-(--btn-primary-shadow-hover) disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
-  .btn-secondary {
-    @apply bg-btn-outline hover:bg-btn-outline-hover text-btn-outline-fg hover:text-btn-outline-fg-hover font-medium px-4 py-2 rounded-xl transition-all duration-200 border border-btn-outline-border shadow-(--btn-outline-shadow) disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-ghost {
-    @apply hover:bg-ink/5 text-fg-60 hover:text-fg font-medium px-4 py-2 rounded-xl transition-all duration-200;
-  }
-
-  /* 输入框样式 */
-  .input-base {
-    @apply bg-field border border-field-border rounded-xl px-4 py-2 text-fg placeholder:text-fg-40 focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-indigo-500 transition-all duration-200;
-  }
-
-  /* 折叠面板触发器 */
-  .accordion-trigger {
-    @apply flex items-center justify-between w-full py-4 px-4 text-left font-medium text-fg-80 hover:text-fg transition-colors;
-  }
-
-  .accordion-trigger[data-state="open"] > svg {
-    @apply rotate-180;
-  }
-
   /* 标签样式 */
   .tag {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-ink/5 text-fg-60;
-  }
-
-  .tag-accent {
-    @apply bg-indigo-500/20 text-indigo-400;
-  }
-
-  /* 统计卡片 */
-  .stat-card {
-    @apply text-center p-3 bg-ink/5 rounded-2xl border border-ink/10;
   }
 
   .proxy-group-module-header {
@@ -399,16 +329,6 @@
   ::selection {
     background-color: var(--selection-bg);
     color: var(--fg);
-  }
-
-  /* 隐藏滚动条但保持滚动功能 */
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
   }
 
   /* 自定义滚动条类 - 用于特定元素 */
