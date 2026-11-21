@@ -1,9 +1,70 @@
 "use client";
 
+import * as React from "react";
+import { X } from "lucide-react";
+import { IconButton } from "@subboost/ui/components/ui/icon-button";
 import { HomeSurface, type HomeSurfaceAdapter } from "@subboost/ui/product/home/home-surface";
 import { readJsonResponse, readSourceImportResponse } from "@subboost/ui/product/client-response";
 import { createRulesProductApi, type QuickTemplateDetail } from "@subboost/ui/product/api-adapter";
 import { useRuntimeConfig } from "@local/lib/runtime-config";
+
+const WORKSPACE_NOTICE_DISMISSED_KEY = "subboost-local-workspace-notice-dismissed";
+
+function LocalWorkspaceNotice({ isGuest }: { isGuest: boolean }) {
+  const [dismissed, setDismissed] = React.useState(false);
+
+  React.useEffect(() => {
+    try {
+      if (window.localStorage.getItem(WORKSPACE_NOTICE_DISMISSED_KEY) === "1") {
+        setDismissed(true);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  if (dismissed) return null;
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    try {
+      window.localStorage.setItem(WORKSPACE_NOTICE_DISMISSED_KEY, "1");
+    } catch {
+      // ignore storage errors
+    }
+  };
+
+  return (
+    <aside className="mb-4 flex flex-col gap-3 rounded-xl border border-ink/10 bg-ink/5 px-4 py-3 text-sm sm:flex-row sm:items-start sm:justify-between" aria-label="本地工作空间">
+      <div className="min-w-0">
+        <p className="font-medium text-fg">{isGuest ? "游客工作空间 · 无需注册" : "本地工作空间"}</p>
+        <p className="mt-1 text-xs leading-relaxed text-fg-60">
+          订阅和模板保存在本地 SQLite，游客数据按浏览器 Cookie 隔离。请保留 Cookie；订阅链接持有者可读取配置，请勿公开分享。
+        </p>
+      </div>
+      <div className="flex shrink-0 items-start gap-2">
+        <details className="text-xs text-fg-60 sm:max-w-xs">
+          <summary className="cursor-pointer rounded py-1 font-medium text-fg-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
+            终端与 AI 工具 · CLI / MCP
+          </summary>
+          <div className="mt-2 space-y-2">
+            <p>命令行转换：<code className="break-all">subboost convert --help</code></p>
+            <p>原生 MCP stdio：<code className="break-all">subboost mcp</code></p>
+            <p>CLI / MCP 使用独立的本地空间，不会读取浏览器游客数据。</p>
+          </div>
+        </details>
+        <IconButton
+          label="收起提示"
+          variant="ghost"
+          onClick={handleDismiss}
+          className="h-7 w-7 rounded-lg p-1 text-fg-45 hover:bg-ink/5 hover:text-fg"
+        >
+          <X className="h-3.5 w-3.5" aria-hidden="true" />
+        </IconButton>
+      </div>
+    </aside>
+  );
+}
 
 type TemplateListResponse = {
   templates?: Array<{ id: string; name?: string; description?: string }>;
@@ -12,26 +73,7 @@ type TemplateListResponse = {
 const localHomeAdapter: HomeSurfaceAdapter = {
   loginHref: "/login",
   templateUploadHref: "/templates?upload=1",
-  renderNotice: ({ user }) => (
-    <aside className="mb-4 flex flex-col gap-3 rounded-xl border border-ink/10 bg-ink/5 px-4 py-3 text-sm sm:flex-row sm:items-start sm:justify-between" aria-label="本地工作空间">
-      <div className="min-w-0">
-        <p className="font-medium text-fg">{user?.isGuest ? "游客工作空间 · 无需注册" : "本地工作空间"}</p>
-        <p className="mt-1 text-xs leading-relaxed text-fg-60">
-          订阅和模板保存在本地 SQLite，游客数据按浏览器 Cookie 隔离。请保留 Cookie；订阅链接持有者可读取配置，请勿公开分享。
-        </p>
-      </div>
-      <details className="shrink-0 text-xs text-fg-60 sm:max-w-xs">
-        <summary className="cursor-pointer rounded py-1 font-medium text-fg-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
-          终端与 AI 工具 · CLI / MCP
-        </summary>
-        <div className="mt-2 space-y-2">
-          <p>命令行转换：<code className="break-all">subboost convert --help</code></p>
-          <p>原生 MCP stdio：<code className="break-all">subboost mcp</code></p>
-          <p>CLI / MCP 使用独立的本地空间，不会读取浏览器游客数据。</p>
-        </div>
-      </details>
-    </aside>
-  ),
+  renderNotice: ({ user }) => <LocalWorkspaceNotice isGuest={Boolean(user?.isGuest)} />,
   productApi: {
     sourceImport: {
       importSource: async (request) => {

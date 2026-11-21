@@ -51,9 +51,9 @@ export function SourceCards({
 
         return (
           <div key={source.id} className={cardClassName}>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <span className="text-sm font-medium text-fg-80">
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                <span className="whitespace-nowrap text-sm font-medium text-fg-80">
                   {sourceDisplayLabel}
                 </span>
                 <SourceStatusPopover source={source} nodes={sourceNodes} />
@@ -61,14 +61,14 @@ export function SourceCards({
                   <SubscriptionImportErrorBadge errorInfo={source.errorInfo} errorMessage={source.error} />
                 )}
               </div>
-              <div className="ml-auto flex shrink-0 items-center gap-1">
+              <div className="ml-auto flex shrink-0 items-center gap-0.5">
                 <div className="flex items-center">
                   <IconButton
                     label="上移"
                     variant="ghost"
                     onClick={() => onMoveSource(source.id, "up")}
                     disabled={index <= 0}
-                    className="h-8 w-8 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
+                    className="h-7 w-7 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
                   >
                     <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
                   </IconButton>
@@ -77,7 +77,7 @@ export function SourceCards({
                     variant="ghost"
                     onClick={() => onMoveSource(source.id, "down")}
                     disabled={index >= sources.length - 1}
-                    className="h-8 w-8 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
+                    className="h-7 w-7 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
                   >
                     <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                   </IconButton>
@@ -86,7 +86,7 @@ export function SourceCards({
                   label="高级编辑"
                   variant="ghost"
                   onClick={() => onExpandSource(source.id)}
-                  className="h-8 w-8 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
+                  className="h-7 w-7 rounded-lg p-1 text-fg-50 hover:bg-ink/5 hover:text-fg"
                 >
                   <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
                 </IconButton>
@@ -97,7 +97,7 @@ export function SourceCards({
                   variant={source.parsed ? "secondary" : "default"}
                   onClick={() => onImportSource(source.id)}
                   disabled={!source.content.trim() || source.parsing}
-                  className="h-8 w-24 rounded-lg px-3"
+                  className="h-7 whitespace-nowrap rounded-lg px-2.5 text-xs"
                   title={source.parsing ? "导入中..." : source.parsed ? "重新导入" : "导入此源"}
                 >
                   {source.parsing ? (
@@ -112,7 +112,7 @@ export function SourceCards({
                     label="删除导入源"
                     variant="ghost"
                     onClick={() => onRemoveSource(source.id)}
-                    className="h-8 w-8 rounded-lg p-1 text-fg-50 hover:bg-red-500/10 hover:text-red-400"
+                    className="h-7 w-7 rounded-lg p-1 text-fg-50 hover:bg-red-500/10 hover:text-red-400"
                   >
                     <X className="h-3.5 w-3.5" aria-hidden="true" />
                   </IconButton>
