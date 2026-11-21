@@ -169,7 +169,7 @@ vi.mock("@subboost/ui/product/converter/source-controls", async (importOriginal)
   };
 });
 vi.mock("@subboost/ui/product/interactions", () => ({ useProductInteractionAdapter: () => mocks.interactions }));
-vi.mock("../constants", () => ({
+vi.mock("@subboost/ui/product/converter/source-type-info", () => ({
   sourceTypeInfo: {
     url: { label: "订阅链接", placeholder: "https://example.com/sub", icon: () => null },
     yaml: { label: "YAML 配置", placeholder: "proxies:", icon: () => null },
@@ -188,8 +188,8 @@ vi.mock("@subboost/ui/product/converter/subscription-import-error", () => ({
     return null;
   },
 }));
-vi.mock("./input-source-editor-dialog", () => ({
-  InputSourceEditorDialog: (props: any) => {
+vi.mock("@subboost/ui/product/converter/source-editor-dialog", () => ({
+  SourceEditorDialog: (props: any) => {
     mocks.captures.editor = props;
     return null;
   },

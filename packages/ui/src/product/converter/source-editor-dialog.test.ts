@@ -64,7 +64,7 @@ vi.mock("@subboost/ui/components/ui/textarea", () => ({
 vi.mock("@subboost/core/node-name-template", () => ({
   DEFAULT_NODE_NAME_TEMPLATE: "{tag}-{name}",
 }));
-vi.mock("../constants", () => ({
+vi.mock("@subboost/ui/product/converter/source-type-info", () => ({
   sourceTypeInfo: {
     url: { label: "订阅链接", placeholder: "https://example.com/sub" },
     yaml: { label: "YAML 配置", placeholder: "proxies:" },
@@ -72,7 +72,7 @@ vi.mock("../constants", () => ({
   },
 }));
 
-import { InputSourceEditorDialog } from "./input-source-editor-dialog";
+import { SourceEditorDialog } from "@subboost/ui/product/converter/source-editor-dialog";
 
 const urlSource = {
   id: "source-url",
@@ -85,7 +85,7 @@ const urlSource = {
   userinfoUserAgent: "Clash.Meta",
 };
 
-function renderDialog(props: Partial<React.ComponentProps<typeof InputSourceEditorDialog>> = {}) {
+function renderDialog(props: Partial<React.ComponentProps<typeof SourceEditorDialog>> = {}) {
   mocks.buttons = [];
   mocks.dialogs = [];
   mocks.inputs = [];
@@ -98,12 +98,12 @@ function renderDialog(props: Partial<React.ComponentProps<typeof InputSourceEdit
     onUpdateContent: vi.fn(),
     onUpdateMeta: vi.fn(),
     ...props,
-  } as React.ComponentProps<typeof InputSourceEditorDialog>;
-  const html = renderToStaticMarkup(React.createElement(InputSourceEditorDialog, handlers));
+  } as React.ComponentProps<typeof SourceEditorDialog>;
+  const html = renderToStaticMarkup(React.createElement(SourceEditorDialog, handlers));
   return { html, handlers };
 }
 
-describe("InputSourceEditorDialog", () => {
+describe("SourceEditorDialog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

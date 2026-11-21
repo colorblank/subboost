@@ -61,8 +61,8 @@ vi.mock("@subboost/ui/product/converter/source-controls", () => ({
   SourceTypeChoices: () => null,
 }));
 vi.mock("../section-header", () => ({ SectionHeader: () => null }));
-vi.mock("./input-source-editor-dialog", () => ({
-  InputSourceEditorDialog: (props: any) => {
+vi.mock("@subboost/ui/product/converter/source-editor-dialog", () => ({
+  SourceEditorDialog: (props: any) => {
     mocks.captures.editor = props;
     return null;
   },

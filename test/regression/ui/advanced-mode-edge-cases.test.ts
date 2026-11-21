@@ -241,7 +241,7 @@ vi.mock("@subboost/ui/store/config-store", () => {
   };
 });
 vi.mock("@subboost/ui/store/user-store", () => ({ useUserStore: () => ({ user: mocks.user }) }));
-vi.mock("@subboost/ui/product/converter/advanced-mode/constants", () => ({
+vi.mock("@subboost/ui/product/converter/source-type-info", () => ({
   sourceTypeInfo: {
     url: { label: "订阅链接", placeholder: "https://example.com/sub", icon: () => null },
     yaml: { label: "YAML 配置", placeholder: "proxies:", icon: () => null },
@@ -254,8 +254,8 @@ vi.mock("@subboost/ui/product/converter/advanced-mode/section-header", () => ({
     return React.createElement("header", null, props.title, props.badge);
   },
 }));
-vi.mock("@subboost/ui/product/converter/advanced-mode/sections/input-source-editor-dialog", () => ({
-  InputSourceEditorDialog: (props: any) => {
+vi.mock("@subboost/ui/product/converter/source-editor-dialog", () => ({
+  SourceEditorDialog: (props: any) => {
     mocks.captures.editor = props;
     return null;
   },
