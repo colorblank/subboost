@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
   quickMode: undefined as any,
   subscriptionDialog: undefined as any,
   yamlHighlight: undefined as any,
+  copyTextToClipboard: vi.fn(async () => true),
+  toast: vi.fn(),
   interactions: {
     modeChanged: vi.fn(),
     templateUploadOpened: vi.fn(),
@@ -50,6 +52,8 @@ vi.mock("next/link", () => ({
 
 vi.mock("lucide-react", () => ({
   AlertTriangle: () => React.createElement("span", null, "alert-icon"),
+  Check: () => React.createElement("span", null, "check-icon"),
+  Copy: () => React.createElement("span", null, "copy-icon"),
   Download: () => React.createElement("span", null, "download-icon"),
   ExternalLink: () => React.createElement("span", null, "external-icon"),
   Eye: () => React.createElement("span", null, "eye-icon"),
@@ -57,6 +61,14 @@ vi.mock("lucide-react", () => ({
   Settings2: () => React.createElement("span", null, "settings-icon"),
   Upload: () => React.createElement("span", null, "upload-icon"),
   Zap: () => React.createElement("span", null, "zap-icon"),
+}));
+
+vi.mock("@subboost/ui/components/ui/toaster", () => ({
+  toast: mocks.toast,
+}));
+
+vi.mock("@subboost/ui/lib/clipboard", () => ({
+  copyTextToClipboard: mocks.copyTextToClipboard,
 }));
 
 vi.mock("@subboost/ui/components/ui/button", () => ({
@@ -226,7 +238,7 @@ describe("HomeLayout", () => {
     });
   });
 
-  it("wires advanced edit actions, upload tracking, and YAML preview", () => {
+  it("wires advanced edit actions, upload tracking, and YAML preview", async () => {
     const handleGenerate = vi.fn();
     const handleDownload = vi.fn();
     const onTemplateUploadOpen = vi.fn();
@@ -270,11 +282,14 @@ describe("HomeLayout", () => {
 
     mocks.buttons[0].onClick();
     mocks.buttons[1].onClick();
-    mocks.buttons[2].onClick();
+    await mocks.buttons[2].onClick();
     mocks.buttons[3].onClick();
+    mocks.buttons[4].onClick();
 
     expect(handleGenerate).toHaveBeenCalledWith("advanced");
     expect(onTemplateUploadOpen).toHaveBeenCalled();
+    expect(mocks.copyTextToClipboard).toHaveBeenCalledWith("mixed-port: 7890");
+    expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({ title: "已复制 YAML 配置" }));
     expect(mocks.interactions.templateUploadOpened).toHaveBeenCalledWith({ entry: "home" });
     expect(mocks.links[0]).toMatchObject({ href: "/templates?upload=1" });
     expect(mocks.quickMode.templateUpload).toMatchObject({ href: "/templates?upload=1" });

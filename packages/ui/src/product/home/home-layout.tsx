@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import {
+  Check,
+  Copy,
   Download,
   AlertTriangle,
   ExternalLink,
@@ -15,6 +17,7 @@ import {
 import { Button } from "@subboost/ui/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@subboost/ui/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@subboost/ui/components/ui/tabs";
+import { toast } from "@subboost/ui/components/ui/toaster";
 import { QuickMode } from "@subboost/ui/product/converter/quick-mode";
 import { AdvancedMode } from "@subboost/ui/product/converter/advanced-mode";
 import { UnsavedPrompt } from "@subboost/ui/product/home/unsaved-prompt";
@@ -23,6 +26,7 @@ import { YamlHighlight } from "@subboost/ui/product/preview/diff-highlight";
 import { SubscriptionLinkDialog } from "@subboost/ui/product/home/subscription-link-dialog";
 import { artisticTabsIconClassName, artisticTabsListClassName, artisticTabsTriggerClassName } from "@subboost/ui/components/ui/artistic-nav";
 import { useProductInteractionAdapter, type ProductMode } from "@subboost/ui/product/interactions";
+import { copyTextToClipboard } from "@subboost/ui/lib/clipboard";
 import { cn } from "@subboost/ui/lib/utils";
 import type { User } from "@subboost/ui/store/user-store";
 import type { AutoUpdateIntervalPolicy } from "@subboost/core/subscription/auto-update-interval";
@@ -112,8 +116,29 @@ export function HomeLayout({
   onTemplateUploadOpen,
 }: Props) {
   const [configTab, setConfigTab] = React.useState<"quick" | "advanced">(editSubscriptionId ? "advanced" : "quick");
+  const [yamlCopied, setYamlCopied] = React.useState(false);
+  const yamlCopyTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const interactions = useProductInteractionAdapter();
   const editorLoading = Boolean(editSubscriptionId && (!authChecked || isLoadingEditingSubscription));
+
+  React.useEffect(() => {
+    return () => {
+      if (yamlCopyTimerRef.current) clearTimeout(yamlCopyTimerRef.current);
+    };
+  }, []);
+
+  const handleCopyYaml = React.useCallback(async () => {
+    if (!generatedYaml || generatedYamlError) return;
+    const ok = await copyTextToClipboard(generatedYaml);
+    if (!ok) {
+      toast({ title: "复制失败", description: "当前浏览器不支持剪贴板写入", variant: "destructive" });
+      return;
+    }
+    setYamlCopied(true);
+    toast({ title: "已复制 YAML 配置", variant: "success" });
+    if (yamlCopyTimerRef.current) clearTimeout(yamlCopyTimerRef.current);
+    yamlCopyTimerRef.current = setTimeout(() => setYamlCopied(false), 2000);
+  }, [generatedYaml, generatedYamlError]);
 
   React.useEffect(() => {
     if (!editSubscriptionId) return;
@@ -277,9 +302,26 @@ export function HomeLayout({
               </CardHeader>
               <CardContent className={`pt-0 relative lg:flex-1 lg:overflow-hidden ${DESKTOP_PANEL_CONTENT_MIN_HEIGHT_CLASS}`}>
                 <TabsContent value="yaml" className="mt-0 data-[state=inactive]:hidden lg:absolute lg:inset-0">
-                  <div className="h-[clamp(420px,70vh,820px)] lg:h-full rounded-xl bg-code-panel border border-code-panel-border overflow-auto custom-scrollbar">
+                  <div className="relative h-[clamp(420px,70vh,820px)] lg:h-full rounded-xl bg-code-panel border border-code-panel-border overflow-hidden">
                     {/* 代码面板在浅色主题下也保持深色，内部按深色变量取色 */}
-                    <div data-theme="dark" className="contents">
+                    <div data-theme="dark" className="h-full overflow-auto custom-scrollbar">
+                    {generatedYaml && !generatedYamlError && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        aria-label={yamlCopied ? "已复制 YAML" : "复制 YAML"}
+                        onClick={() => void handleCopyYaml()}
+                        className="absolute right-3 top-3 z-10 h-8 gap-1.5 border-ink/15 bg-surface-raised/90 px-2.5 text-xs text-fg-80 backdrop-blur-sm hover:bg-surface-raised hover:text-fg"
+                      >
+                        {yamlCopied ? (
+                          <Check className="h-3.5 w-3.5 text-green-400" aria-hidden="true" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                        )}
+                        <span>{yamlCopied ? "已复制" : "复制 YAML"}</span>
+                      </Button>
+                    )}
                     {generatedYamlError ? (
                       <div className="h-full p-4 text-sm text-rose-200">
                         <div className="flex items-start gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3">
