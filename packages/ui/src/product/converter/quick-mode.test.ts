@@ -2,35 +2,25 @@ import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-const captures = vi.hoisted(() => ({ templatesSection: undefined as any }));
-
 vi.mock("./quick-mode/sources-section", () => ({
-  SourcesSection: () => React.createElement("div", null, "sources-section"),
+  SourcesSection: () => React.createElement("div", null, "sources"),
 }));
-
 vi.mock("./quick-mode/templates-section", () => ({
-  TemplatesSection: (props: any) => {
-    captures.templatesSection = props;
-    return React.createElement("div", null, "templates-section");
-  },
+  TemplatesSection: () => React.createElement("div", null, "templates"),
 }));
 
 import { QuickMode } from "./quick-mode";
 
 describe("QuickMode", () => {
-  it("renders sources before templates", () => {
-    const html = renderToStaticMarkup(React.createElement(QuickMode));
+  it("renders with and without advanced-mode guidance", () => {
+    const basicHtml = renderToStaticMarkup(React.createElement(QuickMode, {}));
+    expect(basicHtml).toContain("1 · 导入订阅或节点");
+    expect(basicHtml).not.toContain("切换到高级模式");
 
-    expect(html).toContain("sources-section");
-    expect(html).toContain("templates-section");
-    expect(html.indexOf("sources-section")).toBeLessThan(html.indexOf("templates-section"));
-  });
-
-  it("passes the template upload entry to the template picker", () => {
-    const templateUpload = { href: "/templates?upload=1", onOpen: vi.fn() };
-
-    renderToStaticMarkup(React.createElement(QuickMode, { templateUpload }));
-
-    expect(captures.templatesSection).toEqual({ templateUpload });
+    const onSwitchToAdvanced = vi.fn();
+    const guidedHtml = renderToStaticMarkup(
+      React.createElement(QuickMode, { onSwitchToAdvanced })
+    );
+    expect(guidedHtml).toContain("切换到高级模式");
   });
 });

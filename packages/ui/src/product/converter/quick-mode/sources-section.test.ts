@@ -584,4 +584,17 @@ describe("quick mode SourcesSection", () => {
     expect(mocks.store.parseSingleSource).not.toHaveBeenCalled();
     expect(stateMock.setters[1]).toHaveBeenCalledWith(null);
   });
+
+  it("auto-switches source type when pasting node links into an empty url source", () => {
+    mocks.store.sources = [{ id: "s-empty", type: "url", content: "" }];
+    renderSection();
+    mocks.captures.inputs[0].onChange({ target: { value: "vless://uuid@example.com:443#HK" } });
+    expect(mocks.store.setSources).toHaveBeenCalledWith([
+      expect.objectContaining({
+        id: "s-empty",
+        type: "nodes",
+        content: "vless://uuid@example.com:443#HK",
+      }),
+    ]);
+  });
 });

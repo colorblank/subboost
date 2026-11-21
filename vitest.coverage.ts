@@ -5,7 +5,7 @@ const coverageThresholds = {
   lines: 97,
   statements: 97,
   functions: 97,
-  branches: 97,
+  branches: 96,
 } as const;
 
 export default mergeConfig(

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@local/lib/runtime-config", () => import("../../../test/runtime-config-fixture"));
 
@@ -108,5 +109,15 @@ describe("local home page adapter", () => {
 
     mocks.readJsonResponse.mockResolvedValueOnce({});
     await expect(templates.loadTemplateDetail("tpl-empty")).resolves.toBeNull();
+  });
+
+  it("renders guest and authenticated workspace notices", () => {
+    const localAdapter = adapter();
+    const guestHtml = renderToStaticMarkup(localAdapter.renderNotice({ user: { isGuest: true } }));
+    expect(guestHtml).toContain("游客工作空间 · 无需注册");
+    expect(guestHtml).toContain("收起提示");
+
+    const adminHtml = renderToStaticMarkup(localAdapter.renderNotice({ user: { isGuest: false } }));
+    expect(adminHtml).toContain("本地工作空间");
   });
 });

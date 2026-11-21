@@ -52,6 +52,13 @@ describe("getSubscriptionUserInfoDisplay", () => {
       remaining: "997 GB",
       expire: "2026-12-15",
     });
+
+    expect(
+      getSubscriptionUserInfoDisplay(undefined, [infoNode("HK 01")])
+    ).toEqual({
+      traffic: null,
+      expire: null,
+    });
   });
 
   it("returns empty labels when no meaningful info is available", () => {

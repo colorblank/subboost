@@ -327,4 +327,21 @@ describe("HomeLayout", () => {
     expect(html).toContain("dns is invalid");
     expect(mocks.yamlHighlight).toBeUndefined();
   });
+
+  it("shows an error toast when copying YAML fails", async () => {
+    mocks.copyTextToClipboard.mockResolvedValueOnce(false);
+    renderToStaticMarkup(
+      React.createElement(HomeLayout, {
+        ...baseProps,
+        generatedYaml: "mixed-port: 7897",
+        generatedYamlError: null,
+        hasValidSources: true,
+      })
+    );
+
+    const copyButton = mocks.buttons.find((btn) => btn["aria-label"] === "复制 YAML");
+    expect(copyButton).toBeDefined();
+    await copyButton.onClick();
+    expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({ title: "复制失败", variant: "destructive" }));
+  });
 });
